@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>=LOVE（イコールラブ）| Interactive Fan Experience</title>
+    <meta name="description" content="=LOVE（イコールラブ）ファンサイト - 指原莉乃プロデュース声優アイドルグループ">
+    <link rel="stylesheet" href="style.css?v=20260210d">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader-content">
+            <svg class="loader-heart-svg" viewBox="0 0 100 90" width="80" height="72">
+                <path class="heart-path" d="M50,85 C25,60 0,40 0,25 A25,25,0,0,1,50,15 A25,25,0,0,1,100,25 C100,40 75,60 50,85Z" fill="none" stroke="#ff69b4" stroke-width="2"/>
+                <path class="heart-fill-path" d="M50,85 C25,60 0,40 0,25 A25,25,0,0,1,50,15 A25,25,0,0,1,100,25 C100,40 75,60 50,85Z" fill="url(#heartGrad)"/>
+                <defs>
+                    <linearGradient id="heartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ff69b4"/>
+                        <stop offset="100%" stop-color="#ff1493"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <h2 class="loader-text">=LOVE</h2>
+            <p class="loader-sub">LOADING EXPERIENCE...</p>
+            <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+            <div class="loader-percent">0%</div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-logo">
+            <img src="figure/logo.png" alt="=LOVE" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="logo-fallback" style="display:none">
+                <span class="logo-equal">=</span>
+                <span class="logo-love">LOVE</span>
+            </div>
+        </div>
+        <div class="nav-links">
+            <a href="#hero" class="nav-link active" data-text="HOME">HOME</a>
+            <a href="#about" class="nav-link" data-text="ABOUT">ABOUT</a>
+            <a href="#members" class="nav-link" data-text="MEMBERS">MEMBERS</a>
+            <a href="#music" class="nav-link" data-text="MUSIC">MUSIC</a>
+            <a href="#discography" class="nav-link" data-text="DISCOGRAPHY">DISCOGRAPHY</a>
+            <a href="#info" class="nav-link" data-text="INFO">INFO</a>
+        </div>
+        <div class="nav-hamburger" id="hamburger">
+            <span></span><span></span><span></span>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu">
+        <div class="mobile-menu-inner">
+            <a href="#hero" class="mobile-nav-link">HOME</a>
+            <a href="#about" class="mobile-nav-link">ABOUT</a>
+            <a href="#members" class="mobile-nav-link">MEMBERS</a>
+            <a href="#music" class="mobile-nav-link">MUSIC</a>
+            <a href="#discography" class="mobile-nav-link">DISCOGRAPHY</a>
+            <a href="#info" class="mobile-nav-link">INFO</a>
+        </div>
+    </div>
+
+    <!-- 3D Canvas -->
+    <canvas id="three-canvas"></canvas>
+
+    <!-- Penlight overlay effect -->
+    <div id="penlight-overlay"></div>
+
+    <!-- Slot Machine Overlay -->
+    <div id="slot-overlay" class="slot-overlay">
+        <button id="slot-overlay-close" class="slot-overlay-close">x</button>
+        <div class="slot-machine">
+            <div class="slot-title">=LOVE GACHA</div>
+            <div class="slot-subtitle">チケットを使って回そう（メンバーカードをタップで獲得）</div>
+            <div class="slot-ticket-display">🎫 <span id="slot-ticket-count-inner">0</span></div>
+            <div class="slot-pity-display" id="slot-pity-info"></div>
+            <div class="slot-reels">
+                <div class="slot-reel">?</div>
+                <div class="slot-reel">?</div>
+                <div class="slot-reel">?</div>
+            </div>
+            <div class="slot-result"></div>
+            <div class="slot-btn-row">
+                <button class="slot-spin-btn" onclick="spinSlot()">SPIN!</button>
+                <button class="slot-collection-btn" onclick="toggleCollection()">📦 コレクション</button>
+            </div>
+            <!-- コレクション表示 -->
+            <div id="gacha-collection" class="gacha-collection" style="display:none;">
+                <div class="gacha-collection-title">📦 コレクション</div>
+                <div class="gacha-collection-stats" id="gacha-stats"></div>
+                <div class="gacha-collection-grid" id="gacha-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Visualizer Bar -->
+    <div id="audio-visualizer">
+        <div class="viz-bar"></div><div class="viz-bar"></div><div class="viz-bar"></div>
+        <div class="viz-bar"></div><div class="viz-bar"></div><div class="viz-bar"></div>
+        <div class="viz-bar"></div><div class="viz-bar"></div><div class="viz-bar"></div>
+        <div class="viz-bar"></div><div class="viz-bar"></div><div class="viz-bar"></div>
+    </div>
+
+    <!-- Scroll Container -->
+    <div id="scroll-container">
+        <!-- Hero Section -->
+        <section id="hero" class="section">
+            <div class="hero-bg-wrapper">
+                <img src="figure/hero-bg.jpg" alt="" class="hero-bg-img" onerror="this.style.display='none'">
+                <div class="hero-bg-overlay"></div>
+            </div>
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="badge-pulse"></span>
+                    Produced by 指原莉乃
+                </div>
+                <h1 class="hero-title">
+                    <span class="title-line line-1" data-text="=LOVE">=LOVE</span>
+                    <span class="title-line line-2">イコールラブ</span>
+                </h1>
+                <p class="hero-subtitle">「アイドルという仕事を愛し、ファンに愛される」</p>
+                <p class="hero-tagline">— 声優アイドルグループ —</p>
+                <div class="hero-buttons">
+                    <a href="https://equal-love.jp/" target="_blank" class="btn-primary btn-glow">
+                        <span class="btn-bg"></span>
+                        <span class="btn-text">OFFICIAL SITE</span>
+                    </a>
+                    <a href="https://www.youtube.com/channel/UCv7VutirxDn3RWIJXI68n_A" target="_blank" class="btn-secondary">
+                        <span>▶ YouTube</span>
+                    </a>
+                    <button id="penlight-btn" class="btn-penlight" title="ペンライトモード">
+                        <span>PENLIGHT</span>
+                    </button>
+                    <button id="slot-btn" class="btn-slot" title="ガチャ">
+                        <span>GACHA <span id="slot-ticket-count" class="slot-ticket-badge">0</span></span>
+                    </button>
+                </div>
+                <div class="scroll-indicator">
+                    <div class="scroll-mouse">
+                        <div class="scroll-wheel"></div>
+                    </div>
+                    <span>SCROLL DOWN</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section">
+            <div class="section-content">
+                <h2 class="section-title">
+                    <span class="title-en glitch-text" data-text="ABOUT =LOVE">ABOUT =LOVE</span>
+                    <span class="title-jp">イコールラブについて</span>
+                </h2>
+                <div class="about-text-block">
+                    <p>=LOVE（イコールラブ）は、<strong>指原莉乃</strong>プロデュースによる<strong>10人組</strong>の声優アイドルグループ。2017年に代々木アニメーション学院から誕生。グループ名には「アイドルはファンに愛されなければならない」「アイドルという仕事を愛さなければならない」という意味が込められています。</p>
+                </div>
+
+                <!-- Timeline -->
+                <div class="timeline">
+                    <div class="timeline-item" data-delay="0">
+                        <div class="timeline-year">2017</div>
+                        <div class="timeline-content">
+                            <h4>グループ結成</h4>
+                            <p>代々木アニメーション学院より誕生。指原莉乃プロデュースの声優アイドルとしてデビュー。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-delay="200">
+                        <div class="timeline-year">2021</div>
+                        <div class="timeline-content">
+                            <h4>日本武道館ライブ</h4>
+                            <p>念願の日本武道館での単独コンサートを開催。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-delay="400">
+                        <div class="timeline-year">2024</div>
+                        <div class="timeline-content">
+                            <h4>さいたまスーパーアリーナ</h4>
+                            <p>初のさいたまスーパーアリーナ公演を成功させる。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item" data-delay="600">
+                        <div class="timeline-year">2026</div>
+                        <div class="timeline-content">
+                            <h4>国立競技場 2DAYS</h4>
+                            <p>MUFGスタジアム（国立競技場）での2DAYS公演が決定。最大の夢の舞台へ。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about-stats">
+                    <div class="stat-item" data-delay="0">
+                        <div class="stat-ring">
+                            <svg viewBox="0 0 120 120">
+                                <circle class="stat-ring-bg" cx="60" cy="60" r="54"/>
+                                <circle class="stat-ring-fill" cx="60" cy="60" r="54" data-percent="100"/>
+                            </svg>
+                            <div class="stat-inner">
+                                <div class="stat-number" data-target="10">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-label">メンバー</div>
+                    </div>
+                    <div class="stat-item" data-delay="150">
+                        <div class="stat-ring">
+                            <svg viewBox="0 0 120 120">
+                                <circle class="stat-ring-bg" cx="60" cy="60" r="54"/>
+                                <circle class="stat-ring-fill" cx="60" cy="60" r="54" data-percent="85"/>
+                            </svg>
+                            <div class="stat-inner">
+                                <div class="stat-number" data-target="8">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-label">年目</div>
+                    </div>
+                    <div class="stat-item" data-delay="300">
+                        <div class="stat-ring">
+                            <svg viewBox="0 0 120 120">
+                                <circle class="stat-ring-bg" cx="60" cy="60" r="54"/>
+                                <circle class="stat-ring-fill" cx="60" cy="60" r="54" data-percent="95"/>
+                            </svg>
+                            <div class="stat-inner">
+                                <div class="stat-number" data-target="19">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-label">シングル</div>
+                    </div>
+                    <div class="stat-item" data-delay="450">
+                        <div class="stat-ring">
+                            <svg viewBox="0 0 120 120">
+                                <circle class="stat-ring-bg" cx="60" cy="60" r="54"/>
+                                <circle class="stat-ring-fill" cx="60" cy="60" r="54" data-percent="75"/>
+                            </svg>
+                            <div class="stat-inner">
+                                <div class="stat-number" data-target="64">0</div>
+                            </div>
+                        </div>
+                        <div class="stat-label">万人 (YouTube)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Members Section -->
+        <section id="members" class="section">
+            <div class="section-content">
+                <h2 class="section-title">
+                    <span class="title-en glitch-text" data-text="MEMBERS">MEMBERS</span>
+                    <span class="title-jp">メンバー</span>
+                </h2>
+                <p class="members-instruction">メンバーカードをクリックで詳細表示 / ペンライトカラーが光ります</p>
+                <div class="members-grid">
+                    <div class="member-card" data-delay="0" data-color="#FFFFFF" data-color2="#C8A2C8" data-nickname="みりにゃ" data-birthday="1998.3.15" data-from="東京都" data-penlight="白 × 薄菫">
+                        <div class="member-img-wrapper">
+                            <img src="figure/member-otani.jpg" alt="大谷映美里" class="member-img" loading="lazy"
+                                 onerror="this.src='https://pbs.twimg.com/profile_images/1818633855685812224/ZWijhH6P_400x400.jpg'">
+                            <div class="member-glow"></div>
+                            <div class="member-overlay">
+                                <span class="member-nickname">みりにゃ</span>
+                            </div>
+                        </div>
+                        <div class="member-info">
+                            <h3>大谷 映美里</h3>
+                            <p class="member-name-en">OTANI EMIRI</p>
+                        </div>
+                        <div class="member-penlight-bar"></div>
+                    </div>
+                    <div class="member-card" data-delay="50" data-color="#FFA500" data-color2="#0000FF" data-nickname="はなちゃん" data-birthday="2000.2.4" data-from="埼玉県" data-penlight="オレンジ × 青">
+                        <div class="member-img-wrapper">
+                            <img src="figure/member-oba.jpg" alt="大場花菜" class="member-img" loading="lazy"
+                                 onerror="this.src='https://pbs.twimg.com/profile_images/1879542523045310464/fE3SRDzX_400x400.jpg'">
+                            <div class="member-glow"></div>
+                            <div class="member-overlay">
+                                <span class="member-nickname">はなちゃん</span>
+                            </div>
+                        </div>
+                        <div class="member-info">
+                            <h3>大場 花菜</h3>
+                            <p class="member-name-en">OBA HANA</p>
+                        </div>
+                        <div class="member-penlight-bar"></div>
+                    </div>
+                    <div class="member-card" data-delay="100" data-color="#87CEEB" data-color2="#FF1493" data-nickname="りさちゃん" data-birthday="1998.8.11" data-from="福岡県" data-penlight="水色 × 濃ピンク">
+                        <div class="member-img-wrapper">
+                            <img src="figure/member-otoshima.jpg" alt="音嶋莉沙" class="member-img" loading="lazy"
+                                 onerror="this.src='https://pbs.twimg.com/profile_images/1851976972223504384/XqoQFGqS_400x400.jpg'">
+                            <div class="member-glow"></div>
+                            <div class="member-overlay">
+                                <span class="member-nickname">りさちゃん</span>
+                            </div>
+                        </div>
+                        <div class="member-info">
+                            <h3>音嶋 莉沙</h3>
+                            <p class="member-name-en">OTOSHIMA RISA</p>
+                        </div>
+                        <div class="member-penlight-bar"></div>
+                    </div>
+                    <div class="member-card" data-delay="150" data-color="#FFB6C1" data-color2="#FFB6C1" data-nickname="きあら" data-birthday="2004.11.26" data-from="栃木県" data-penlight="薄ピンク">
+                        <div class="member-img-wrapper">
+                            <img src="figure/member-saito.jpg" alt="齋藤樹愛羅" class="member-img" loading="lazy"
+                                 onerror="this.src='https://pbs.twimg.com/profile_images/1866486085704101888/R1DJcjqW_400x400.jpg'">
+                            <div class="member-glow"></div>
+                            <div class="member-overlay">
+                                <span class="member-nickname">きあら</span>
+                            </div>
+                        </div>
+                        <div class="member-info">
+                            <h3>齋藤 樹愛羅</h3>
+                            <p class="member-name-en">SAITO KIARA</p>
+                        </div>
+                        <div class="member-penlight-bar"></div>
+                    </div>
+                    <div class="member-card" data-delay="200" data-color="#FFFFFF" data-color2="#FFFFFF" data-nickname="まいか" data-birthday="2000.1.21" data-from="愛知県" data-penlight="白">
+                        <div class="member-img-wrapper">
+                            <img src="figure/member-sasaki.jpg" alt="佐々木舞香" class="member-img" loading="lazy"
+                                 onerror="this.src='https://pbs.twimg.com/profile_images/1870083992760201217/HNFEhZ8D_400x400.jpg'">
+                            <div class="member-glow"></div>
+                            <div class="member-overlay">
+                                <span class="member-nickname">まいか</span>
+                            </div>
+                        </div>
+                        <div class="member-info">
+                            <h3>佐々木 舞香</h3>
+                            <p class="member-name-en">SASAKI MAIKA</p>
+                        </div>
+                        <div class="member-penlight-bar"></div>
+                    </div>
+                    <div class="member-card" data-delay="250" data-color="#FF0000" data-color2="#FF0000" data-nickname="ひとみん" data-birthday="2001.1.19" data-from="東京都" data-penlight="赤">
+                        <div class="member-img-wrapper">
+                            <img src="figure/member-takamatsu.jpg" alt="髙松瞳" class="member-img" loading="lazy"
+                                 onerror="this.src='https://pbs.twimg.com/profile_images/1869389973264908289/OV_WI_3K_400x400.jpg'">
+                            <div class="member-glow"></div>
+                            <div class="member-overlay">
+                                <span class="member-nickname">ひとみん</span>
+                            </div>
+                        </div>
+                        <div class="member-info">
+                            <h3>髙松 瞳</h3>
+                            <p class="member-name-en">TAKAMATSU HITOMI</p>
+                        </div>
+                        <div class="member-penlight-bar"></div>
+                    </div>
+                    <div class="member-card" data-delay="300" data-color="#FFD700" data-color2="#FF8C00" data-nickname="しょこ" data-birthday="2001.7.9" data-from="神奈川県" data-penlight="黄 × オレンジ × 濃ピンク">
+                        <div class="member-img-wrapper">
+                            <img src="figure/member-takiwaki.jpg" alt="瀧脇笙古" class="member-img" loading="lazy"
+                                 onerror="this.src='https://pbs.twimg.com/profile_images/1870094782171095040/h_b2SJLP_400x400.jpg'">
+                            <div class="member-glow"></div>
+                            <div class="member-overlay">
+                                <span class="member-nickname">しょこ</span>
+                            </div>
+                        </div>
+                        <div class="member-info">
+                            <h3>瀧脇 笙古</h3>
+                            <p class="member-name-en">TAKIWAKI SHOKO</p>
+                        </div>
+                        <div class="member-penlight-bar"></div>
+                    </div>
+                    <div class="member-card" data-delay="350" data-color="#800080" data-color2="#800080" data-nickname="いおりん" data-birthday="2000.4.26" data-from="茨城県" data-penlight="紫">
+                        <div class="member-img-wrapper">
+                            <img src="figure/member-noguchi.jpg" alt="野口衣織" class="member-img" loading="lazy"
+                                 onerror="this.src='https://pbs.twimg.com/profile_images/1870085271779803136/uuPJtKWe_400x400.jpg'">
+                            <div class="member-glow"></div>
+                            <div class="member-overlay">
+                                <span class="member-nickname">いおりん</span>
+                            </div>
+                        </div>
+                        <div class="member-info">
+                            <h3>野口 衣織</h3>
+                            <p class="member-name-en">NOGUCHI IORI</p>
+                        </div>
+                        <div class="member-penlight-bar"></div>
+                    </div>
+                    <div class="member-card" data-delay="400" data-color="#008000" data-color2="#008000" data-nickname="さなつん" data-birthday="1996.8.3" data-from="福島県" data-penlight="緑">
+                        <div class="member-img-wrapper">
+                            <img src="figure/member-morohashi.jpg" alt="諸橋沙夏" class="member-img" loading="lazy"
+                                 onerror="this.src='https://pbs.twimg.com/profile_images/1870085805345849344/TjkHn7oP_400x400.jpg'">
+                            <div class="member-glow"></div>
+                            <div class="member-overlay">
+                                <span class="member-nickname">さなつん</span>
+                            </div>
+                        </div>
+                        <div class="member-info">
+                            <h3>諸橋 沙夏</h3>
+                            <p class="member-name-en">MOROHASHI SANA</p>
+                        </div>
+                        <div class="member-penlight-bar"></div>
+                    </div>
+                    <div class="member-card" data-delay="450" data-color="#FFD700" data-color2="#0000FF" data-nickname="あんにゃ ★リーダー" data-birthday="1997.11.30" data-from="広島県" data-penlight="黄 × 青 ★リーダー">
+                        <div class="member-img-wrapper">
+                            <img src="figure/member-yamamoto.jpg" alt="山本杏奈" class="member-img" loading="lazy"
+                                 onerror="this.src='https://pbs.twimg.com/profile_images/1870085542723715072/5x2C8IIb_400x400.jpg'">
+                            <div class="member-glow"></div>
+                            <div class="member-overlay">
+                                <span class="member-nickname">あんにゃ ★リーダー</span>
+                            </div>
+                        </div>
+                        <div class="member-info">
+                            <h3>山本 杏奈</h3>
+                            <p class="member-name-en">YAMAMOTO ANNA</p>
+                        </div>
+                        <div class="member-penlight-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Member Detail Modal -->
+        <div id="member-modal" class="modal">
+            <div class="modal-backdrop"></div>
+            <div class="modal-content">
+                <button class="modal-close">&times;</button>
+                <!-- 3D Canvas for member particles -->
+                <canvas id="modal-3d-canvas" class="modal-3d-canvas"></canvas>
+                <div class="modal-body">
+                    <div class="modal-img-wrapper">
+                        <img id="modal-img" src="" alt="" class="modal-img">
+                        <div class="modal-penlight-glow"></div>
+                    </div>
+                    <div class="modal-info">
+                        <h2 id="modal-name"></h2>
+                        <p id="modal-name-en" class="modal-name-en"></p>
+                        <div class="modal-details">
+                            <div class="modal-detail-row">
+                                <span class="detail-label">ニックネーム</span>
+                                <span id="modal-nickname" class="detail-value"></span>
+                            </div>
+                            <div class="modal-detail-row">
+                                <span class="detail-label">生年月日</span>
+                                <span id="modal-birthday" class="detail-value"></span>
+                            </div>
+                            <div class="modal-detail-row">
+                                <span class="detail-label">出身地</span>
+                                <span id="modal-from" class="detail-value"></span>
+                            </div>
+                            <div class="modal-detail-row">
+                                <span class="detail-label">身長</span>
+                                <span id="modal-height" class="detail-value"></span>
+                            </div>
+                            <div class="modal-detail-row">
+                                <span class="detail-label">血液型</span>
+                                <span id="modal-blood" class="detail-value"></span>
+                            </div>
+                            <div class="modal-detail-row">
+                                <span class="detail-label">ペンライト</span>
+                                <span id="modal-penlight" class="detail-value"></span>
+                            </div>
+                            <div class="modal-detail-row">
+                                <span class="detail-label">ファン名</span>
+                                <span id="modal-fanname" class="detail-value"></span>
+                            </div>
+                        </div>
+                        <div id="modal-color-preview" class="modal-color-preview">
+                            <div class="color-swatch" id="swatch-1"></div>
+                            <div class="color-swatch" id="swatch-2"></div>
+                        </div>
+                        <!-- Extended info tabs -->
+                        <div class="modal-tabs">
+                            <button class="modal-tab active" data-tab="profile">PROFILE</button>
+                            <button class="modal-tab" data-tab="trivia">TRIVIA</button>
+                            <button class="modal-tab" data-tab="history">HISTORY</button>
+                        </div>
+                        <div class="modal-tab-content active" id="tab-profile">
+                            <div class="modal-ext-row">
+                                <span class="ext-label">役割</span>
+                                <span id="modal-role" class="ext-value"></span>
+                            </div>
+                            <div class="modal-ext-row">
+                                <span class="ext-label">経歴</span>
+                                <span id="modal-career" class="ext-value"></span>
+                            </div>
+                            <div class="modal-ext-row">
+                                <span class="ext-label">センター曲</span>
+                                <span id="modal-center" class="ext-value"></span>
+                            </div>
+                            <div class="modal-ext-row">
+                                <span class="ext-label">ソロ活動</span>
+                                <span id="modal-solo" class="ext-value"></span>
+                            </div>
+                        </div>
+                        <div class="modal-tab-content" id="tab-trivia">
+                            <div id="modal-trivia-list" class="trivia-list"></div>
+                        </div>
+                        <div class="modal-tab-content" id="tab-history">
+                            <div id="modal-history-text" class="history-text"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Music Section (YouTube MV Player) -->
+        <section id="music" class="section">
+            <div class="section-content">
+                <h2 class="section-title">
+                    <span class="title-en glitch-text" data-text="MUSIC">MUSIC</span>
+                    <span class="title-jp">ミュージック</span>
+                </h2>
+                <p class="music-description">カードをクリックしてMVを再生 — 背景の3Dエフェクトが音楽に連動します</p>
+                <div id="music-grid" class="music-grid"></div>
+
+                <!-- Now Playing Bar -->
+                <div id="music-now-playing" class="music-now-playing">
+                    <div class="now-playing-inner">
+                        <div class="now-playing-pulse"></div>
+                        <span class="now-playing-label">NOW PLAYING</span>
+                        <span id="now-playing-title" class="now-playing-title">---</span>
+                        <button id="music-pause" class="music-pause-btn">⏸</button>
+                    </div>
+                </div>
+
+
+            </div>
+        </section>
+
+        <!-- Discography Section -->
+        <section id="discography" class="section">
+            <div class="section-content">
+                <h2 class="section-title">
+                    <span class="title-en glitch-text" data-text="DISCOGRAPHY">DISCOGRAPHY</span>
+                    <span class="title-jp">ディスコグラフィー</span>
+                </h2>
+                <div class="disco-carousel">
+                    <button class="carousel-btn prev" id="disco-prev">‹</button>
+                    <div class="disco-track-wrapper">
+                        <div class="disco-track" id="disco-track">
+                            <div class="disco-slide" data-delay="0">
+                                <div class="disco-jacket">
+                                    <img src="figure/cd-20th.jpg" alt="20th Single" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                    <div class="jacket-placeholder" style="display:none"><span>20th</span></div>
+                                    <div class="disco-badge new">NEW</div>
+                                </div>
+                                <div class="disco-info">
+                                    <div class="disco-number">20th Single</div>
+                                    <h3>タイトル未定</h3>
+                                    <p>2026.4.1 発売予定</p>
+                                </div>
+                            </div>
+                            <div class="disco-slide" data-delay="50">
+                                <div class="disco-jacket">
+                                    <img src="figure/cd-19th.jpg" alt="19th Single" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                    <div class="jacket-placeholder" style="display:none"><span>19th</span></div>
+                                </div>
+                                <div class="disco-info">
+                                    <div class="disco-number">19th Single</div>
+                                    <h3>ラブソングに襲われる</h3>
+                                    <p>2025.10.8</p>
+                                </div>
+                            </div>
+                            <div class="disco-slide" data-delay="100">
+                                <div class="disco-jacket">
+                                    <img src="figure/cd-18th.jpg" alt="18th Single" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                    <div class="jacket-placeholder" style="display:none"><span>18th</span></div>
+                                </div>
+                                <div class="disco-info">
+                                    <div class="disco-number">18th Single</div>
+                                    <h3>とくべチュ、して / 恋人以上、好き未満</h3>
+                                    <p>2025.2.26</p>
+                                </div>
+                            </div>
+                            <div class="disco-slide" data-delay="150">
+                                <div class="disco-jacket">
+                                    <img src="figure/cd-17th.jpg" alt="17th Single" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                    <div class="jacket-placeholder" style="display:none"><span>17th</span></div>
+                                </div>
+                                <div class="disco-info">
+                                    <div class="disco-number">17th Single</div>
+                                    <h3>絶対アイドル辞めないで</h3>
+                                    <p>2024.7.31</p>
+                                </div>
+                            </div>
+                            <div class="disco-slide">
+                                <div class="disco-jacket">
+                                     <img src="figure/cd-16th.jpg" alt="16th Single" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                    <div class="jacket-placeholder"><span>16th</span></div>
+                                </div>
+                                <div class="disco-info">
+                                    <div class="disco-number">16th Single</div>
+                                    <h3>呪って呪って</h3>
+                                    <p>2024.3.6</p>
+                                </div>
+                            </div>
+                            <div class="disco-slide">
+                                <div class="disco-jacket">
+                                    <div class="jacket-placeholder"><span>15th</span></div>
+                                </div>
+                                <div class="disco-info">
+                                    <!-- <img src="figure/cd-15th.jpg" alt="15th Single" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"> -->
+                                    <div class="disco-number">15th Single</div>
+                                    <h3>ラストノートしか知らない</h3>
+                                    <p>2023.11.29</p>
+                                </div>
+                            </div>
+                            <div class="disco-slide">
+                                <div class="disco-jacket">
+                                    <div class="jacket-placeholder"><span>14th</span></div>
+                                </div>
+                                <div class="disco-info">
+                                    <!-- <img src="figure/cd-14th.jpg" alt="14th Single" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"> -->
+                                    <div class="disco-number">14th Single</div>
+                                    <h3>ナツマトペ</h3>
+                                    <p>2023.7.19</p>
+                                </div>
+                            </div>
+                            <div class="disco-slide">
+                                <div class="disco-jacket">
+                                    <div class="jacket-placeholder"><span>13th</span></div>
+                                </div>
+                                <div class="disco-info">
+                                    <!-- <img src="figure/cd-13th.jpg" alt="13th Single" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"> -->
+                                    <div class="disco-number">13th Single</div>
+                                    <h3>この空がトリガー</h3>
+                                    <p>2023.2.22</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="carousel-btn next" id="disco-next">›</button>
+                </div>
+                <div class="disco-dots" id="disco-dots"></div>
+                <div class="disco-more">
+                    <a href="https://equal-love.jp/discography" target="_blank" class="btn-secondary">VIEW ALL DISCOGRAPHY →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Info Section -->
+        <section id="info" class="section">
+            <div class="section-content">
+                <h2 class="section-title">
+                    <span class="title-en glitch-text" data-text="UPCOMING">UPCOMING</span>
+                    <span class="title-jp">最新情報</span>
+                </h2>
+                <div class="info-grid">
+                    <div class="info-card highlight" data-delay="0">
+                        <div class="info-card-bg info-card-bg-gradient"></div>
+                        <div class="info-card-content">
+                            <div class="info-badge">BIG EVENT</div>
+                            <div class="info-date">2026.6.20-21</div>
+                            <h3>=LOVE STADIUM LIVE</h3>
+                            <p>MUFGスタジアム（国立競技場）にて2DAYS開催決定！<br>チケット先行受付中</p>
+                            <div class="countdown" id="countdown">
+                                <div class="countdown-item"><span id="cd-days">--</span><small>DAYS</small></div>
+                                <div class="countdown-item"><span id="cd-hours">--</span><small>HOURS</small></div>
+                                <div class="countdown-item"><span id="cd-mins">--</span><small>MINS</small></div>
+                                <div class="countdown-item"><span id="cd-secs">--</span><small>SECS</small></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-card" data-delay="100">
+                        <div class="info-card-icon">♪</div>
+                        <div class="info-card-content">
+                            <div class="info-badge-small">RELEASE</div>
+                            <div class="info-date">2026.4.1</div>
+                            <h3>20thシングル発売</h3>
+                            <p>記念すべき20枚目のシングルが発売予定</p>
+                        </div>
+                    </div>
+                    <div class="info-card" data-delay="200">
+                        <div class="info-card-icon">♫</div>
+                        <div class="info-card-content">
+                            <div class="info-badge-small live">LIVE</div>
+                            <div class="info-date">開催中</div>
+                            <h3>8th ANNIVERSARY TOUR</h3>
+                            <p>全国9か所をまわるアニバーサリーツアー（〜2026年4月19日）</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sister-groups">
+                    <h3 class="sister-title">SISTER GROUPS</h3>
+                    <div class="sister-grid">
+                        <a href="https://not-equal-me.jp/" target="_blank" class="sister-card">
+                            <span class="sister-name">≠ME</span>
+                            <span class="sister-label">ノットイコールミー</span>
+                        </a>
+                        <a href="https://nearly-equal-joy.jp/" target="_blank" class="sister-card">
+                            <span class="sister-name">≒JOY</span>
+                            <span class="sister-label">ニアリーイコールジョイ</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="links-section">
+                    <h3 class="sister-title">OFFICIAL LINKS</h3>
+                    <div class="social-links">
+                        <a href="https://equal-love.jp/" target="_blank" class="social-link"><span class="social-icon">○</span> Official Site</a>
+                        <a href="https://twitter.com/Equal_LOVE_12" target="_blank" class="social-link"><span class="social-icon">𝕏</span> X (Twitter)</a>
+                        <a href="https://www.instagram.com/equal_love.official/" target="_blank" class="social-link"><span class="social-icon">■</span> Instagram</a>
+                        <a href="https://www.youtube.com/channel/UCv7VutirxDn3RWIJXI68n_A" target="_blank" class="social-link"><span class="social-icon">▶</span> YouTube</a>
+                        <a href="https://www.tiktok.com/@equal_love_12" target="_blank" class="social-link"><span class="social-icon">♪</span> TikTok</a>
+                        <a href="https://open.spotify.com/artist/1j2WhcTW00Zd2SjFYsJVc6" target="_blank" class="social-link"><span class="social-icon">♫</span> Spotify</a>
+                    </div>
+                </div>
+
+                <footer class="footer">
+                    <p>This is an unofficial fan site. All rights belong to =LOVE, 代々木アニメーション学院, and Sony Music.</p>
+                    <p class="footer-heart">Built with Three.js ♡ 2026</p>
+                </footer>
+            </div>
+        </section>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div id="cursor-follower">
+        <div class="cursor-dot"></div>
+    </div>
+    <div id="cursor-trail"></div>
+
+    <!-- Floating Action Button -->
+    <div id="fab-container">
+        <button id="fab-top" class="fab" title="トップへ戻る">↑</button>
+    </div>
+
+    <!-- Video Overlay (コンパクトミニバー) -->\n    <div id=\"video-overlay\" class=\"video-overlay\">\n        <div id=\"video-overlay-title\" class=\"video-overlay-title\"></div>\n        <div class=\"video-overlay-controls\">\n            <button id=\"video-skip-btn\" class=\"video-control-btn\" title=\"次の曲\">⏭</button>\n            <button id=\"video-autoplay-btn\" class=\"video-control-btn active\" title=\"自動再生 ON\">⟳</button>\n        </div>\n        <button id=\"video-overlay-close\" class=\"video-overlay-close\" title=\"閉じる\">✕</button>\n    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module" src="main.js?v=20260210d"></script>
+</body>
+</html>
