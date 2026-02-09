@@ -111,7 +111,7 @@ setTimeout(() => {
             e.stopPropagation();
             exploreCollapsed = !exploreCollapsed;
             helpBody.style.display = exploreCollapsed ? 'none' : 'block';
-            collapseBtn.textContent = exploreCollapsed ? '▶' : '▼';
+            collapseBtn.innerHTML = exploreCollapsed ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>' : '<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>';
             collapseBtn.title = exploreCollapsed ? '展開' : '折りたたみ';
         });
     }
@@ -1643,17 +1643,20 @@ function playMV(videoId, title) {
         ytPlayer = new YT.Player('stage-video-iframe', {
             videoId: videoId,
             playerVars: {
-                autoplay: 1, rel: 0, modestbranding: 1, enablejsapi: 1, controls: 1,
+                autoplay: 1, mute: 1, rel: 0, modestbranding: 1, enablejsapi: 1, controls: 1,
                 playsinline: 1,
                 origin: window.location.origin,
             },
             events: {
                 onReady: (event) => {
-                    // モバイルではミュートで自動再生開始し、少し待ってからアンミュート
+                    // 全環境で確実に再生開始
                     if (isMobile) {
                         event.target.mute();
-                        event.target.playVideo();
-                        setTimeout(() => { try { event.target.unMute(); } catch(e) {} }, 800);
+                    }
+                    event.target.playVideo();
+                    if (isMobile) {
+                        // モバイルではミュートで再生開始し、少し待ってアンミュート
+                        setTimeout(() => { try { event.target.unMute(); event.target.setVolume(100); } catch(e) {} }, 1200);
                     }
                 },
                 onStateChange: (event) => {
@@ -1693,7 +1696,7 @@ function playMV(videoId, title) {
         const oldIframe = videoOverlay.querySelector('iframe');
         if (oldIframe) { oldIframe.src = ''; oldIframe.remove(); }
         const titleBar = document.getElementById('video-overlay-title');
-        if (titleBar) titleBar.textContent = '♪ ' + title;
+        if (titleBar) titleBar.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:4px"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55C7.79 13 6 14.79 6 17s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>' + title;
         videoOverlay.classList.add('active');
     }
 
@@ -1875,17 +1878,20 @@ if (autoPlayBtn) {
 document.getElementById('music-pause')?.addEventListener('click', () => {
     const iframe = stageVideoIframe || document.getElementById('active-video-iframe');
     if (!iframe) return;
+    const pauseBtn = document.getElementById('music-pause');
     if (isMusicPlaying) {
         // postMessage で一時停止を送信
         iframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+        if (ytPlayer && ytPlayer.pauseVideo) { try { ytPlayer.pauseVideo(); } catch(e) {} }
         isMusicPlaying = false;
         musicBeat = 0;
-        document.getElementById('music-pause').textContent = '▶';
+        if (pauseBtn) pauseBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
     } else {
         iframe.contentWindow?.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        if (ytPlayer && ytPlayer.playVideo) { try { ytPlayer.playVideo(); } catch(e) {} }
         isMusicPlaying = true;
         startFakeAnalyser();
-        document.getElementById('music-pause').textContent = '⏸';
+        if (pauseBtn) pauseBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
     }
 });
 

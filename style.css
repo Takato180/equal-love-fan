@@ -1275,7 +1275,7 @@ button { border: none; background: none; cursor: none; font-family: inherit; }
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5),
                 0 0 20px rgba(255, 105, 180, 0.1);
-    overflow: hidden;
+    overflow: visible;
     display: flex;
     align-items: center;
     gap: 0;
@@ -1543,16 +1543,28 @@ body.modal-open #fab-container {
 
 .modal-close {
     position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 2rem;
-    color: rgba(255, 255, 255, 0.7);
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    font-size: 1.5rem;
+    color: #fff;
     z-index: 10;
-    transition: color 0.3s;
+    transition: all 0.3s;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
 }
 
 .modal-close:hover {
-    color: #ff69b4;
+    color: #fff;
+    background: rgba(255, 105, 180, 0.6);
+    border-color: #ff69b4;
 }
 
 .modal-body {
@@ -2251,10 +2263,11 @@ body.modal-open #fab-container {
     .stat-label { font-size: 0.6rem; }
     .about-text-block p { font-size: 0.88rem; line-height: 2; }
     .about-stats { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .modal-content { max-width: 95vw; max-height: 90vh; }
+    .modal-content { max-width: 95vw; max-height: 88vh; margin-top: 50px; }
     .modal-body { flex-direction: column; }
-    .modal-img-wrapper { width: 100%; height: 220px; }
+    .modal-img-wrapper { width: 100%; height: 180px; }
     .modal-img { min-height: auto; }
+    .modal-close { top: 8px; right: 8px; width: 40px; height: 40px; font-size: 1.6rem; background: rgba(0,0,0,0.7); }
     .modal-info { padding: 20px 16px; }
     .modal-info h2 { font-size: 1.3rem; }
     .countdown { flex-wrap: wrap; gap: 8px; }
@@ -2265,8 +2278,22 @@ body.modal-open #fab-container {
     .music-now-playing { bottom: 50px; }
     .now-playing-inner { padding: 8px 16px; }
     .now-playing-title { max-width: 150px; font-size: 0.75rem; }
-    .video-overlay { max-width: 92vw; bottom: 12px; left: 4vw; }
-    .video-overlay-close { top: 6px; right: 6px; width: 30px; height: 30px; font-size: 0.8rem; }
+    .video-overlay {
+        max-width: 94vw;
+        width: 94vw;
+        bottom: 10px;
+        left: 3vw;
+        transform: translateX(0) translateY(20px);
+        padding: 8px 10px 8px 14px;
+        border-radius: 28px;
+        overflow: visible;
+    }
+    .video-overlay.active {
+        transform: translateX(0) translateY(0);
+    }
+    .video-overlay-title { font-size: 0.68rem; min-width: 0; flex-shrink: 1; }
+    .video-overlay-close { width: 32px; height: 32px; min-width: 32px; }
+    .video-control-btn { width: 34px; height: 34px; min-width: 34px; }
     .timeline { padding-left: 30px; }
     .timeline::before { left: 12px; }
     .timeline-item { padding-left: 25px; margin-bottom: 30px; }
@@ -2651,17 +2678,25 @@ body.modal-open #fab-container {
 @media (max-width: 768px) {
     .modal-content {
         max-width: 95%;
-        max-height: 85vh;
+        max-height: 88vh;
+        margin-top: 50px;
     }
     .modal-body {
         flex-direction: column;
     }
     .modal-img-wrapper {
         width: 100%;
-        max-height: 200px;
+        max-height: 180px;
     }
     .modal-img {
-        min-height: 200px;
+        min-height: 180px;
+    }
+    .modal-close {
+        top: 8px;
+        right: 8px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.6rem;
     }
     .modal-info {
         padding: 20px 15px;
@@ -2699,9 +2734,21 @@ body.modal-open #fab-container {
 
     /* 動画オーバーレイをスマホではフル幅 */
     .video-overlay {
-        max-width: 92vw !important;
-        bottom: 12px !important;
+        max-width: 94vw !important;
+        width: 94vw !important;
+        bottom: 10px !important;
+        left: 3vw !important;
+        transform: translateX(0) translateY(20px) !important;
+        padding: 8px 10px 8px 14px !important;
+        border-radius: 28px !important;
+        overflow: visible !important;
     }
+    .video-overlay.active {
+        transform: translateX(0) translateY(0) !important;
+    }
+    .video-overlay-title { font-size: 0.68rem !important; }
+    .video-control-btn { width: 34px !important; height: 34px !important; min-width: 34px !important; }
+    .video-overlay-close { width: 32px !important; height: 32px !important; min-width: 32px !important; }
 
     /* ボーナスポップアップをスマホ中央に */
     .member-bonus-popup {
