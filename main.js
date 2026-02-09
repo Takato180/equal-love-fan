@@ -1516,6 +1516,73 @@ const songThemes = {
         mood: 'normal', laserSpeed: 1.0, strobeChance: 0.25,
         shaderTint: [1.0, 0.35, 0.55], cameraShake: 0.008,
     },
+    // ===== カップリング・配信・ソロ・コラボ・特別映像 =====
+    '1Cy9oaBAxns': { // 内緒バナシ (配信)
+        name: 'naishobanashi', bpm: 126, intensity: 0.95,
+        primary: [0.9, 0.4, 0.7], secondary: [0.7, 0.3, 0.85], accent: [1.0, 0.7, 0.9],
+        mood: 'sweet', laserSpeed: 0.8, strobeChance: 0.15,
+        shaderTint: [0.85, 0.4, 0.7], cameraShake: 0.005,
+    },
+    'p-jc9qMpBb4': { // 恋人以上、好き未満 (18th c/w)
+        name: 'koibitoijou', bpm: 118, intensity: 0.9,
+        primary: [1.0, 0.6, 0.7], secondary: [0.95, 0.4, 0.55], accent: [1.0, 0.85, 0.8],
+        mood: 'sweet', laserSpeed: 0.7, strobeChance: 0.1,
+        shaderTint: [1.0, 0.55, 0.65], cameraShake: 0.004,
+    },
+    'Jsz-Hzb4fyY': { // 好きって、言えなかった (12th c/w)
+        name: 'sukitte', bpm: 80, intensity: 0.75,
+        primary: [0.6, 0.7, 1.0], secondary: [0.85, 0.75, 1.0], accent: [1.0, 0.9, 1.0],
+        mood: 'emotional', laserSpeed: 0.4, strobeChance: 0.05,
+        shaderTint: [0.65, 0.7, 1.0], cameraShake: 0.003,
+    },
+    'juImxVpogRY': { // 君と私の歌 (7th c/w)
+        name: 'kimitowatashi', bpm: 88, intensity: 0.8,
+        primary: [1.0, 0.8, 0.5], secondary: [1.0, 0.6, 0.7], accent: [1.0, 0.95, 0.8],
+        mood: 'emotional', laserSpeed: 0.5, strobeChance: 0.05,
+        shaderTint: [1.0, 0.75, 0.55], cameraShake: 0.003,
+    },
+    'E8OqOUTLesg': { // 推しのいる世界 (6th c/w)
+        name: 'oshinoiru', bpm: 136, intensity: 1.1,
+        primary: [1.0, 0.5, 0.3], secondary: [1.0, 0.8, 0.4], accent: [1.0, 0.95, 0.6],
+        mood: 'cheerful', laserSpeed: 1.0, strobeChance: 0.2,
+        shaderTint: [1.0, 0.55, 0.35], cameraShake: 0.007,
+    },
+    '3qUaLsDj__M': { // おかえり、花便り (山本杏奈ソロ)
+        name: 'okaeri', bpm: 78, intensity: 0.7,
+        primary: [1.0, 0.75, 0.85], secondary: [0.85, 0.6, 0.75], accent: [1.0, 0.9, 0.95],
+        mood: 'emotional', laserSpeed: 0.4, strobeChance: 0.03,
+        shaderTint: [1.0, 0.7, 0.8], cameraShake: 0.002,
+    },
+    'mxKcIpKgwP0': { // 宝物はグリーン (諸橋沙夏ソロ)
+        name: 'takaramono', bpm: 116, intensity: 0.85,
+        primary: [0.3, 0.9, 0.5], secondary: [0.5, 1.0, 0.7], accent: [0.8, 1.0, 0.4],
+        mood: 'cheerful', laserSpeed: 0.7, strobeChance: 0.1,
+        shaderTint: [0.35, 0.85, 0.5], cameraShake: 0.004,
+    },
+    'aC4CdVDFzB4': { // 次に会えた時 何を話そうかな (=LOVE/≠ME合同)
+        name: 'tsugini', bpm: 128, intensity: 1.0,
+        primary: [0.7, 0.5, 1.0], secondary: [1.0, 0.6, 0.8], accent: [0.9, 0.8, 1.0],
+        mood: 'sweet', laserSpeed: 0.9, strobeChance: 0.15,
+        shaderTint: [0.75, 0.55, 1.0], cameraShake: 0.006,
+    },
+    'gkabNNfTjX4': { // トリプルデート (イコノイジョイ)
+        name: 'tripledate', bpm: 148, intensity: 1.25,
+        primary: [1.0, 0.45, 0.1], secondary: [1.0, 0.7, 0.3], accent: [1.0, 0.95, 0.5],
+        mood: 'energetic', laserSpeed: 1.3, strobeChance: 0.35,
+        shaderTint: [1.0, 0.5, 0.15], cameraShake: 0.012,
+    },
+    'FdfipkGBLd0': { // あの子コンプレックス THE FIRST TAKE
+        name: 'anoko_tft', bpm: 140, intensity: 0.9,
+        primary: [1.0, 1.0, 1.0], secondary: [0.85, 0.85, 0.9], accent: [1.0, 0.7, 0.85],
+        mood: 'dramatic', laserSpeed: 0.8, strobeChance: 0.1,
+        shaderTint: [0.95, 0.9, 0.95], cameraShake: 0.006,
+    },
+    '90ghDaXOygs': { // 絶対アイドル辞めないで THE FIRST TAKE
+        name: 'zettai_tft', bpm: 178, intensity: 1.2,
+        primary: [1.0, 1.0, 1.0], secondary: [1.0, 0.85, 0.9], accent: [1.0, 0.3, 0.5],
+        mood: 'explosive', laserSpeed: 1.5, strobeChance: 0.35,
+        shaderTint: [1.0, 0.95, 0.95], cameraShake: 0.015,
+    },
 };
 // デフォルトテーマ
 const defaultTheme = {
@@ -1527,49 +1594,96 @@ const defaultTheme = {
 
 // MV list with YouTube video IDs (新しい順 → 19th～1st 全シングル順番通り)
 const mvList = [
-    { id: '_cf4UTe1qrY', title: 'ラブソングに襲われる', single: '19th Single', year: '2025' },
-    { id: 'F3P8vcZkIh4', title: 'とくべチュ、して', single: '18th Single', year: '2025' },
-    { id: '17NBPoc78oM', title: '絶対アイドル辞めないで', single: '17th Single', year: '2024' },
-    { id: 'cyRZGtNx_a4', title: '呪って呪って', single: '16th Single', year: '2024' },
-    { id: 'C8WMX7dEH7Y', title: 'ラストノートしか知らない', single: '15th Single', year: '2023' },
-    { id: 'Y1Bboo5KXL4', title: 'ナツマトペ', single: '14th Single', year: '2023' },
-    { id: '20QJax8CwQo', title: 'この空がトリガー', single: '13th Single', year: '2023' },
-    { id: 'suf7S4AKdmY', title: 'Be Selfish', single: '12th Single', year: '2022' },
-    { id: 'ShbfYtAPXuI', title: 'あの子コンプレックス', single: '11th Single', year: '2022' },
-    { id: 'Q1-yYjZqk7o', title: 'The 5th', single: '10th Single', year: '2021' },
-    { id: 'skgh3juWdFU', title: 'ウィークエンドシトロン', single: '9th Single', year: '2021' },
-    { id: '8id6i_QeNJM', title: '青春"サブリミナル"', single: '8th Single', year: '2020' },
-    { id: 'iEYwHScdJFQ', title: 'CAMEO', single: '7th Single', year: '2020' },
-    { id: 'J5eTB_0SEeg', title: 'ズルいよ ズルいね', single: '6th Single', year: '2019' },
-    { id: 'Mq_wPiAJO7Q', title: '探せ ダイヤモンドリリー', single: '5th Single', year: '2019' },
-    { id: 'Bot92Nn-ozk', title: 'Want you! Want you!', single: '4th Single', year: '2018' },
-    { id: 'w0N0TiOlAY0', title: '手遅れcaution', single: '3rd Single', year: '2018' },
-    { id: 'YIjPbF-dKQA', title: '僕らの制服クリスマス', single: '2nd Single', year: '2017' },
-    { id: 'xOAaBsPaPpY', title: '=LOVE', single: '1st Single', year: '2017' },
+    { id: '_cf4UTe1qrY', title: 'ラブソングに襲われる', single: '19th Single', year: '2025', type: 'single' },
+    { id: 'F3P8vcZkIh4', title: 'とくべチュ、して', single: '18th Single', year: '2025', type: 'single' },
+    { id: '17NBPoc78oM', title: '絶対アイドル辞めないで', single: '17th Single', year: '2024', type: 'single' },
+    { id: 'cyRZGtNx_a4', title: '呪って呪って', single: '16th Single', year: '2024', type: 'single' },
+    { id: 'C8WMX7dEH7Y', title: 'ラストノートしか知らない', single: '15th Single', year: '2023', type: 'single' },
+    { id: 'Y1Bboo5KXL4', title: 'ナツマトペ', single: '14th Single', year: '2023', type: 'single' },
+    { id: '20QJax8CwQo', title: 'この空がトリガー', single: '13th Single', year: '2023', type: 'single' },
+    { id: 'suf7S4AKdmY', title: 'Be Selfish', single: '12th Single', year: '2022', type: 'single' },
+    { id: 'ShbfYtAPXuI', title: 'あの子コンプレックス', single: '11th Single', year: '2022', type: 'single' },
+    { id: 'Q1-yYjZqk7o', title: 'The 5th', single: '10th Single', year: '2021', type: 'single' },
+    { id: 'skgh3juWdFU', title: 'ウィークエンドシトロン', single: '9th Single', year: '2021', type: 'single' },
+    { id: '8id6i_QeNJM', title: '青春"サブリミナル"', single: '8th Single', year: '2020', type: 'single' },
+    { id: 'iEYwHScdJFQ', title: 'CAMEO', single: '7th Single', year: '2020', type: 'single' },
+    { id: 'J5eTB_0SEeg', title: 'ズルいよ ズルいね', single: '6th Single', year: '2019', type: 'single' },
+    { id: 'Mq_wPiAJO7Q', title: '探せ ダイヤモンドリリー', single: '5th Single', year: '2019', type: 'single' },
+    { id: 'Bot92Nn-ozk', title: 'Want you! Want you!', single: '4th Single', year: '2018', type: 'single' },
+    { id: 'w0N0TiOlAY0', title: '手遅れcaution', single: '3rd Single', year: '2018', type: 'single' },
+    { id: 'YIjPbF-dKQA', title: '僕らの制服クリスマス', single: '2nd Single', year: '2017', type: 'single' },
+    { id: 'xOAaBsPaPpY', title: '=LOVE', single: '1st Single', year: '2017', type: 'single' },
+];
+
+// カップリング曲・配信曲・ソロ曲・特別映像など
+const extraMvList = [
+    { id: '1Cy9oaBAxns', title: '内緒バナシ', single: '配信限定', year: '2025', type: 'digital' },
+    { id: 'p-jc9qMpBb4', title: '恋人以上、好き未満', single: '18th c/w', year: '2025', type: 'coupling' },
+    { id: 'Jsz-Hzb4fyY', title: '好きって、言えなかった', single: '12th c/w', year: '2022', type: 'coupling' },
+    { id: 'juImxVpogRY', title: '君と私の歌', single: '7th c/w', year: '2020', type: 'coupling' },
+    { id: 'E8OqOUTLesg', title: '推しのいる世界', single: '6th c/w', year: '2019', type: 'coupling' },
+    { id: '3qUaLsDj__M', title: 'おかえり、花便り', single: '山本杏奈 ソロ', year: '2024', type: 'solo' },
+    { id: 'mxKcIpKgwP0', title: '宝物はグリーン', single: '諸橋沙夏 ソロ', year: '2024', type: 'solo' },
+    { id: 'aC4CdVDFzB4', title: '次に会えた時 何を話そうかな', single: '=LOVE / ≠ME', year: '2022', type: 'collab' },
+    { id: 'gkabNNfTjX4', title: 'トリプルデート', single: 'イコノイジョイ', year: '2023', type: 'collab' },
+    { id: 'FdfipkGBLd0', title: 'あの子コンプレックス', single: 'THE FIRST TAKE', year: '2023', type: 'special' },
+    { id: '90ghDaXOygs', title: '絶対アイドル辞めないで', single: 'THE FIRST TAKE', year: '2024', type: 'special' },
 ];
 
 // Build MV cards in the DOM
 const musicGrid = document.getElementById('music-grid');
+
+// タイプ別のタグ色設定
+const typeTagStyles = {
+    single: '', // デフォルト（ピンク）
+    coupling: 'background:rgba(100,200,255,0.12);border-color:rgba(100,200,255,0.25);color:#64c8ff;',
+    digital: 'background:rgba(0,230,180,0.12);border-color:rgba(0,230,180,0.25);color:#00e6b4;',
+    solo: 'background:rgba(255,200,50,0.12);border-color:rgba(255,200,50,0.25);color:#ffc832;',
+    collab: 'background:rgba(200,140,255,0.12);border-color:rgba(200,140,255,0.25);color:#c88cff;',
+    special: 'background:rgba(255,80,80,0.12);border-color:rgba(255,80,80,0.25);color:#ff5050;',
+};
+
+function buildMvCard(mv, i, isNew) {
+    const card = document.createElement('div');
+    card.className = 'music-card';
+    card.dataset.videoId = mv.id;
+    card.dataset.delay = (i * 80).toString();
+    const tagStyle = typeTagStyles[mv.type] || '';
+    card.innerHTML = `
+        <div class="music-thumb">
+            <img src="https://img.youtube.com/vi/${mv.id}/hqdefault.jpg" alt="${mv.title}" loading="lazy">
+            <div class="music-play-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>
+            ${isNew ? '<div class="music-new-badge">NEW</div>' : ''}
+        </div>
+        <div class="music-info-text">
+            <h4>${mv.title}</h4>
+            <p><span class="music-single-tag" style="${tagStyle}">${mv.single}</span> ${mv.year}</p>
+        </div>
+    `;
+    card.addEventListener('click', () => playMV(mv.id, mv.title));
+    return card;
+}
+
 if (musicGrid) {
+    // シングル表題曲
     mvList.forEach((mv, i) => {
-        const card = document.createElement('div');
-        card.className = 'music-card';
-        card.dataset.videoId = mv.id;
-        card.dataset.delay = (i * 80).toString();
-        const isNew = i < 2;
-        card.innerHTML = `
-            <div class="music-thumb">
-                <img src="https://img.youtube.com/vi/${mv.id}/hqdefault.jpg" alt="${mv.title}" loading="lazy">
-                <div class="music-play-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>
-                ${isNew ? '<div class="music-new-badge">NEW</div>' : ''}
-            </div>
-            <div class="music-info-text">
-                <h4>${mv.title}</h4>
-                <p><span class="music-single-tag">${mv.single}</span> ${mv.year}</p>
-            </div>
-        `;
-        card.addEventListener('click', () => playMV(mv.id, mv.title));
-        musicGrid.appendChild(card);
+        musicGrid.appendChild(buildMvCard(mv, i, i < 2));
+    });
+
+    // セパレーター: カップリング・その他
+    const separator = document.createElement('div');
+    separator.className = 'music-section-divider';
+    separator.innerHTML = `<span class="divider-line"></span><span class="divider-label">カップリング / ソロ / 特別映像</span><span class="divider-line"></span>`;
+    musicGrid.parentNode.insertBefore(separator, musicGrid.nextSibling);
+
+    // エクストラMVグリッド
+    const extraGrid = document.createElement('div');
+    extraGrid.id = 'music-grid-extra';
+    extraGrid.className = 'music-grid';
+    separator.parentNode.insertBefore(extraGrid, separator.nextSibling);
+
+    extraMvList.forEach((mv, i) => {
+        extraGrid.appendChild(buildMvCard(mv, mvList.length + i, false));
     });
 }
 
@@ -1577,7 +1691,8 @@ if (musicGrid) {
 setTimeout(() => {
     const songListEl = document.getElementById('explore-song-list');
     if (songListEl) {
-        mvList.forEach(mv => {
+        const allSongs = [...mvList, ...extraMvList];
+        allSongs.forEach(mv => {
             const btn = document.createElement('button');
             btn.className = 'explore-song-btn';
             btn.textContent = mv.title;

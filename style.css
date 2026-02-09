@@ -1184,10 +1184,32 @@ button { border: none; background: none; cursor: none; font-family: inherit; }
     letter-spacing: 0.05em;
 }
 
+/* Music Section Divider */
+.music-section-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 32px 0 16px;
+    width: 100%;
+}
+.music-section-divider .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 105, 180, 0.3), transparent);
+}
+.music-section-divider .divider-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+
 /* Now Playing Bar */
 .music-now-playing {
     position: fixed;
-    bottom: 60px;
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%) translateY(100px);
     z-index: 500;
@@ -1259,7 +1281,7 @@ button { border: none; background: none; cursor: none; font-family: inherit; }
 /* Video Overlay — PiP風の動画プレーヤー */
 .video-overlay {
     position: fixed;
-    bottom: 24px;
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%) translateY(20px);
     width: auto;
@@ -2302,13 +2324,13 @@ body.modal-open #fab-container {
     .countdown-item span { font-size: 1.3rem; }
     .countdown-item small { font-size: 0.55rem; }
     .music-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .music-now-playing { bottom: 50px; }
+    .music-now-playing { bottom: calc(50px + env(safe-area-inset-bottom, 0px)); }
     .now-playing-inner { padding: 8px 16px; }
     .now-playing-title { max-width: 150px; font-size: 0.75rem; }
     .video-overlay {
         max-width: 94vw;
         width: 94vw;
-        bottom: 10px;
+        bottom: calc(10px + env(safe-area-inset-bottom, 0px));
         left: 3vw;
         transform: translateX(0) translateY(20px);
         padding: 8px 10px 8px 14px;
@@ -2772,7 +2794,7 @@ body.modal-open #fab-container {
     .video-overlay {
         max-width: 94vw !important;
         width: 94vw !important;
-        bottom: 10px !important;
+        bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
         left: 3vw !important;
         transform: translateX(0) translateY(20px) !important;
         padding: 8px 10px 8px 14px !important;
