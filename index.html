@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>=LOVE（イコールラブ）| Interactive Fan Experience</title>
-    <meta name="description" content="=LOVE（イコールラブ）ファンサイト - 指原莉乃プロデュース声優アイドルグループ">
+    <title>=LOVE・医う繧ｳ繝ｼ繝ｫ繝ｩ繝厄ｼ榎 Interactive Fan Experience</title>
+    <meta name="description" content="=LOVE・医う繧ｳ繝ｼ繝ｫ繝ｩ繝厄ｼ峨ヵ繧｡繝ｳ繧ｵ繧､繝・- 謖・次闔我ｹ・・繝ｭ繝・Η繝ｼ繧ｹ螢ｰ蜆ｪ繧｢繧､繝峨Ν繧ｰ繝ｫ繝ｼ繝・>
     <link rel="stylesheet" href="style.css?v=20260210d">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
@@ -70,33 +70,6 @@
     <!-- Penlight overlay effect -->
     <div id="penlight-overlay"></div>
 
-    <!-- Slot Machine Overlay -->
-    <div id="slot-overlay" class="slot-overlay">
-        <button id="slot-overlay-close" class="slot-overlay-close">x</button>
-        <div class="slot-machine">
-            <div class="slot-title">=LOVE GACHA</div>
-            <div class="slot-subtitle">チケットを使って回そう（メンバーカードをタップで獲得）</div>
-            <div class="slot-ticket-display">🎫 <span id="slot-ticket-count-inner">0</span></div>
-            <div class="slot-pity-display" id="slot-pity-info"></div>
-            <div class="slot-reels">
-                <div class="slot-reel">?</div>
-                <div class="slot-reel">?</div>
-                <div class="slot-reel">?</div>
-            </div>
-            <div class="slot-result"></div>
-            <div class="slot-btn-row">
-                <button class="slot-spin-btn" onclick="spinSlot()">SPIN!</button>
-                <button class="slot-collection-btn" onclick="toggleCollection()">📦 コレクション</button>
-            </div>
-            <!-- コレクション表示 -->
-            <div id="gacha-collection" class="gacha-collection" style="display:none;">
-                <div class="gacha-collection-title">📦 コレクション</div>
-                <div class="gacha-collection-stats" id="gacha-stats"></div>
-                <div class="gacha-collection-grid" id="gacha-grid"></div>
-            </div>
-        </div>
-    </div>
-
     <!-- Audio Visualizer Bar -->
     <div id="audio-visualizer">
         <div class="viz-bar"></div><div class="viz-bar"></div><div class="viz-bar"></div>
@@ -116,27 +89,24 @@
             <div class="hero-content">
                 <div class="hero-badge">
                     <span class="badge-pulse"></span>
-                    Produced by 指原莉乃
+                    Produced by 謖・次闔我ｹ・
                 </div>
                 <h1 class="hero-title">
                     <span class="title-line line-1" data-text="=LOVE">=LOVE</span>
-                    <span class="title-line line-2">イコールラブ</span>
+                    <span class="title-line line-2">繧､繧ｳ繝ｼ繝ｫ繝ｩ繝・/span>
                 </h1>
-                <p class="hero-subtitle">「アイドルという仕事を愛し、ファンに愛される」</p>
-                <p class="hero-tagline">— 声優アイドルグループ —</p>
+                <p class="hero-subtitle">縲後い繧､繝峨Ν縺ｨ縺・≧莉穂ｺ九ｒ諢帙＠縲√ヵ繧｡繝ｳ縺ｫ諢帙＆繧後ｋ縲・/p>
+                <p class="hero-tagline">窶・螢ｰ蜆ｪ繧｢繧､繝峨Ν繧ｰ繝ｫ繝ｼ繝・窶・/p>
                 <div class="hero-buttons">
-                    <a href="https://equal-love.jp/" target="_blank" class="btn-primary btn-glow">
+                    <a href="https://equal-love.jp/" target="_blank" rel="noopener" class="btn-primary btn-glow">
                         <span class="btn-bg"></span>
                         <span class="btn-text">OFFICIAL SITE</span>
                     </a>
-                    <a href="https://www.youtube.com/channel/UCv7VutirxDn3RWIJXI68n_A" target="_blank" class="btn-secondary">
-                        <span>▶ YouTube</span>
+                    <a href="https://www.youtube.com/channel/UCv7VutirxDn3RWIJXI68n_A" target="_blank" rel="noopener" class="btn-secondary">
+                        <span>笆ｶ YouTube</span>
                     </a>
-                    <button id="penlight-btn" class="btn-penlight" title="ペンライトモード">
+                    <button id="penlight-btn" class="btn-penlight" title="繝壹Φ繝ｩ繧､繝医Δ繝ｼ繝・>
                         <span>PENLIGHT</span>
-                    </button>
-                    <button id="slot-btn" class="btn-slot" title="ガチャ">
-                        <span>GACHA <span id="slot-ticket-count" class="slot-ticket-badge">0</span></span>
                     </button>
                 </div>
                 <div class="scroll-indicator">
@@ -153,10 +123,10 @@
             <div class="section-content">
                 <h2 class="section-title">
                     <span class="title-en glitch-text" data-text="ABOUT =LOVE">ABOUT =LOVE</span>
-                    <span class="title-jp">イコールラブについて</span>
+                    <span class="title-jp">繧､繧ｳ繝ｼ繝ｫ繝ｩ繝悶↓縺､縺・※</span>
                 </h2>
                 <div class="about-text-block">
-                    <p>=LOVE（イコールラブ）は、<strong>指原莉乃</strong>プロデュースによる<strong>10人組</strong>の声優アイドルグループ。2017年に代々木アニメーション学院から誕生。グループ名には「アイドルはファンに愛されなければならない」「アイドルという仕事を愛さなければならない」という意味が込められています。</p>
+                    <p>=LOVE・医う繧ｳ繝ｼ繝ｫ繝ｩ繝厄ｼ峨・縲・strong>謖・次闔我ｹ・/strong>繝励Ο繝・Η繝ｼ繧ｹ縺ｫ繧医ｋ<strong>10莠ｺ邨・/strong>縺ｮ螢ｰ蜆ｪ繧｢繧､繝峨Ν繧ｰ繝ｫ繝ｼ繝励・017蟷ｴ縺ｫ莉｣縲・惠繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ蟄ｦ髯｢縺九ｉ隱慕函縲ゅげ繝ｫ繝ｼ繝怜錐縺ｫ縺ｯ縲後い繧､繝峨Ν縺ｯ繝輔ぃ繝ｳ縺ｫ諢帙＆繧後↑縺代ｌ縺ｰ縺ｪ繧峨↑縺・阪後い繧､繝峨Ν縺ｨ縺・≧莉穂ｺ九ｒ諢帙＆縺ｪ縺代ｌ縺ｰ縺ｪ繧峨↑縺・阪→縺・≧諢丞袖縺瑚ｾｼ繧√ｉ繧後※縺・∪縺吶・/p>
                 </div>
 
                 <!-- Timeline -->
@@ -164,29 +134,29 @@
                     <div class="timeline-item" data-delay="0">
                         <div class="timeline-year">2017</div>
                         <div class="timeline-content">
-                            <h4>グループ結成</h4>
-                            <p>代々木アニメーション学院より誕生。指原莉乃プロデュースの声優アイドルとしてデビュー。</p>
+                            <h4>繧ｰ繝ｫ繝ｼ繝礼ｵ先・</h4>
+                            <p><a href="https://www.yoani.co.jp/" target="_blank" rel="noopener" class="inline-link">莉｣縲・惠繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ蟄ｦ髯｢</a>繧医ｊ隱慕函縲・a href="https://x.com/345__chan" target="_blank" rel="noopener" class="inline-link">謖・次闔我ｹ・/a>繝励Ο繝・Η繝ｼ繧ｹ縺ｮ螢ｰ蜆ｪ繧｢繧､繝峨Ν縺ｨ縺励※繝・ン繝･繝ｼ縲・/p>
                         </div>
                     </div>
                     <div class="timeline-item" data-delay="200">
                         <div class="timeline-year">2021</div>
                         <div class="timeline-content">
-                            <h4>日本武道館ライブ</h4>
-                            <p>念願の日本武道館での単独コンサートを開催。</p>
+                            <h4>譌･譛ｬ豁ｦ驕馴､ｨ繝ｩ繧､繝・/h4>
+                            <p>蠢ｵ鬘倥・<a href="https://www.nipponbudokan.or.jp/" target="_blank" rel="noopener" class="inline-link">譌･譛ｬ豁ｦ驕馴､ｨ</a>縺ｧ縺ｮ蜊倡峡繧ｳ繝ｳ繧ｵ繝ｼ繝医ｒ髢句ぎ縲・/p>
                         </div>
                     </div>
                     <div class="timeline-item" data-delay="400">
                         <div class="timeline-year">2024</div>
                         <div class="timeline-content">
-                            <h4>さいたまスーパーアリーナ</h4>
-                            <p>初のさいたまスーパーアリーナ公演を成功させる。</p>
+                            <h4>縺輔＞縺溘∪繧ｹ繝ｼ繝代・繧｢繝ｪ繝ｼ繝・/h4>
+                            <p>蛻昴・<a href="https://www.saitama-arena.co.jp/" target="_blank" rel="noopener" class="inline-link">縺輔＞縺溘∪繧ｹ繝ｼ繝代・繧｢繝ｪ繝ｼ繝・/a>蜈ｬ貍斐ｒ謌仙粥縺輔○繧九・/p>
                         </div>
                     </div>
                     <div class="timeline-item" data-delay="600">
                         <div class="timeline-year">2026</div>
                         <div class="timeline-content">
-                            <h4>国立競技場 2DAYS</h4>
-                            <p>MUFGスタジアム（国立競技場）での2DAYS公演が決定。最大の夢の舞台へ。</p>
+                            <h4>蝗ｽ遶狗ｫｶ謚蝣ｴ 2DAYS</h4>
+                            <p><a href="https://www.jpnsport.go.jp/kokuritu/" target="_blank" rel="noopener" class="inline-link">MUFG繧ｹ繧ｿ繧ｸ繧｢繝・亥嵜遶狗ｫｶ謚蝣ｴ・・/a>縺ｧ縺ｮ2DAYS蜈ｬ貍斐′豎ｺ螳壹よ怙螟ｧ縺ｮ螟｢縺ｮ闊槫床縺ｸ縲・/p>
                         </div>
                     </div>
                 </div>
@@ -202,7 +172,7 @@
                                 <div class="stat-number" data-target="10">0</div>
                             </div>
                         </div>
-                        <div class="stat-label">メンバー</div>
+                        <div class="stat-label">繝｡繝ｳ繝舌・</div>
                     </div>
                     <div class="stat-item" data-delay="150">
                         <div class="stat-ring">
@@ -214,7 +184,7 @@
                                 <div class="stat-number" data-target="8">0</div>
                             </div>
                         </div>
-                        <div class="stat-label">年目</div>
+                        <div class="stat-label">蟷ｴ逶ｮ</div>
                     </div>
                     <div class="stat-item" data-delay="300">
                         <div class="stat-ring">
@@ -226,7 +196,7 @@
                                 <div class="stat-number" data-target="19">0</div>
                             </div>
                         </div>
-                        <div class="stat-label">シングル</div>
+                        <div class="stat-label">繧ｷ繝ｳ繧ｰ繝ｫ</div>
                     </div>
                     <div class="stat-item" data-delay="450">
                         <div class="stat-ring">
@@ -238,7 +208,7 @@
                                 <div class="stat-number" data-target="64">0</div>
                             </div>
                         </div>
-                        <div class="stat-label">万人 (YouTube)</div>
+                        <div class="stat-label">荳・ｺｺ (YouTube)</div>
                     </div>
                 </div>
             </div>
@@ -249,156 +219,156 @@
             <div class="section-content">
                 <h2 class="section-title">
                     <span class="title-en glitch-text" data-text="MEMBERS">MEMBERS</span>
-                    <span class="title-jp">メンバー</span>
+                    <span class="title-jp">繝｡繝ｳ繝舌・</span>
                 </h2>
-                <p class="members-instruction">メンバーカードをクリックで詳細表示 / ペンライトカラーが光ります</p>
+                <p class="members-instruction">繝｡繝ｳ繝舌・繧ｫ繝ｼ繝峨ｒ繧ｯ繝ｪ繝・け縺ｧ隧ｳ邏ｰ陦ｨ遉ｺ / 繝壹Φ繝ｩ繧､繝医き繝ｩ繝ｼ縺悟・繧翫∪縺・/p>
                 <div class="members-grid">
-                    <div class="member-card" data-delay="0" data-color="#FFFFFF" data-color2="#C8A2C8" data-nickname="みりにゃ" data-birthday="1998.3.15" data-from="東京都" data-penlight="白 × 薄菫">
+                    <div class="member-card" data-delay="0" data-color="#FFFFFF" data-color2="#C8A2C8" data-nickname="縺ｿ繧翫↓繧・ data-birthday="1998.3.15" data-from="譚ｱ莠ｬ驛ｽ" data-penlight="逋ｽ ﾃ・阮・将">
                         <div class="member-img-wrapper">
-                            <img src="figure/member-otani.jpg" alt="大谷映美里" class="member-img" loading="lazy"
+                            <img src="figure/member-otani.jpg" alt="螟ｧ隹ｷ譏鄒朱㈹" class="member-img" loading="lazy"
                                  onerror="this.src='https://pbs.twimg.com/profile_images/1818633855685812224/ZWijhH6P_400x400.jpg'">
                             <div class="member-glow"></div>
                             <div class="member-overlay">
-                                <span class="member-nickname">みりにゃ</span>
+                                <span class="member-nickname">縺ｿ繧翫↓繧・/span>
                             </div>
                         </div>
                         <div class="member-info">
-                            <h3>大谷 映美里</h3>
+                            <h3>螟ｧ隹ｷ 譏鄒朱㈹</h3>
                             <p class="member-name-en">OTANI EMIRI</p>
                         </div>
                         <div class="member-penlight-bar"></div>
                     </div>
-                    <div class="member-card" data-delay="50" data-color="#FFA500" data-color2="#0000FF" data-nickname="はなちゃん" data-birthday="2000.2.4" data-from="埼玉県" data-penlight="オレンジ × 青">
+                    <div class="member-card" data-delay="50" data-color="#FFA500" data-color2="#0000FF" data-nickname="縺ｯ縺ｪ縺｡繧・ｓ" data-birthday="2000.2.4" data-from="蝓ｼ邇臥恁" data-penlight="繧ｪ繝ｬ繝ｳ繧ｸ ﾃ・髱・>
                         <div class="member-img-wrapper">
-                            <img src="figure/member-oba.jpg" alt="大場花菜" class="member-img" loading="lazy"
+                            <img src="figure/member-oba.jpg" alt="螟ｧ蝣ｴ闃ｱ闖・ class="member-img" loading="lazy"
                                  onerror="this.src='https://pbs.twimg.com/profile_images/1879542523045310464/fE3SRDzX_400x400.jpg'">
                             <div class="member-glow"></div>
                             <div class="member-overlay">
-                                <span class="member-nickname">はなちゃん</span>
+                                <span class="member-nickname">縺ｯ縺ｪ縺｡繧・ｓ</span>
                             </div>
                         </div>
                         <div class="member-info">
-                            <h3>大場 花菜</h3>
+                            <h3>螟ｧ蝣ｴ 闃ｱ闖・/h3>
                             <p class="member-name-en">OBA HANA</p>
                         </div>
                         <div class="member-penlight-bar"></div>
                     </div>
-                    <div class="member-card" data-delay="100" data-color="#87CEEB" data-color2="#FF1493" data-nickname="りさちゃん" data-birthday="1998.8.11" data-from="福岡県" data-penlight="水色 × 濃ピンク">
+                    <div class="member-card" data-delay="100" data-color="#87CEEB" data-color2="#FF1493" data-nickname="繧翫＆縺｡繧・ｓ" data-birthday="1998.8.11" data-from="遖丞ｲ｡逵・ data-penlight="豌ｴ濶ｲ ﾃ・豼・ヴ繝ｳ繧ｯ">
                         <div class="member-img-wrapper">
-                            <img src="figure/member-otoshima.jpg" alt="音嶋莉沙" class="member-img" loading="lazy"
+                            <img src="figure/member-otoshima.jpg" alt="髻ｳ蠍玖脂豐・ class="member-img" loading="lazy"
                                  onerror="this.src='https://pbs.twimg.com/profile_images/1851976972223504384/XqoQFGqS_400x400.jpg'">
                             <div class="member-glow"></div>
                             <div class="member-overlay">
-                                <span class="member-nickname">りさちゃん</span>
+                                <span class="member-nickname">繧翫＆縺｡繧・ｓ</span>
                             </div>
                         </div>
                         <div class="member-info">
-                            <h3>音嶋 莉沙</h3>
+                            <h3>髻ｳ蠍・闔画ｲ・/h3>
                             <p class="member-name-en">OTOSHIMA RISA</p>
                         </div>
                         <div class="member-penlight-bar"></div>
                     </div>
-                    <div class="member-card" data-delay="150" data-color="#FFB6C1" data-color2="#FFB6C1" data-nickname="きあら" data-birthday="2004.11.26" data-from="栃木県" data-penlight="薄ピンク">
+                    <div class="member-card" data-delay="150" data-color="#FFB6C1" data-color2="#FFB6C1" data-nickname="縺阪≠繧・ data-birthday="2004.11.26" data-from="譬・惠逵・ data-penlight="阮・ヴ繝ｳ繧ｯ">
                         <div class="member-img-wrapper">
-                            <img src="figure/member-saito.jpg" alt="齋藤樹愛羅" class="member-img" loading="lazy"
+                            <img src="figure/member-saito.jpg" alt="鮨玖陸讓ｹ諢帷ｾ・ class="member-img" loading="lazy"
                                  onerror="this.src='https://pbs.twimg.com/profile_images/1866486085704101888/R1DJcjqW_400x400.jpg'">
                             <div class="member-glow"></div>
                             <div class="member-overlay">
-                                <span class="member-nickname">きあら</span>
+                                <span class="member-nickname">縺阪≠繧・/span>
                             </div>
                         </div>
                         <div class="member-info">
-                            <h3>齋藤 樹愛羅</h3>
+                            <h3>鮨玖陸 讓ｹ諢帷ｾ・/h3>
                             <p class="member-name-en">SAITO KIARA</p>
                         </div>
                         <div class="member-penlight-bar"></div>
                     </div>
-                    <div class="member-card" data-delay="200" data-color="#FFFFFF" data-color2="#FFFFFF" data-nickname="まいか" data-birthday="2000.1.21" data-from="愛知県" data-penlight="白">
+                    <div class="member-card" data-delay="200" data-color="#FFFFFF" data-color2="#FFFFFF" data-nickname="縺ｾ縺・°" data-birthday="2000.1.21" data-from="諢帷衍逵・ data-penlight="逋ｽ">
                         <div class="member-img-wrapper">
-                            <img src="figure/member-sasaki.jpg" alt="佐々木舞香" class="member-img" loading="lazy"
+                            <img src="figure/member-sasaki.jpg" alt="菴舌・惠闊樣ｦ・ class="member-img" loading="lazy"
                                  onerror="this.src='https://pbs.twimg.com/profile_images/1870083992760201217/HNFEhZ8D_400x400.jpg'">
                             <div class="member-glow"></div>
                             <div class="member-overlay">
-                                <span class="member-nickname">まいか</span>
+                                <span class="member-nickname">縺ｾ縺・°</span>
                             </div>
                         </div>
                         <div class="member-info">
-                            <h3>佐々木 舞香</h3>
+                            <h3>菴舌・惠 闊樣ｦ・/h3>
                             <p class="member-name-en">SASAKI MAIKA</p>
                         </div>
                         <div class="member-penlight-bar"></div>
                     </div>
-                    <div class="member-card" data-delay="250" data-color="#FF0000" data-color2="#FF0000" data-nickname="ひとみん" data-birthday="2001.1.19" data-from="東京都" data-penlight="赤">
+                    <div class="member-card" data-delay="250" data-color="#FF0000" data-color2="#FF0000" data-nickname="縺ｲ縺ｨ縺ｿ繧・ data-birthday="2001.1.19" data-from="譚ｱ莠ｬ驛ｽ" data-penlight="襍､">
                         <div class="member-img-wrapper">
-                            <img src="figure/member-takamatsu.jpg" alt="髙松瞳" class="member-img" loading="lazy"
+                            <img src="figure/member-takamatsu.jpg" alt="鬮呎收迸ｳ" class="member-img" loading="lazy"
                                  onerror="this.src='https://pbs.twimg.com/profile_images/1869389973264908289/OV_WI_3K_400x400.jpg'">
                             <div class="member-glow"></div>
                             <div class="member-overlay">
-                                <span class="member-nickname">ひとみん</span>
+                                <span class="member-nickname">縺ｲ縺ｨ縺ｿ繧・/span>
                             </div>
                         </div>
                         <div class="member-info">
-                            <h3>髙松 瞳</h3>
+                            <h3>鬮呎收 迸ｳ</h3>
                             <p class="member-name-en">TAKAMATSU HITOMI</p>
                         </div>
                         <div class="member-penlight-bar"></div>
                     </div>
-                    <div class="member-card" data-delay="300" data-color="#FFD700" data-color2="#FF8C00" data-nickname="しょこ" data-birthday="2001.7.9" data-from="神奈川県" data-penlight="黄 × オレンジ × 濃ピンク">
+                    <div class="member-card" data-delay="300" data-color="#FFD700" data-color2="#FF8C00" data-nickname="縺励ｇ縺・ data-birthday="2001.7.9" data-from="逾槫･亥ｷ晉恁" data-penlight="鮟・ﾃ・繧ｪ繝ｬ繝ｳ繧ｸ ﾃ・豼・ヴ繝ｳ繧ｯ">
                         <div class="member-img-wrapper">
-                            <img src="figure/member-takiwaki.jpg" alt="瀧脇笙古" class="member-img" loading="lazy"
+                            <img src="figure/member-takiwaki.jpg" alt="轢ｧ閼・ｬ吝商" class="member-img" loading="lazy"
                                  onerror="this.src='https://pbs.twimg.com/profile_images/1870094782171095040/h_b2SJLP_400x400.jpg'">
                             <div class="member-glow"></div>
                             <div class="member-overlay">
-                                <span class="member-nickname">しょこ</span>
+                                <span class="member-nickname">縺励ｇ縺・/span>
                             </div>
                         </div>
                         <div class="member-info">
-                            <h3>瀧脇 笙古</h3>
+                            <h3>轢ｧ閼・隨吝商</h3>
                             <p class="member-name-en">TAKIWAKI SHOKO</p>
                         </div>
                         <div class="member-penlight-bar"></div>
                     </div>
-                    <div class="member-card" data-delay="350" data-color="#800080" data-color2="#800080" data-nickname="いおりん" data-birthday="2000.4.26" data-from="茨城県" data-penlight="紫">
+                    <div class="member-card" data-delay="350" data-color="#800080" data-color2="#800080" data-nickname="縺・♀繧翫ｓ" data-birthday="2000.4.26" data-from="闌ｨ蝓守恁" data-penlight="邏ｫ">
                         <div class="member-img-wrapper">
-                            <img src="figure/member-noguchi.jpg" alt="野口衣織" class="member-img" loading="lazy"
+                            <img src="figure/member-noguchi.jpg" alt="驥主哨陦｣郢・ class="member-img" loading="lazy"
                                  onerror="this.src='https://pbs.twimg.com/profile_images/1870085271779803136/uuPJtKWe_400x400.jpg'">
                             <div class="member-glow"></div>
                             <div class="member-overlay">
-                                <span class="member-nickname">いおりん</span>
+                                <span class="member-nickname">縺・♀繧翫ｓ</span>
                             </div>
                         </div>
                         <div class="member-info">
-                            <h3>野口 衣織</h3>
+                            <h3>驥主哨 陦｣郢・/h3>
                             <p class="member-name-en">NOGUCHI IORI</p>
                         </div>
                         <div class="member-penlight-bar"></div>
                     </div>
-                    <div class="member-card" data-delay="400" data-color="#008000" data-color2="#008000" data-nickname="さなつん" data-birthday="1996.8.3" data-from="福島県" data-penlight="緑">
+                    <div class="member-card" data-delay="400" data-color="#008000" data-color2="#008000" data-nickname="縺輔↑縺､繧・ data-birthday="1996.8.3" data-from="遖丞ｳｶ逵・ data-penlight="邱・>
                         <div class="member-img-wrapper">
-                            <img src="figure/member-morohashi.jpg" alt="諸橋沙夏" class="member-img" loading="lazy"
+                            <img src="figure/member-morohashi.jpg" alt="隲ｸ讖区ｲ吝､・ class="member-img" loading="lazy"
                                  onerror="this.src='https://pbs.twimg.com/profile_images/1870085805345849344/TjkHn7oP_400x400.jpg'">
                             <div class="member-glow"></div>
                             <div class="member-overlay">
-                                <span class="member-nickname">さなつん</span>
+                                <span class="member-nickname">縺輔↑縺､繧・/span>
                             </div>
                         </div>
                         <div class="member-info">
-                            <h3>諸橋 沙夏</h3>
+                            <h3>隲ｸ讖・豐吝､・/h3>
                             <p class="member-name-en">MOROHASHI SANA</p>
                         </div>
                         <div class="member-penlight-bar"></div>
                     </div>
-                    <div class="member-card" data-delay="450" data-color="#FFD700" data-color2="#0000FF" data-nickname="あんにゃ ★リーダー" data-birthday="1997.11.30" data-from="広島県" data-penlight="黄 × 青 ★リーダー">
+                    <div class="member-card" data-delay="450" data-color="#FFD700" data-color2="#0000FF" data-nickname="縺ゅｓ縺ｫ繧・笘・Μ繝ｼ繝繝ｼ" data-birthday="1997.11.30" data-from="蠎・ｳｶ逵・ data-penlight="鮟・ﾃ・髱・笘・Μ繝ｼ繝繝ｼ">
                         <div class="member-img-wrapper">
-                            <img src="figure/member-yamamoto.jpg" alt="山本杏奈" class="member-img" loading="lazy"
+                            <img src="figure/member-yamamoto.jpg" alt="螻ｱ譛ｬ譚丞･・ class="member-img" loading="lazy"
                                  onerror="this.src='https://pbs.twimg.com/profile_images/1870085542723715072/5x2C8IIb_400x400.jpg'">
                             <div class="member-glow"></div>
                             <div class="member-overlay">
-                                <span class="member-nickname">あんにゃ ★リーダー</span>
+                                <span class="member-nickname">縺ゅｓ縺ｫ繧・笘・Μ繝ｼ繝繝ｼ</span>
                             </div>
                         </div>
                         <div class="member-info">
-                            <h3>山本 杏奈</h3>
+                            <h3>螻ｱ譛ｬ 譚丞･・/h3>
                             <p class="member-name-en">YAMAMOTO ANNA</p>
                         </div>
                         <div class="member-penlight-bar"></div>
@@ -424,31 +394,31 @@
                         <p id="modal-name-en" class="modal-name-en"></p>
                         <div class="modal-details">
                             <div class="modal-detail-row">
-                                <span class="detail-label">ニックネーム</span>
+                                <span class="detail-label">繝九ャ繧ｯ繝阪・繝</span>
                                 <span id="modal-nickname" class="detail-value"></span>
                             </div>
                             <div class="modal-detail-row">
-                                <span class="detail-label">生年月日</span>
+                                <span class="detail-label">逕溷ｹｴ譛域律</span>
                                 <span id="modal-birthday" class="detail-value"></span>
                             </div>
                             <div class="modal-detail-row">
-                                <span class="detail-label">出身地</span>
+                                <span class="detail-label">蜃ｺ霄ｫ蝨ｰ</span>
                                 <span id="modal-from" class="detail-value"></span>
                             </div>
                             <div class="modal-detail-row">
-                                <span class="detail-label">身長</span>
+                                <span class="detail-label">霄ｫ髟ｷ</span>
                                 <span id="modal-height" class="detail-value"></span>
                             </div>
                             <div class="modal-detail-row">
-                                <span class="detail-label">血液型</span>
+                                <span class="detail-label">陦豸ｲ蝙・/span>
                                 <span id="modal-blood" class="detail-value"></span>
                             </div>
                             <div class="modal-detail-row">
-                                <span class="detail-label">ペンライト</span>
+                                <span class="detail-label">繝壹Φ繝ｩ繧､繝・/span>
                                 <span id="modal-penlight" class="detail-value"></span>
                             </div>
                             <div class="modal-detail-row">
-                                <span class="detail-label">ファン名</span>
+                                <span class="detail-label">繝輔ぃ繝ｳ蜷・/span>
                                 <span id="modal-fanname" class="detail-value"></span>
                             </div>
                         </div>
@@ -464,19 +434,19 @@
                         </div>
                         <div class="modal-tab-content active" id="tab-profile">
                             <div class="modal-ext-row">
-                                <span class="ext-label">役割</span>
+                                <span class="ext-label">蠖ｹ蜑ｲ</span>
                                 <span id="modal-role" class="ext-value"></span>
                             </div>
                             <div class="modal-ext-row">
-                                <span class="ext-label">経歴</span>
+                                <span class="ext-label">邨梧ｭｴ</span>
                                 <span id="modal-career" class="ext-value"></span>
                             </div>
                             <div class="modal-ext-row">
-                                <span class="ext-label">センター曲</span>
+                                <span class="ext-label">繧ｻ繝ｳ繧ｿ繝ｼ譖ｲ</span>
                                 <span id="modal-center" class="ext-value"></span>
                             </div>
                             <div class="modal-ext-row">
-                                <span class="ext-label">ソロ活動</span>
+                                <span class="ext-label">繧ｽ繝ｭ豢ｻ蜍・/span>
                                 <span id="modal-solo" class="ext-value"></span>
                             </div>
                         </div>
@@ -496,9 +466,9 @@
             <div class="section-content">
                 <h2 class="section-title">
                     <span class="title-en glitch-text" data-text="MUSIC">MUSIC</span>
-                    <span class="title-jp">ミュージック</span>
+                    <span class="title-jp">繝溘Η繝ｼ繧ｸ繝・け</span>
                 </h2>
-                <p class="music-description">カードをクリックしてMVを再生 — 背景の3Dエフェクトが音楽に連動します</p>
+                <p class="music-description">繧ｫ繝ｼ繝峨ｒ繧ｯ繝ｪ繝・け縺励※MV繧貞・逕・窶・閭梧勹縺ｮ3D繧ｨ繝輔ぉ繧ｯ繝医′髻ｳ讌ｽ縺ｫ騾｣蜍輔＠縺ｾ縺・/p>
                 <div id="music-grid" class="music-grid"></div>
 
                 <!-- Now Playing Bar -->
@@ -507,7 +477,7 @@
                         <div class="now-playing-pulse"></div>
                         <span class="now-playing-label">NOW PLAYING</span>
                         <span id="now-playing-title" class="now-playing-title">---</span>
-                        <button id="music-pause" class="music-pause-btn">⏸</button>
+                        <button id="music-pause" class="music-pause-btn">竢ｸ</button>
                     </div>
                 </div>
 
@@ -520,10 +490,10 @@
             <div class="section-content">
                 <h2 class="section-title">
                     <span class="title-en glitch-text" data-text="DISCOGRAPHY">DISCOGRAPHY</span>
-                    <span class="title-jp">ディスコグラフィー</span>
+                    <span class="title-jp">繝・ぅ繧ｹ繧ｳ繧ｰ繝ｩ繝輔ぅ繝ｼ</span>
                 </h2>
                 <div class="disco-carousel">
-                    <button class="carousel-btn prev" id="disco-prev">‹</button>
+                    <button class="carousel-btn prev" id="disco-prev">窶ｹ</button>
                     <div class="disco-track-wrapper">
                         <div class="disco-track" id="disco-track">
                             <div class="disco-slide" data-delay="0">
@@ -534,8 +504,8 @@
                                 </div>
                                 <div class="disco-info">
                                     <div class="disco-number">20th Single</div>
-                                    <h3>タイトル未定</h3>
-                                    <p>2026.4.1 発売予定</p>
+                                    <h3>繧ｿ繧､繝医Ν譛ｪ螳・/h3>
+                                    <p>2026.4.1 逋ｺ螢ｲ莠亥ｮ・/p>
                                 </div>
                             </div>
                             <div class="disco-slide" data-delay="50">
@@ -545,7 +515,7 @@
                                 </div>
                                 <div class="disco-info">
                                     <div class="disco-number">19th Single</div>
-                                    <h3>ラブソングに襲われる</h3>
+                                    <h3>繝ｩ繝悶た繝ｳ繧ｰ縺ｫ隘ｲ繧上ｌ繧・/h3>
                                     <p>2025.10.8</p>
                                 </div>
                             </div>
@@ -556,7 +526,7 @@
                                 </div>
                                 <div class="disco-info">
                                     <div class="disco-number">18th Single</div>
-                                    <h3>とくべチュ、して / 恋人以上、好き未満</h3>
+                                    <h3>縺ｨ縺上∋繝√Η縲√＠縺ｦ / 諱倶ｺｺ莉･荳翫∝･ｽ縺肴悴貅</h3>
                                     <p>2025.2.26</p>
                                 </div>
                             </div>
@@ -567,7 +537,7 @@
                                 </div>
                                 <div class="disco-info">
                                     <div class="disco-number">17th Single</div>
-                                    <h3>絶対アイドル辞めないで</h3>
+                                    <h3>邨ｶ蟇ｾ繧｢繧､繝峨Ν霎槭ａ縺ｪ縺・〒</h3>
                                     <p>2024.7.31</p>
                                 </div>
                             </div>
@@ -578,7 +548,7 @@
                                 </div>
                                 <div class="disco-info">
                                     <div class="disco-number">16th Single</div>
-                                    <h3>呪って呪って</h3>
+                                    <h3>蜻ｪ縺｣縺ｦ蜻ｪ縺｣縺ｦ</h3>
                                     <p>2024.3.6</p>
                                 </div>
                             </div>
@@ -589,7 +559,7 @@
                                 <div class="disco-info">
                                     <!-- <img src="figure/cd-15th.jpg" alt="15th Single" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"> -->
                                     <div class="disco-number">15th Single</div>
-                                    <h3>ラストノートしか知らない</h3>
+                                    <h3>繝ｩ繧ｹ繝医ヮ繝ｼ繝医＠縺狗衍繧峨↑縺・/h3>
                                     <p>2023.11.29</p>
                                 </div>
                             </div>
@@ -600,7 +570,7 @@
                                 <div class="disco-info">
                                     <!-- <img src="figure/cd-14th.jpg" alt="14th Single" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"> -->
                                     <div class="disco-number">14th Single</div>
-                                    <h3>ナツマトペ</h3>
+                                    <h3>繝翫ヤ繝槭ヨ繝・/h3>
                                     <p>2023.7.19</p>
                                 </div>
                             </div>
@@ -611,17 +581,17 @@
                                 <div class="disco-info">
                                     <!-- <img src="figure/cd-13th.jpg" alt="13th Single" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"> -->
                                     <div class="disco-number">13th Single</div>
-                                    <h3>この空がトリガー</h3>
+                                    <h3>縺薙・遨ｺ縺後ヨ繝ｪ繧ｬ繝ｼ</h3>
                                     <p>2023.2.22</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <button class="carousel-btn next" id="disco-next">›</button>
+                    <button class="carousel-btn next" id="disco-next">窶ｺ</button>
                 </div>
                 <div class="disco-dots" id="disco-dots"></div>
                 <div class="disco-more">
-                    <a href="https://equal-love.jp/discography" target="_blank" class="btn-secondary">VIEW ALL DISCOGRAPHY →</a>
+                    <a href="https://equal-love.jp/discography" target="_blank" rel="noopener" class="btn-secondary">VIEW ALL DISCOGRAPHY 竊・/a>
                 </div>
             </div>
         </section>
@@ -631,7 +601,7 @@
             <div class="section-content">
                 <h2 class="section-title">
                     <span class="title-en glitch-text" data-text="UPCOMING">UPCOMING</span>
-                    <span class="title-jp">最新情報</span>
+                    <span class="title-jp">譛譁ｰ諠・ｱ</span>
                 </h2>
                 <div class="info-grid">
                     <div class="info-card highlight" data-delay="0">
@@ -640,7 +610,7 @@
                             <div class="info-badge">BIG EVENT</div>
                             <div class="info-date">2026.6.20-21</div>
                             <h3>=LOVE STADIUM LIVE</h3>
-                            <p>MUFGスタジアム（国立競技場）にて2DAYS開催決定！<br>チケット先行受付中</p>
+                            <p><a href="https://www.jpnsport.go.jp/kokuritu/" target="_blank" rel="noopener" class="inline-link">MUFG繧ｹ繧ｿ繧ｸ繧｢繝・亥嵜遶狗ｫｶ謚蝣ｴ・・/a>縺ｫ縺ｦ2DAYS髢句ぎ豎ｺ螳夲ｼ・br><a href="https://equal-love.jp/" target="_blank" rel="noopener" class="inline-link">繝√こ繝・ヨ蜈郁｡悟女莉倅ｸｭ</a></p>
                             <div class="countdown" id="countdown">
                                 <div class="countdown-item"><span id="cd-days">--</span><small>DAYS</small></div>
                                 <div class="countdown-item"><span id="cd-hours">--</span><small>HOURS</small></div>
@@ -650,21 +620,21 @@
                         </div>
                     </div>
                     <div class="info-card" data-delay="100">
-                        <div class="info-card-icon">♪</div>
+                        <div class="info-card-icon">笙ｪ</div>
                         <div class="info-card-content">
                             <div class="info-badge-small">RELEASE</div>
                             <div class="info-date">2026.4.1</div>
-                            <h3>20thシングル発売</h3>
-                            <p>記念すべき20枚目のシングルが発売予定</p>
+                            <h3>20th繧ｷ繝ｳ繧ｰ繝ｫ逋ｺ螢ｲ</h3>
+                            <p>險伜ｿｵ縺吶∋縺・0譫夂岼縺ｮ繧ｷ繝ｳ繧ｰ繝ｫ縺檎匱螢ｲ莠亥ｮ・/p>
                         </div>
                     </div>
                     <div class="info-card" data-delay="200">
-                        <div class="info-card-icon">♫</div>
+                        <div class="info-card-icon">笙ｫ</div>
                         <div class="info-card-content">
                             <div class="info-badge-small live">LIVE</div>
-                            <div class="info-date">開催中</div>
+                            <div class="info-date">髢句ぎ荳ｭ</div>
                             <h3>8th ANNIVERSARY TOUR</h3>
-                            <p>全国9か所をまわるアニバーサリーツアー（〜2026年4月19日）</p>
+                            <p>蜈ｨ蝗ｽ9縺区園繧偵∪繧上ｋ繧｢繝九ヰ繝ｼ繧ｵ繝ｪ繝ｼ繝・い繝ｼ・医・026蟷ｴ4譛・9譌･・・/p>
                         </div>
                     </div>
                 </div>
@@ -672,13 +642,13 @@
                 <div class="sister-groups">
                     <h3 class="sister-title">SISTER GROUPS</h3>
                     <div class="sister-grid">
-                        <a href="https://not-equal-me.jp/" target="_blank" class="sister-card">
-                            <span class="sister-name">≠ME</span>
-                            <span class="sister-label">ノットイコールミー</span>
+                        <a href="https://not-equal-me.jp/" target="_blank" rel="noopener" class="sister-card">
+                            <span class="sister-name">竕ME</span>
+                            <span class="sister-label">繝弱ャ繝医う繧ｳ繝ｼ繝ｫ繝溘・</span>
                         </a>
-                        <a href="https://nearly-equal-joy.jp/" target="_blank" class="sister-card">
-                            <span class="sister-name">≒JOY</span>
-                            <span class="sister-label">ニアリーイコールジョイ</span>
+                        <a href="https://nearly-equal-joy.jp/" target="_blank" rel="noopener" class="sister-card">
+                            <span class="sister-name">竕谷OY</span>
+                            <span class="sister-label">繝九い繝ｪ繝ｼ繧､繧ｳ繝ｼ繝ｫ繧ｸ繝ｧ繧､</span>
                         </a>
                     </div>
                 </div>
@@ -686,18 +656,18 @@
                 <div class="links-section">
                     <h3 class="sister-title">OFFICIAL LINKS</h3>
                     <div class="social-links">
-                        <a href="https://equal-love.jp/" target="_blank" class="social-link"><span class="social-icon">○</span> Official Site</a>
-                        <a href="https://twitter.com/Equal_LOVE_12" target="_blank" class="social-link"><span class="social-icon">𝕏</span> X (Twitter)</a>
-                        <a href="https://www.instagram.com/equal_love.official/" target="_blank" class="social-link"><span class="social-icon">■</span> Instagram</a>
-                        <a href="https://www.youtube.com/channel/UCv7VutirxDn3RWIJXI68n_A" target="_blank" class="social-link"><span class="social-icon">▶</span> YouTube</a>
-                        <a href="https://www.tiktok.com/@equal_love_12" target="_blank" class="social-link"><span class="social-icon">♪</span> TikTok</a>
-                        <a href="https://open.spotify.com/artist/1j2WhcTW00Zd2SjFYsJVc6" target="_blank" class="social-link"><span class="social-icon">♫</span> Spotify</a>
+                        <a href="https://equal-love.jp/" target="_blank" rel="noopener" class="social-link"><span class="social-icon">笳・/span> Official Site</a>
+                        <a href="https://twitter.com/Equal_LOVE_12" target="_blank" rel="noopener" class="social-link"><span class="social-icon">撫</span> X (Twitter)</a>
+                        <a href="https://www.instagram.com/equal_love.official/" target="_blank" rel="noopener" class="social-link"><span class="social-icon">笆</span> Instagram</a>
+                        <a href="https://www.youtube.com/channel/UCv7VutirxDn3RWIJXI68n_A" target="_blank" rel="noopener" class="social-link"><span class="social-icon">笆ｶ</span> YouTube</a>
+                        <a href="https://www.tiktok.com/@equal_love_12" target="_blank" rel="noopener" class="social-link"><span class="social-icon">笙ｪ</span> TikTok</a>
+                        <a href="https://open.spotify.com/artist/1j2WhcTW00Zd2SjFYsJVc6" target="_blank" rel="noopener" class="social-link"><span class="social-icon">笙ｫ</span> Spotify</a>
                     </div>
                 </div>
 
                 <footer class="footer">
-                    <p>This is an unofficial fan site. All rights belong to =LOVE, 代々木アニメーション学院, and Sony Music.</p>
-                    <p class="footer-heart">Built with Three.js ♡ 2026</p>
+                    <p>This is an unofficial fan site. All rights belong to =LOVE, 莉｣縲・惠繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ蟄ｦ髯｢, and Sony Music.</p>
+                    <p class="footer-heart">Built with Three.js 笙｡ 2026</p>
                 </footer>
             </div>
         </section>
@@ -711,10 +681,18 @@
 
     <!-- Floating Action Button -->
     <div id="fab-container">
-        <button id="fab-top" class="fab" title="トップへ戻る">↑</button>
+        <button id="fab-top" class="fab" title="繝医ャ繝励∈謌ｻ繧・>竊・/button>
     </div>
 
-    <!-- Video Overlay (コンパクトミニバー) -->\n    <div id=\"video-overlay\" class=\"video-overlay\">\n        <div id=\"video-overlay-title\" class=\"video-overlay-title\"></div>\n        <div class=\"video-overlay-controls\">\n            <button id=\"video-skip-btn\" class=\"video-control-btn\" title=\"次の曲\">⏭</button>\n            <button id=\"video-autoplay-btn\" class=\"video-control-btn active\" title=\"自動再生 ON\">⟳</button>\n        </div>\n        <button id=\"video-overlay-close\" class=\"video-overlay-close\" title=\"閉じる\">✕</button>\n    </div>
+    <!-- Video Overlay (繧ｳ繝ｳ繝代け繝医Α繝九ヰ繝ｼ) -->
+    <div id="video-overlay" class="video-overlay">
+        <div id="video-overlay-title" class="video-overlay-title"></div>
+        <div class="video-overlay-controls">
+            <button id="video-skip-btn" class="video-control-btn" title="谺｡縺ｮ譖ｲ">竢ｭ</button>
+            <button id="video-autoplay-btn" class="video-control-btn active" title="閾ｪ蜍募・逕・ON">筺ｳ</button>
+        </div>
+        <button id="video-overlay-close" class="video-overlay-close" title="髢峨§繧・>笨・/button>
+    </div>
 
     <script type="importmap">
     {
