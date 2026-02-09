@@ -1583,6 +1583,232 @@ const songThemes = {
         mood: 'explosive', laserSpeed: 1.5, strobeChance: 0.35,
         shaderTint: [1.0, 0.95, 0.95], cameraShake: 0.015,
     },
+    // ===== 19th カップリング =====
+    'Pyts1pc0u1A': { // Queens
+        name: 'queens', bpm: 150, intensity: 1.35,
+        primary: [0.85, 0.6, 0.0], secondary: [1.0, 0.85, 0.3], accent: [1.0, 0.95, 0.7],
+        mood: 'intense', laserSpeed: 1.6, strobeChance: 0.45,
+        shaderTint: [0.9, 0.65, 0.1], cameraShake: 0.016,
+    },
+    '4xBmuiQNGdc': { // 木漏れ日メゾフォルテ
+        name: 'komorebi', bpm: 120, intensity: 0.85,
+        primary: [0.4, 0.8, 0.3], secondary: [0.7, 0.95, 0.5], accent: [1.0, 1.0, 0.7],
+        mood: 'cheerful', laserSpeed: 0.7, strobeChance: 0.1,
+        shaderTint: [0.5, 0.85, 0.4], cameraShake: 0.004,
+    },
+    // ===== 18th カップリング =====
+    'd20dEAtbL08': { // 超特急逃走中
+        name: 'chotokkyu', bpm: 168, intensity: 1.5,
+        primary: [1.0, 0.3, 0.0], secondary: [1.0, 0.6, 0.1], accent: [1.0, 1.0, 0.0],
+        mood: 'explosive', laserSpeed: 2.2, strobeChance: 0.6,
+        shaderTint: [1.0, 0.35, 0.05], cameraShake: 0.022,
+    },
+    // ===== 17th カップリング =====
+    'D0SfIi-0Zpo': { // 仲直りシュークリーム
+        name: 'nakanaori', bpm: 130, intensity: 1.0,
+        primary: [1.0, 0.85, 0.5], secondary: [1.0, 0.6, 0.7], accent: [1.0, 0.95, 0.85],
+        mood: 'sweet', laserSpeed: 0.8, strobeChance: 0.12,
+        shaderTint: [1.0, 0.8, 0.55], cameraShake: 0.005,
+    },
+    'i024yWd9oiI': { // 海とレモンティー
+        name: 'umi_lemon', bpm: 108, intensity: 0.8,
+        primary: [0.2, 0.7, 0.9], secondary: [1.0, 0.9, 0.3], accent: [0.5, 0.95, 0.8],
+        mood: 'emotional', laserSpeed: 0.5, strobeChance: 0.06,
+        shaderTint: [0.3, 0.7, 0.85], cameraShake: 0.003,
+    },
+    // ===== 16th カップリング =====
+    'E4PVynHrfp8': { // 誰にもバレずに
+        name: 'darenimo', bpm: 92, intensity: 0.85,
+        primary: [0.3, 0.25, 0.5], secondary: [0.6, 0.4, 0.75], accent: [0.9, 0.7, 1.0],
+        mood: 'emotional', laserSpeed: 0.5, strobeChance: 0.06,
+        shaderTint: [0.4, 0.3, 0.55], cameraShake: 0.003,
+    },
+    'xmo-UbsUZE4': { // 君の第3ボタン
+        name: 'dai3button', bpm: 124, intensity: 0.9,
+        primary: [0.4, 0.7, 1.0], secondary: [0.7, 0.85, 1.0], accent: [1.0, 0.9, 0.8],
+        mood: 'sweet', laserSpeed: 0.7, strobeChance: 0.1,
+        shaderTint: [0.5, 0.7, 1.0], cameraShake: 0.004,
+    },
+    // ===== 15th カップリング =====
+    'Y3aRUM8ebKE': { // ドライブ デート 都内
+        name: 'drive_date', bpm: 116, intensity: 0.9,
+        primary: [0.9, 0.5, 0.7], secondary: [1.0, 0.7, 0.8], accent: [1.0, 0.85, 0.9],
+        mood: 'sweet', laserSpeed: 0.7, strobeChance: 0.1,
+        shaderTint: [0.9, 0.55, 0.7], cameraShake: 0.004,
+    },
+    'RG_B3gfOzLo': { // 狂想カタストロフィ
+        name: 'kyousou', bpm: 176, intensity: 1.5,
+        primary: [0.6, 0.0, 0.2], secondary: [0.3, 0.0, 0.4], accent: [1.0, 0.1, 0.3],
+        mood: 'dark', laserSpeed: 2.2, strobeChance: 0.6,
+        shaderTint: [0.55, 0.05, 0.25], cameraShake: 0.022,
+    },
+    'Mdsq8dUNvrI': { // どこが好きか言って
+        name: 'dokoga', bpm: 130, intensity: 1.0,
+        primary: [1.0, 0.55, 0.65], secondary: [0.9, 0.4, 0.8], accent: [1.0, 0.85, 0.9],
+        mood: 'sweet', laserSpeed: 0.8, strobeChance: 0.15,
+        shaderTint: [1.0, 0.5, 0.65], cameraShake: 0.006,
+    },
+    // ===== 14th カップリング =====
+    'zKkx-rtOIPo': { // だからとて
+        name: 'dakaratote', bpm: 88, intensity: 0.8,
+        primary: [0.4, 0.35, 0.6], secondary: [0.6, 0.5, 0.8], accent: [0.85, 0.75, 1.0],
+        mood: 'emotional', laserSpeed: 0.4, strobeChance: 0.05,
+        shaderTint: [0.45, 0.4, 0.65], cameraShake: 0.003,
+    },
+    'B2teLF9l4aI': { // ヒロインズ
+        name: 'heroines', bpm: 140, intensity: 1.15,
+        primary: [1.0, 0.4, 0.55], secondary: [1.0, 0.7, 0.3], accent: [1.0, 0.9, 0.6],
+        mood: 'dramatic', laserSpeed: 1.2, strobeChance: 0.3,
+        shaderTint: [1.0, 0.45, 0.55], cameraShake: 0.01,
+    },
+    'u_Y91a-uILM': { // ラブロケ
+        name: 'lovrocket', bpm: 156, intensity: 1.3,
+        primary: [1.0, 0.2, 0.5], secondary: [1.0, 0.5, 0.7], accent: [1.0, 0.9, 0.4],
+        mood: 'energetic', laserSpeed: 1.5, strobeChance: 0.4,
+        shaderTint: [1.0, 0.3, 0.5], cameraShake: 0.014,
+    },
+    // ===== 13th カップリング =====
+    'POBlJq_P8os': { // Junkies
+        name: 'junkies', bpm: 160, intensity: 1.4,
+        primary: [0.2, 0.1, 0.3], secondary: [0.8, 0.2, 0.5], accent: [1.0, 0.0, 0.8],
+        mood: 'intense', laserSpeed: 1.8, strobeChance: 0.5,
+        shaderTint: [0.3, 0.15, 0.35], cameraShake: 0.018,
+    },
+    '11SXnMJKljk': { // ラブクリエイト
+        name: 'lovecreate', bpm: 134, intensity: 1.1,
+        primary: [1.0, 0.5, 0.6], secondary: [0.9, 0.3, 0.7], accent: [1.0, 0.8, 0.85],
+        mood: 'cheerful', laserSpeed: 1.0, strobeChance: 0.2,
+        shaderTint: [1.0, 0.5, 0.6], cameraShake: 0.008,
+    },
+    'WB30LnBxwfk': { // Kiara Tiara
+        name: 'kiaratiara', bpm: 128, intensity: 1.0,
+        primary: [0.8, 0.6, 1.0], secondary: [1.0, 0.7, 0.9], accent: [0.95, 0.85, 1.0],
+        mood: 'sparkling', laserSpeed: 0.9, strobeChance: 0.15,
+        shaderTint: [0.8, 0.65, 1.0], cameraShake: 0.006,
+    },
+    // ===== 12th カップリング =====
+    'nqgFDf46MZI': { // わたし、魔法使い
+        name: 'mahotsukai', bpm: 144, intensity: 1.2,
+        primary: [0.6, 0.3, 1.0], secondary: [0.9, 0.5, 1.0], accent: [1.0, 0.8, 1.0],
+        mood: 'sparkling', laserSpeed: 1.3, strobeChance: 0.3,
+        shaderTint: [0.65, 0.35, 1.0], cameraShake: 0.01,
+    },
+    'qzFBzJ2KWwY': { // 真夜中マーメイド
+        name: 'mermaid', bpm: 96, intensity: 0.85,
+        primary: [0.1, 0.3, 0.7], secondary: [0.2, 0.5, 0.9], accent: [0.5, 0.8, 1.0],
+        mood: 'emotional', laserSpeed: 0.5, strobeChance: 0.06,
+        shaderTint: [0.15, 0.35, 0.75], cameraShake: 0.003,
+    },
+    // ===== 11th カップリング =====
+    'LKwERkGBiog': { // 笑顔のレシピ
+        name: 'egao_recipe', bpm: 126, intensity: 0.95,
+        primary: [1.0, 0.8, 0.3], secondary: [1.0, 0.6, 0.5], accent: [1.0, 0.95, 0.7],
+        mood: 'cheerful', laserSpeed: 0.8, strobeChance: 0.12,
+        shaderTint: [1.0, 0.75, 0.35], cameraShake: 0.005,
+    },
+    'IplzPaWoFXo': { // 知らんけど
+        name: 'shirankedo', bpm: 148, intensity: 1.2,
+        primary: [1.0, 0.3, 0.2], secondary: [1.0, 0.6, 0.3], accent: [1.0, 0.9, 0.4],
+        mood: 'energetic', laserSpeed: 1.3, strobeChance: 0.35,
+        shaderTint: [1.0, 0.35, 0.25], cameraShake: 0.012,
+    },
+    'AJ1GQ-iLyEM': { // 僕のヒロイン
+        name: 'boku_heroine', bpm: 82, intensity: 0.75,
+        primary: [0.5, 0.6, 1.0], secondary: [0.75, 0.8, 1.0], accent: [1.0, 0.9, 1.0],
+        mood: 'emotional', laserSpeed: 0.4, strobeChance: 0.05,
+        shaderTint: [0.55, 0.65, 1.0], cameraShake: 0.003,
+    },
+    // ===== 10th カップリング =====
+    'oCb89c0MDVk': { // お姫様にしてよ！
+        name: 'ohimesama', bpm: 138, intensity: 1.1,
+        primary: [1.0, 0.6, 0.8], secondary: [1.0, 0.4, 0.65], accent: [1.0, 0.9, 0.95],
+        mood: 'sweet', laserSpeed: 0.9, strobeChance: 0.18,
+        shaderTint: [1.0, 0.55, 0.75], cameraShake: 0.007,
+    },
+    '2l7yxbJ2Eqc': { // Poison Girl
+        name: 'poisongirl', bpm: 154, intensity: 1.35,
+        primary: [0.5, 0.0, 0.6], secondary: [0.8, 0.1, 0.5], accent: [1.0, 0.0, 1.0],
+        mood: 'dark', laserSpeed: 1.7, strobeChance: 0.45,
+        shaderTint: [0.55, 0.05, 0.6], cameraShake: 0.016,
+    },
+    'TCTylb6qGdw': { // BPM170の君へ
+        name: 'bpm170', bpm: 170, intensity: 1.45,
+        primary: [1.0, 0.1, 0.3], secondary: [1.0, 0.5, 0.2], accent: [1.0, 0.9, 0.3],
+        mood: 'explosive', laserSpeed: 2.0, strobeChance: 0.55,
+        shaderTint: [1.0, 0.15, 0.35], cameraShake: 0.02,
+    },
+    // ===== 9th カップリング =====
+    'L7QUReMgJBY': { // ズッ友案件
+        name: 'zuttomo', bpm: 146, intensity: 1.2,
+        primary: [1.0, 0.5, 0.0], secondary: [1.0, 0.8, 0.2], accent: [1.0, 1.0, 0.5],
+        mood: 'energetic', laserSpeed: 1.3, strobeChance: 0.3,
+        shaderTint: [1.0, 0.55, 0.1], cameraShake: 0.011,
+    },
+    '8VBDO8ZQyDo': { // 夏祭り恋慕う
+        name: 'natsumatsuri', bpm: 110, intensity: 0.9,
+        primary: [1.0, 0.4, 0.2], secondary: [1.0, 0.7, 0.1], accent: [0.9, 0.3, 0.6],
+        mood: 'emotional', laserSpeed: 0.6, strobeChance: 0.08,
+        shaderTint: [1.0, 0.45, 0.25], cameraShake: 0.004,
+    },
+    'm8WtzVPXxwU': { // 祝祭
+        name: 'shukusai', bpm: 158, intensity: 1.35,
+        primary: [0.9, 0.7, 0.0], secondary: [1.0, 0.5, 0.2], accent: [1.0, 0.95, 0.4],
+        mood: 'passionate', laserSpeed: 1.5, strobeChance: 0.4,
+        shaderTint: [0.9, 0.7, 0.1], cameraShake: 0.014,
+    },
+    // ===== 8th カップリング =====
+    'hTu7a1kRXYQ': { // しゅきぴ
+        name: 'shukipi', bpm: 136, intensity: 1.1,
+        primary: [1.0, 0.5, 0.7], secondary: [1.0, 0.3, 0.55], accent: [1.0, 0.85, 0.9],
+        mood: 'cheerful', laserSpeed: 1.0, strobeChance: 0.2,
+        shaderTint: [1.0, 0.5, 0.65], cameraShake: 0.008,
+    },
+    'FbMXfjeUXXA': { // 流星群
+        name: 'ryuseigun', bpm: 78, intensity: 0.7,
+        primary: [0.15, 0.2, 0.5], secondary: [0.3, 0.4, 0.8], accent: [0.7, 0.8, 1.0],
+        mood: 'emotional', laserSpeed: 0.3, strobeChance: 0.03,
+        shaderTint: [0.2, 0.25, 0.55], cameraShake: 0.002,
+    },
+    // ===== 6th カップリング =====
+    'TA0oDNGCFHQ': { // Sweetest girl
+        name: 'sweetestgirl', bpm: 118, intensity: 0.9,
+        primary: [1.0, 0.7, 0.8], secondary: [0.95, 0.5, 0.7], accent: [1.0, 0.9, 0.95],
+        mood: 'sweet', laserSpeed: 0.7, strobeChance: 0.1,
+        shaderTint: [1.0, 0.65, 0.75], cameraShake: 0.004,
+    },
+    // ===== 5th カップリング =====
+    'hRdSH41gjx0': { // いらない ツインテール
+        name: 'twintail', bpm: 142, intensity: 1.15,
+        primary: [1.0, 0.4, 0.6], secondary: [1.0, 0.65, 0.8], accent: [1.0, 0.9, 0.5],
+        mood: 'cheerful', laserSpeed: 1.1, strobeChance: 0.25,
+        shaderTint: [1.0, 0.45, 0.6], cameraShake: 0.009,
+    },
+    'qoPqgiQVhok': { // 虹の素
+        name: 'nijinomoto', bpm: 86, intensity: 0.75,
+        primary: [0.4, 0.7, 1.0], secondary: [0.6, 0.9, 0.8], accent: [1.0, 0.8, 0.5],
+        mood: 'emotional', laserSpeed: 0.4, strobeChance: 0.05,
+        shaderTint: [0.45, 0.7, 1.0], cameraShake: 0.003,
+    },
+    // ===== アルバム曲 =====
+    '0ImFNEs7P_Q': { // 桜の咲く音がした
+        name: 'sakura_oto', bpm: 84, intensity: 0.75,
+        primary: [1.0, 0.7, 0.8], secondary: [1.0, 0.85, 0.9], accent: [1.0, 0.95, 0.95],
+        mood: 'emotional', laserSpeed: 0.4, strobeChance: 0.04,
+        shaderTint: [1.0, 0.75, 0.8], cameraShake: 0.002,
+    },
+    // ===== ソロ曲 =====
+    'PFBhWKdjBTQ': { // 拝啓 貴方様 (野口衣織ソロ)
+        name: 'haikei', bpm: 76, intensity: 0.7,
+        primary: [0.3, 0.4, 0.6], secondary: [0.5, 0.6, 0.8], accent: [0.8, 0.85, 1.0],
+        mood: 'emotional', laserSpeed: 0.3, strobeChance: 0.03,
+        shaderTint: [0.35, 0.45, 0.65], cameraShake: 0.002,
+    },
+    'j0m03h8KD2U': { // 現役アイドルちゅ〜 (齊藤なぎさソロ)
+        name: 'geneki', bpm: 152, intensity: 1.3,
+        primary: [1.0, 0.3, 0.5], secondary: [1.0, 0.6, 0.7], accent: [1.0, 0.9, 0.4],
+        mood: 'energetic', laserSpeed: 1.4, strobeChance: 0.35,
+        shaderTint: [1.0, 0.35, 0.5], cameraShake: 0.013,
+    },
 };
 // デフォルトテーマ
 const defaultTheme = {
@@ -1617,15 +1843,70 @@ const mvList = [
 
 // カップリング曲・配信曲・ソロ曲・特別映像など
 const extraMvList = [
+    // ─── 配信シングル ───
     { id: '1Cy9oaBAxns', title: '内緒バナシ', single: '配信限定', year: '2025', type: 'digital' },
+    // ─── 19th カップリング ───
+    { id: 'Pyts1pc0u1A', title: 'Queens', single: '19th c/w', year: '2025', type: 'coupling' },
+    { id: '4xBmuiQNGdc', title: '木漏れ日メゾフォルテ', single: '19th c/w', year: '2025', type: 'coupling' },
+    // ─── 18th カップリング ───
     { id: 'p-jc9qMpBb4', title: '恋人以上、好き未満', single: '18th c/w', year: '2025', type: 'coupling' },
+    { id: 'd20dEAtbL08', title: '超特急逃走中', single: '18th c/w', year: '2025', type: 'coupling' },
+    // ─── 17th カップリング ───
+    { id: 'D0SfIi-0Zpo', title: '仲直りシュークリーム', single: '17th c/w', year: '2024', type: 'coupling' },
+    { id: 'i024yWd9oiI', title: '海とレモンティー', single: '17th c/w', year: '2024', type: 'coupling' },
+    // ─── 16th カップリング ───
+    { id: 'E4PVynHrfp8', title: '誰にもバレずに', single: '16th c/w', year: '2024', type: 'coupling' },
+    { id: 'xmo-UbsUZE4', title: '君の第3ボタン', single: '16th c/w', year: '2024', type: 'coupling' },
+    // ─── 15th カップリング ───
+    { id: 'Y3aRUM8ebKE', title: 'ドライブ デート 都内', single: '15th c/w', year: '2023', type: 'coupling' },
+    { id: 'RG_B3gfOzLo', title: '狂想カタストロフィ', single: '15th c/w', year: '2023', type: 'coupling' },
+    { id: 'Mdsq8dUNvrI', title: 'どこが好きか言って', single: '15th c/w', year: '2023', type: 'coupling' },
+    // ─── 14th カップリング ───
+    { id: 'zKkx-rtOIPo', title: 'だからとて', single: '14th c/w', year: '2023', type: 'coupling' },
+    { id: 'B2teLF9l4aI', title: 'ヒロインズ', single: '14th c/w', year: '2023', type: 'coupling' },
+    { id: 'u_Y91a-uILM', title: 'ラブロケ', single: '14th c/w', year: '2023', type: 'coupling' },
+    // ─── 13th カップリング ───
+    { id: 'POBlJq_P8os', title: 'Junkies', single: '13th c/w', year: '2023', type: 'coupling' },
+    { id: '11SXnMJKljk', title: 'ラブクリエイト', single: '13th c/w', year: '2023', type: 'coupling' },
+    { id: 'WB30LnBxwfk', title: 'Kiara Tiara', single: '13th c/w', year: '2023', type: 'coupling' },
+    // ─── 12th カップリング ───
     { id: 'Jsz-Hzb4fyY', title: '好きって、言えなかった', single: '12th c/w', year: '2022', type: 'coupling' },
+    { id: 'nqgFDf46MZI', title: 'わたし、魔法使い', single: '12th c/w', year: '2022', type: 'coupling' },
+    { id: 'qzFBzJ2KWwY', title: '真夜中マーメイド', single: '12th c/w', year: '2022', type: 'coupling' },
+    // ─── 11th カップリング ───
+    { id: 'LKwERkGBiog', title: '笑顔のレシピ', single: '11th c/w', year: '2022', type: 'coupling' },
+    { id: 'IplzPaWoFXo', title: '知らんけど', single: '11th c/w', year: '2022', type: 'coupling' },
+    { id: 'AJ1GQ-iLyEM', title: '僕のヒロイン', single: '11th c/w', year: '2022', type: 'coupling' },
+    // ─── 10th カップリング ───
+    { id: 'oCb89c0MDVk', title: 'お姫様にしてよ！', single: '10th c/w', year: '2021', type: 'coupling' },
+    { id: '2l7yxbJ2Eqc', title: 'Poison Girl', single: '10th c/w', year: '2021', type: 'coupling' },
+    { id: 'TCTylb6qGdw', title: 'BPM170の君へ', single: '10th c/w', year: '2021', type: 'coupling' },
+    // ─── 9th カップリング ───
+    { id: 'L7QUReMgJBY', title: 'ズッ友案件', single: '9th c/w', year: '2021', type: 'coupling' },
+    { id: '8VBDO8ZQyDo', title: '夏祭り恋慕う', single: '9th c/w', year: '2021', type: 'coupling' },
+    { id: 'm8WtzVPXxwU', title: '祝祭', single: '9th c/w', year: '2021', type: 'coupling' },
+    // ─── 8th カップリング ───
+    { id: 'hTu7a1kRXYQ', title: 'しゅきぴ', single: '8th c/w', year: '2020', type: 'coupling' },
+    { id: 'FbMXfjeUXXA', title: '流星群', single: '8th c/w', year: '2020', type: 'coupling' },
+    // ─── 7th カップリング ───
     { id: 'juImxVpogRY', title: '君と私の歌', single: '7th c/w', year: '2020', type: 'coupling' },
+    // ─── 6th カップリング ───
     { id: 'E8OqOUTLesg', title: '推しのいる世界', single: '6th c/w', year: '2019', type: 'coupling' },
+    { id: 'TA0oDNGCFHQ', title: 'Sweetest girl', single: '6th c/w', year: '2019', type: 'coupling' },
+    // ─── 5th カップリング ───
+    { id: 'hRdSH41gjx0', title: 'いらない ツインテール', single: '5th c/w', year: '2019', type: 'coupling' },
+    { id: 'qoPqgiQVhok', title: '虹の素', single: '5th c/w', year: '2019', type: 'coupling' },
+    // ─── アルバム曲 ───
+    { id: '0ImFNEs7P_Q', title: '桜の咲く音がした', single: '1st Album', year: '2023', type: 'coupling' },
+    // ─── ソロ曲 ───
+    { id: 'PFBhWKdjBTQ', title: '拝啓 貴方様', single: '野口衣織 ソロ', year: '2023', type: 'solo' },
+    { id: 'j0m03h8KD2U', title: '現役アイドルちゅ〜', single: '齊藤なぎさ ソロ', year: '2023', type: 'solo' },
     { id: '3qUaLsDj__M', title: 'おかえり、花便り', single: '山本杏奈 ソロ', year: '2024', type: 'solo' },
     { id: 'mxKcIpKgwP0', title: '宝物はグリーン', single: '諸橋沙夏 ソロ', year: '2024', type: 'solo' },
+    // ─── コラボ ───
     { id: 'aC4CdVDFzB4', title: '次に会えた時 何を話そうかな', single: '=LOVE / ≠ME', year: '2022', type: 'collab' },
     { id: 'gkabNNfTjX4', title: 'トリプルデート', single: 'イコノイジョイ', year: '2023', type: 'collab' },
+    // ─── 特別映像 ───
     { id: 'FdfipkGBLd0', title: 'あの子コンプレックス', single: 'THE FIRST TAKE', year: '2023', type: 'special' },
     { id: '90ghDaXOygs', title: '絶対アイドル辞めないで', single: 'THE FIRST TAKE', year: '2024', type: 'special' },
 ];
