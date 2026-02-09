@@ -1277,9 +1277,6 @@ memberCards.forEach(card => {
         document.getElementById('tab-profile')?.classList.add('active');
 
         modal?.classList.add('active');
-        // 背景スクロール禁止（スクロール位置保存）
-        window._modalScrollY = window.scrollY;
-        document.body.style.top = `-${window._modalScrollY}px`;
         document.body.classList.add('modal-open');
 
         // Start 3D particle effect in modal
@@ -1294,12 +1291,16 @@ memberCards.forEach(card => {
 function closeModal() {
     modal?.classList.remove('active');
     document.body.classList.remove('modal-open');
-    document.body.style.top = '';
-    window.scrollTo(0, window._modalScrollY || 0);
     stopModal3D();
 }
 document.querySelector('.modal-close')?.addEventListener('click', closeModal);
 document.querySelector('.modal-backdrop')?.addEventListener('click', closeModal);
+
+// iOS Safari: モーダル背景のタッチスクロール防止
+document.querySelector('.modal-backdrop')?.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+}, { passive: false });
+
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeModal();
@@ -1880,6 +1881,48 @@ document.getElementById('video-skip-btn')?.addEventListener('click', (e) => {
     playNextSong();
 });
 
+// 動画オーバーレイの一時停止/再生ボタン
+function toggleVideoPlayPause() {
+    const iframe = stageVideoIframe || document.getElementById('active-video-iframe');
+    if (!iframe) return;
+    const vpBtn = document.getElementById('video-pause-btn');
+    if (isMusicPlaying) {
+        iframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+        if (ytPlayer && ytPlayer.pauseVideo) { try { ytPlayer.pauseVideo(); } catch(e) {} }
+        isMusicPlaying = false;
+        musicBeat = 0;
+        if (vpBtn) vpBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+        // NOW PLAYING側も同期
+        const npBtn = document.getElementById('music-pause');
+        if (npBtn) npBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    } else {
+        iframe.contentWindow?.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        if (ytPlayer && ytPlayer.playVideo) {
+            try {
+                ytPlayer.playVideo();
+                setTimeout(() => { try { ytPlayer.unMute(); ytPlayer.setVolume(100); } catch(e) {} }, 300);
+            } catch(e) {}
+        }
+        isMusicPlaying = true;
+        startFakeAnalyser();
+        if (vpBtn) vpBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+        // NOW PLAYING側も同期
+        const npBtn = document.getElementById('music-pause');
+        if (npBtn) npBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+    }
+}
+
+document.getElementById('video-pause-btn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleVideoPlayPause();
+});
+
+// タイトルタップでも再生/停止
+document.getElementById('video-overlay-title')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleVideoPlayPause();
+});
+
 // 自動再生トグルボタン
 const autoPlayBtn = document.getElementById('video-autoplay-btn');
 if (autoPlayBtn) {
@@ -1892,31 +1935,9 @@ if (autoPlayBtn) {
     });
 }
 
-// 一時停止/再開ボタン — ステージ上のiframeを操作
+// 一時停止/再開ボタン — NOW PLAYING側（動画オーバーレイと同じ関数を使う）
 document.getElementById('music-pause')?.addEventListener('click', () => {
-    const iframe = stageVideoIframe || document.getElementById('active-video-iframe');
-    if (!iframe) return;
-    const pauseBtn = document.getElementById('music-pause');
-    if (isMusicPlaying) {
-        // postMessage で一時停止を送信
-        iframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-        if (ytPlayer && ytPlayer.pauseVideo) { try { ytPlayer.pauseVideo(); } catch(e) {} }
-        isMusicPlaying = false;
-        musicBeat = 0;
-        if (pauseBtn) pauseBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
-    } else {
-        iframe.contentWindow?.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-        if (ytPlayer && ytPlayer.playVideo) {
-            try {
-                ytPlayer.playVideo();
-                // Safari: ユーザー操作後にアンミュート
-                setTimeout(() => { try { ytPlayer.unMute(); ytPlayer.setVolume(100); } catch(e) {} }, 300);
-            } catch(e) {}
-        }
-        isMusicPlaying = true;
-        startFakeAnalyser();
-        if (pauseBtn) pauseBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
-    }
+    toggleVideoPlayPause();
 });
 
 // ==================== 強化ビートシミュレーター ====================

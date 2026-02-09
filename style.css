@@ -1329,6 +1329,8 @@ button { border: none; background: none; cursor: none; font-family: inherit; }
     padding: 0 8px;
     flex: 1;
     min-width: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .video-overlay-controls {
@@ -1496,6 +1498,7 @@ button { border: none; background: none; cursor: none; font-family: inherit; }
     display: none;
     align-items: center;
     justify-content: center;
+    overscroll-behavior: contain;
 }
 
 .modal.active {
@@ -1505,10 +1508,6 @@ button { border: none; background: none; cursor: none; font-family: inherit; }
 /* モーダル表示時は背景スクロール禁止＆UI非表示 */
 body.modal-open {
     overflow: hidden !important;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    touch-action: none;
 }
 body.modal-open #explore-btn,
 body.modal-open #explore-help {
@@ -2275,6 +2274,7 @@ body.modal-open #fab-container {
         padding-top: 56px;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
     }
     .modal-content {
         max-width: 95vw;
