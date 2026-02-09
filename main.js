@@ -61,7 +61,7 @@ orbitControls.target.set(0, -1, -8);
 // 探索モード切替ボタン
 const exploreBtn = document.createElement('button');
 exploreBtn.id = 'explore-btn';
-exploreBtn.innerHTML = '▶ ステージ探索';
+exploreBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px"><path d="M8 5v14l11-7z"/></svg> ステージ探索';
 exploreBtn.title = 'ステージを自由に見回す';
 document.body.appendChild(exploreBtn);
 
@@ -91,7 +91,7 @@ exploreHelp.innerHTML = `
             <div class="explore-song-label">曲を選択</div>
             <div class="explore-song-list" id="explore-song-list"></div>
         </div>
-        <button id="explore-close" class="explore-close-btn">✕ 通常モードに戻る</button>
+        <button id="explore-close" class="explore-close-btn"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg> 通常モードに戻る</button>
     </div>
 `;
 
@@ -1551,7 +1551,7 @@ if (musicGrid) {
         card.innerHTML = `
             <div class="music-thumb">
                 <img src="https://img.youtube.com/vi/${mv.id}/hqdefault.jpg" alt="${mv.title}" loading="lazy">
-                <div class="music-play-icon">▶</div>
+                <div class="music-play-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>
                 ${isNew ? '<div class="music-new-badge">NEW</div>' : ''}
             </div>
             <div class="music-info-text">
