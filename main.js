@@ -1277,6 +1277,9 @@ memberCards.forEach(card => {
         document.getElementById('tab-profile')?.classList.add('active');
 
         modal?.classList.add('active');
+        // 背景スクロール禁止（スクロール位置保存）
+        window._modalScrollY = window.scrollY;
+        document.body.style.top = `-${window._modalScrollY}px`;
         document.body.classList.add('modal-open');
 
         // Start 3D particle effect in modal
@@ -1288,13 +1291,18 @@ memberCards.forEach(card => {
 });
 
 // Close modal
-document.querySelector('.modal-close')?.addEventListener('click', () => { modal?.classList.remove('active'); document.body.classList.remove('modal-open'); stopModal3D(); });
-document.querySelector('.modal-backdrop')?.addEventListener('click', () => { modal?.classList.remove('active'); document.body.classList.remove('modal-open'); stopModal3D(); });
+function closeModal() {
+    modal?.classList.remove('active');
+    document.body.classList.remove('modal-open');
+    document.body.style.top = '';
+    window.scrollTo(0, window._modalScrollY || 0);
+    stopModal3D();
+}
+document.querySelector('.modal-close')?.addEventListener('click', closeModal);
+document.querySelector('.modal-backdrop')?.addEventListener('click', closeModal);
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-        modal?.classList.remove('active');
-        document.body.classList.remove('modal-open');
-        stopModal3D();
+        closeModal();
         // 動画オーバーレイも閉じる
         closeVideoOverlay();
     }
@@ -1649,15 +1657,25 @@ function playMV(videoId, title) {
             },
             events: {
                 onReady: (event) => {
-                    // 全環境で確実に再生開始
-                    if (isMobile) {
-                        event.target.mute();
-                    }
+                    // 全環境: ミュート状態で再生開始（ブラウザポリシー対策）
+                    event.target.mute();
                     event.target.playVideo();
-                    if (isMobile) {
-                        // モバイルではミュートで再生開始し、少し待ってアンミュート
-                        setTimeout(() => { try { event.target.unMute(); event.target.setVolume(100); } catch(e) {} }, 1200);
-                    }
+                    // Safari対策: playVideo()が効かない場合のリトライ
+                    setTimeout(() => {
+                        try {
+                            const state = event.target.getPlayerState();
+                            if (state !== YT.PlayerState.PLAYING && state !== YT.PlayerState.BUFFERING) {
+                                event.target.playVideo();
+                            }
+                        } catch(e) {}
+                    }, 600);
+                    // アンミュート（少し待ってから）
+                    setTimeout(() => {
+                        try {
+                            event.target.unMute();
+                            event.target.setVolume(100);
+                        } catch(e) {}
+                    }, 1500);
                 },
                 onStateChange: (event) => {
                     if (event.data === YT.PlayerState.ENDED && autoPlayEnabled && isMusicPlaying) {
@@ -1681,7 +1699,7 @@ function playMV(videoId, title) {
         // フォールバック: 通常のiframe（YT API未ロード時）
         const stageIframe = document.createElement('iframe');
         stageIframe.id = 'stage-video-iframe';
-        stageIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1&controls=1&playsinline=1&origin=${encodeURIComponent(window.location.origin)}`;
+        stageIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&enablejsapi=1&controls=1&playsinline=1&origin=${encodeURIComponent(window.location.origin)}`;
         stageIframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
         stageIframe.setAttribute('allowfullscreen', '');
         stageIframe.style.cssText = 'position:absolute;border:none;background:#000;pointer-events:auto;border-radius:6px;box-shadow:0 0 80px rgba(255,105,180,0.4),0 0 160px rgba(138,43,226,0.2);';
@@ -1888,7 +1906,13 @@ document.getElementById('music-pause')?.addEventListener('click', () => {
         if (pauseBtn) pauseBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
     } else {
         iframe.contentWindow?.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-        if (ytPlayer && ytPlayer.playVideo) { try { ytPlayer.playVideo(); } catch(e) {} }
+        if (ytPlayer && ytPlayer.playVideo) {
+            try {
+                ytPlayer.playVideo();
+                // Safari: ユーザー操作後にアンミュート
+                setTimeout(() => { try { ytPlayer.unMute(); ytPlayer.setVolume(100); } catch(e) {} }, 300);
+            } catch(e) {}
+        }
         isMusicPlaying = true;
         startFakeAnalyser();
         if (pauseBtn) pauseBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
