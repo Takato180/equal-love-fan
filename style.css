@@ -484,16 +484,17 @@ button { border: none; background: none; cursor: none; font-family: inherit; }
     align-items: center;
     justify-content: center;
     position: relative;
+    padding: 40px 20px;
 }
 
 .section-content {
     max-width: 1200px;
     width: 100%;
     padding: 120px 50px;
-    background: rgba(5, 3, 15, 0.65);
+    background: rgba(5, 3, 15, 0.55);
     border-radius: 24px;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
 }
 
 /* ========== HERO ========== */
@@ -1501,6 +1502,15 @@ button { border: none; background: none; cursor: none; font-family: inherit; }
     display: flex;
 }
 
+/* モーダル表示時は探索ボタン・ヘルプを隠す */
+body.modal-open #explore-btn,
+body.modal-open #explore-help {
+    display: none !important;
+}
+body.modal-open #fab-container {
+    display: none !important;
+}
+
 .modal-backdrop {
     position: absolute;
     top: 0;
@@ -2216,8 +2226,9 @@ button { border: none; background: none; cursor: none; font-family: inherit; }
 @media (max-width: 768px) {
     #navbar { padding: 12px 20px; }
     .nav-links { display: none; }
-    .nav-hamburger { display: flex; }
-    .section-content { padding: 60px 16px; }
+    .nav-hamburger { display: flex; z-index: 1002; }
+    .section { padding: 60px 10px; }
+    .section-content { padding: 50px 16px; }
     .section-title { margin-bottom: 40px; }
     .title-en { font-size: 1.6rem; letter-spacing: 0.05em; }
     .title-jp { font-size: 0.75rem; letter-spacing: 0.3em; }
@@ -2281,11 +2292,14 @@ button { border: none; background: none; cursor: none; font-family: inherit; }
     #audio-visualizer { bottom: 15px; }
     #fab-container { bottom: 20px; right: 16px; }
     .fab { width: 44px; height: 44px; font-size: 1rem; }
-    #explore-btn { bottom: 130px; right: 16px; font-size: 0.75rem; padding: 8px 14px; }
+    #explore-btn { bottom: 80px; right: 12px; font-size: 0.65rem; padding: 6px 10px; opacity: 0.7; }
+    #explore-btn:hover, #explore-btn:active { opacity: 1; }
+    #explore-help { right: 10px !important; bottom: 120px !important; max-width: 240px !important; min-width: 200px !important; }
 }
 
 @media (max-width: 480px) {
-    .section-content { padding: 50px 12px; }
+    .section { padding: 50px 6px; }
+    .section-content { padding: 40px 12px; }
     .section-title { margin-bottom: 30px; }
     .title-en { font-size: 1.3rem; }
     .title-jp { font-size: 0.7rem; letter-spacing: 0.2em; }
@@ -2704,10 +2718,31 @@ button { border: none; background: none; cursor: none; font-family: inherit; }
         padding: 2px 0;
         border-bottom-width: 2px;
     }
+
+    /* 探索ボタンをモバイルでは控えめに */
+    #explore-btn {
+        padding: 5px 10px;
+        font-size: 0.6rem;
+        opacity: 0.6;
+        bottom: 74px;
+        right: 10px;
+    }
+    #explore-btn.active { opacity: 1; }
+
+    /* 探索ヘルプパネルをコンパクトに */
+    #explore-help {
+        max-width: 220px !important;
+        min-width: 180px !important;
+        right: 8px !important;
+        bottom: 110px !important;
+    }
+    #explore-help .explore-preset { font-size: 0.65rem; padding: 6px 10px; }
+    #explore-help .explore-song-btn { font-size: 0.7rem; padding: 5px 8px; }
 }
 
 @media (max-width: 360px) {
-    .section-content { padding: 40px 10px; }
+    .section { padding: 40px 4px; }
+    .section-content { padding: 35px 10px; }
     .title-en { font-size: 1.1rem; }
     .line-1 { font-size: 1.8rem; }
     .line-2 { font-size: 0.7rem; letter-spacing: 0.2em; }

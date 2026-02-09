@@ -1277,6 +1277,7 @@ memberCards.forEach(card => {
         document.getElementById('tab-profile')?.classList.add('active');
 
         modal?.classList.add('active');
+        document.body.classList.add('modal-open');
 
         // Start 3D particle effect in modal
         startModal3D(color1, color2);
@@ -1287,11 +1288,12 @@ memberCards.forEach(card => {
 });
 
 // Close modal
-document.querySelector('.modal-close')?.addEventListener('click', () => { modal?.classList.remove('active'); stopModal3D(); });
-document.querySelector('.modal-backdrop')?.addEventListener('click', () => { modal?.classList.remove('active'); stopModal3D(); });
+document.querySelector('.modal-close')?.addEventListener('click', () => { modal?.classList.remove('active'); document.body.classList.remove('modal-open'); stopModal3D(); });
+document.querySelector('.modal-backdrop')?.addEventListener('click', () => { modal?.classList.remove('active'); document.body.classList.remove('modal-open'); stopModal3D(); });
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         modal?.classList.remove('active');
+        document.body.classList.remove('modal-open');
         stopModal3D();
         // 動画オーバーレイも閉じる
         closeVideoOverlay();
@@ -1637,13 +1639,23 @@ function playMV(videoId, title) {
         const playerDiv = document.createElement('div');
         playerDiv.id = 'stage-video-iframe';
         stageVideoContainer.appendChild(playerDiv);
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 768;
         ytPlayer = new YT.Player('stage-video-iframe', {
             videoId: videoId,
             playerVars: {
                 autoplay: 1, rel: 0, modestbranding: 1, enablejsapi: 1, controls: 1,
+                playsinline: 1,
                 origin: window.location.origin,
             },
             events: {
+                onReady: (event) => {
+                    // モバイルではミュートで自動再生開始し、少し待ってからアンミュート
+                    if (isMobile) {
+                        event.target.mute();
+                        event.target.playVideo();
+                        setTimeout(() => { try { event.target.unMute(); } catch(e) {} }, 800);
+                    }
+                },
                 onStateChange: (event) => {
                     if (event.data === YT.PlayerState.ENDED && autoPlayEnabled && isMusicPlaying) {
                         if (autoPlayTimer) clearTimeout(autoPlayTimer);
@@ -1666,7 +1678,7 @@ function playMV(videoId, title) {
         // フォールバック: 通常のiframe（YT API未ロード時）
         const stageIframe = document.createElement('iframe');
         stageIframe.id = 'stage-video-iframe';
-        stageIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1&controls=1&origin=${encodeURIComponent(window.location.origin)}`;
+        stageIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1&controls=1&playsinline=1&origin=${encodeURIComponent(window.location.origin)}`;
         stageIframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
         stageIframe.setAttribute('allowfullscreen', '');
         stageIframe.style.cssText = 'position:absolute;border:none;background:#000;pointer-events:auto;border-radius:6px;box-shadow:0 0 80px rgba(255,105,180,0.4),0 0 160px rgba(138,43,226,0.2);';
