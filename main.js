@@ -2284,17 +2284,29 @@ function updateStageVideoOverlay() {
         stageVideoShowingIframe = true;
     }
 
-    // 四隅をスクリーン座標に射影（GLBモデル時はスクリーンサイズが異なる）
-    const isGlb = activeScreen === glbBackScreen;
-    const halfW = isGlb ? 6 : 12, halfH = isGlb ? 3.5 : 5;
-    const corners = [
-        new THREE.Vector3(-halfW, halfH, 0),
-        new THREE.Vector3(halfW, halfH, 0),
-        new THREE.Vector3(-halfW, -halfH, 0),
-        new THREE.Vector3(halfW, -halfH, 0),
-    ];
+    // 四隅をスクリーン座標に射影（GLBモデル時は実際のジオメトリから算出）
+    let screenCorners;
+    if (activeScreen === glbBackScreen && glbBackScreen) {
+        // GLBメッシュのバウンディングボックスから四隅を取得
+        if (!glbBackScreen.geometry.boundingBox) glbBackScreen.geometry.computeBoundingBox();
+        const bb = glbBackScreen.geometry.boundingBox;
+        screenCorners = [
+            new THREE.Vector3(bb.min.x, bb.max.y, bb.min.z),
+            new THREE.Vector3(bb.max.x, bb.max.y, bb.min.z),
+            new THREE.Vector3(bb.min.x, bb.min.y, bb.min.z),
+            new THREE.Vector3(bb.max.x, bb.min.y, bb.min.z),
+        ];
+    } else {
+        const halfW = 12, halfH = 5;
+        screenCorners = [
+            new THREE.Vector3(-halfW, halfH, 0),
+            new THREE.Vector3(halfW, halfH, 0),
+            new THREE.Vector3(-halfW, -halfH, 0),
+            new THREE.Vector3(halfW, -halfH, 0),
+        ];
+    }
     const pts = [];
-    for (const c of corners) {
+    for (const c of screenCorners) {
         const w = c.clone().applyMatrix4(activeScreen.matrixWorld);
         const ndc = w.project(camera);
         if (ndc.z > 1) { stageVideoIframe.style.display = 'none'; return; }
@@ -2739,6 +2751,7 @@ const stageGroup = new THREE.Group();
 let glbStageModel = null; // GLBモデル参照
 let glbBackScreen = null; // GLBモデルのバックスクリーン参照
 let glbFrontScreens = []; // GLBモデルのフロントスクリーン参照
+let glbCeilingScreens = []; // GLBモデルの天井スクリーン参照
 const screenBorders = [];
 const stageMovingLights = [];
 const stageTowerLights = [];
@@ -3020,6 +3033,13 @@ function updateScreenPhoto(elapsed) {
                     fsTex.needsUpdate = true;
                     fs.material.map = fsTex;
                     fs.material.needsUpdate = true;
+                });
+                glbCeilingScreens.forEach(cs => {
+                    const csTex = tex.clone();
+                    csTex.flipY = false;
+                    csTex.needsUpdate = true;
+                    cs.material.map = csTex;
+                    cs.material.needsUpdate = true;
                 });
             }
         });
@@ -3713,6 +3733,9 @@ if (USE_GLB_STAGE) {
                     if (name === 'C02_Screen_Front01' || name === 'C03_Screen_Front02') {
                         glbFrontScreens.push(child);
                     }
+                    if (name === 'C04_Screen_Celling_01' || name === 'C05_Sticker_Celling') {
+                        glbCeilingScreens.push(child);
+                    }
                 }
             });
 
@@ -3736,14 +3759,28 @@ if (USE_GLB_STAGE) {
                                 side: THREE.DoubleSide,
                             });
                         });
+                        glbCeilingScreens.forEach(cs => {
+                            const csTex = tex.clone();
+                            csTex.flipY = false;
+                            csTex.needsUpdate = true;
+                            cs.material = new THREE.MeshBasicMaterial({
+                                map: csTex,
+                                side: THREE.DoubleSide,
+                                transparent: true,
+                                opacity: 0.8,
+                            });
+                        });
                     }
                 });
             }
 
-            // 従来の構造物を全て非表示に（GLBモデルが代替）
+            // 従来の構造物を非表示に（GLBモデルが代替）
+            // シルエットキャラクターは残す
             for (let i = 0; i < fallbackChildCount; i++) {
                 const child = stageGroup.children[i];
                 if (!child) continue;
+                // シルエットは残す
+                if (stageSilhouettes.includes(child)) continue;
                 child.visible = false;
             }
 
