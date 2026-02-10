@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 // ==================== SCENE SETUP ====================
 const canvas = document.getElementById('three-canvas');
@@ -10,6 +11,7 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true 
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setClearColor(0x050505, 1);
+renderer.outputColorSpace = THREE.SRGBColorSpace; // GLBテクスチャの色空間を正しく表示
 camera.position.set(0, 0, 5);
 
 // ==================== ステージ動画オーバーレイ ====================
@@ -2728,7 +2730,10 @@ for (let i = 0; i < spotCount; i++) {
 scene.add(spotGroup);
 
 // ==================== 3D LIVE STAGE（大規模アリーナ） ====================
+// GLBモデル使用フラグ（falseにすると従来のプログラム生成ステージにフォールバック）
+const USE_GLB_STAGE = true;
 const stageGroup = new THREE.Group();
+let glbStageModel = null; // GLBモデル参照
 const screenBorders = [];
 const stageMovingLights = [];
 const stageTowerLights = [];
@@ -3632,7 +3637,94 @@ const userGlow = new THREE.PointLight(0x6688cc, 0.4, 20);
 userGlow.position.set(0, 5, 28);
 stageGroup.add(userGlow);
 
+// --- 従来ステージ構造物にフォールバックタグを付与 ---
+// GLBロード成功時にこれらを非表示にする
+const fallbackChildCount = stageGroup.children.length; // GLBロード前の子要素数を記録
 
+// --- GLBモデルローダー ---
+if (USE_GLB_STAGE) {
+    const gltfLoader = new GLTFLoader();
+    // ローディングプログレス表示
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.id = 'glb-loading';
+    loadingOverlay.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:12px 28px;border-radius:24px;font-size:13px;z-index:9999;pointer-events:none;transition:opacity 0.8s;font-family:sans-serif;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.1);';
+    loadingOverlay.textContent = '🎪 ステージモデル読み込み中...';
+    document.body.appendChild(loadingOverlay);
+
+    gltfLoader.load(
+        'models/LiveStage.glb',
+        (gltf) => {
+            glbStageModel = gltf.scene;
+            // モデルのスケールと位置を調整（既存シーンに合わせる）
+            glbStageModel.scale.set(4.0, 4.0, 4.0);
+            glbStageModel.position.set(0, -5.8, -7);
+            glbStageModel.rotation.y = Math.PI; // ステージが観客側を向くように
+
+            // マテリアル調整（暗めのコンサートシーンに合わせる）
+            glbStageModel.traverse((child) => {
+                if (child.isMesh && child.material) {
+                    child.material.side = THREE.DoubleSide;
+                    const name = (child.name || '').toLowerCase();
+                    // StickLight（観客ペンライト）: アディティブブレンドで光らせる
+                    if (name.includes('stick') || name.includes('light')) {
+                        child.material.transparent = true;
+                        child.material.opacity = 0.7;
+                        child.material.blending = THREE.AdditiveBlending;
+                        child.material.depthWrite = false;
+                    }
+                    // Screen部分: エミッシブで発光感
+                    if (name.includes('screen')) {
+                        if (child.material.color) {
+                            child.material.emissive = child.material.color.clone();
+                            child.material.emissiveIntensity = 0.4;
+                        }
+                    }
+                }
+            });
+
+            stageGroup.add(glbStageModel);
+
+            // 従来の構造物を非表示に（GLBの前に追加された全ての子要素）
+            // ただしパーティクル・シルエット・エフェクト系は残す
+            for (let i = 0; i < fallbackChildCount; i++) {
+                const child = stageGroup.children[i];
+                if (!child) continue;
+                // 動的エフェクト要素は残す（Points, シルエット, ペンライトなど）
+                const keep =
+                    child.isPoints || // パーティクル系
+                    child.isLight || // ライト
+                    stageSilhouettes.includes(child) ||
+                    audiencePenlights.includes(child) ||
+                    child.userData?.isLantern ||
+                    child.userData?.isLotus;
+                if (!keep) {
+                    child.visible = false;
+                }
+            }
+
+            // ローディング完了
+            loadingOverlay.textContent = '✅ ステージモデル読み込み完了！';
+            loadingOverlay.style.opacity = '0';
+            setTimeout(() => loadingOverlay.remove(), 1200);
+            console.log('🎪 GLB Live Stage loaded successfully');
+            glbStageModel.traverse((child) => {
+                if (child.isMesh) console.log('  GLB Mesh:', child.name);
+            });
+        },
+        (progress) => {
+            if (progress.total > 0) {
+                const pct = Math.round((progress.loaded / progress.total) * 100);
+                loadingOverlay.textContent = `🎪 ステージモデル読み込み中... ${pct}%`;
+            }
+        },
+        (error) => {
+            console.warn('⚠️ GLB model load failed, using fallback programmatic stage:', error);
+            loadingOverlay.textContent = '⚠️ モデル読み込み失敗';
+            loadingOverlay.style.opacity = '0';
+            setTimeout(() => loadingOverlay.remove(), 2000);
+        }
+    );
+}
 
 stageGroup.renderOrder = 10;
 scene.add(stageGroup);
