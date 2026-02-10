@@ -10,39 +10,31 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true 
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setClearColor(0x0a0818, 1);
+renderer.setClearColor(0x050505, 1);
 renderer.sortObjects = true; // 透明オブジェクトの正しいソートを保証
 renderer.outputColorSpace = THREE.SRGBColorSpace; // GLBテクスチャの色空間を正しく表示
 camera.position.set(0, 0, 5);
 
 // ==================== ステージ照明 ====================
-// 全体を柔らかく照らす環境光（少し暖かみを持たせる）
-const ambientLight = new THREE.AmbientLight(0x443355, 0.7);
+// GLBモデルを最低限照らす環境光（元の暗い世界観を保持）
+const ambientLight = new THREE.AmbientLight(0x221133, 0.4);
 scene.add(ambientLight);
-// 上（ステージ照明 = 温かいピンク系）と下（フロア反射 = 深い紫）の2色ライト
-const hemiLight = new THREE.HemisphereLight(0x9966cc, 0x110a1e, 0.6);
+// 上下のグラデーション（控えめ）
+const hemiLight = new THREE.HemisphereLight(0x443366, 0x050505, 0.3);
 scene.add(hemiLight);
-// ステージ正面からのメインライト（少し強め・暖色寄り）
-const stageMainLight = new THREE.DirectionalLight(0xeeccff, 0.6);
-stageMainLight.position.set(0, 8, 5);
-stageMainLight.target.position.set(0, -5, -8);
-scene.add(stageMainLight);
-scene.add(stageMainLight.target);
-// ステージ上を照らすメインスポット
-const stageCenterSpot = new THREE.PointLight(0xff88cc, 1.2, 35);
+// GLB照明器具から出るスポットライト（後でGLBロード時にアタッチ）
+const glbSpotLights = [];  // GLB照明器具からのSpotLight配列
+// ステージ中央のベースライト（控えめに）
+const stageCenterSpot = new THREE.PointLight(0xff88cc, 0.6, 30);
 stageCenterSpot.position.set(0, 2, -7);
 scene.add(stageCenterSpot);
-// ステージ左右のアクセントライト
-const stageLeftSpot = new THREE.PointLight(0x6644ff, 0.5, 25);
+// ステージ左右のアクセントライト（控えめに）
+const stageLeftSpot = new THREE.PointLight(0x6644ff, 0.3, 20);
 stageLeftSpot.position.set(-8, 4, -8);
 scene.add(stageLeftSpot);
-const stageRightSpot = new THREE.PointLight(0xff4488, 0.5, 25);
+const stageRightSpot = new THREE.PointLight(0xff4488, 0.3, 20);
 stageRightSpot.position.set(8, 4, -8);
 scene.add(stageRightSpot);
-// 観客席を照らすバックライト（ペンライトの海を引き立てる）
-const audienceBackLight = new THREE.PointLight(0x4488ff, 0.3, 40);
-audienceBackLight.position.set(0, 6, 15);
-scene.add(audienceBackLight);
 
 // ==================== ステージ動画オーバーレイ ====================
 const stageVideoContainer = document.createElement('div');
@@ -122,7 +114,7 @@ exploreHelp.innerHTML = `
         <div class="explore-presets">
             <button class="explore-preset" data-view="front">正面</button>
             <button class="explore-preset" data-view="screen">スクリーン前</button>
-            <button class="explore-preset" data-view="stage">観客席</button>
+            <button class="explore-preset" data-view="stage">ステージ全体</button>
             <button class="explore-preset" data-view="audience">ステージ上</button>
             <button class="explore-preset" data-view="ceiling">天井演出</button>
             <button class="explore-preset" data-view="aerial">俯瞰</button>
@@ -189,8 +181,8 @@ document.body.appendChild(exploreHelp);
 const cameraPresets = {
     front:    { pos: [0, -3, 2],      target: [0, -4, -8] },     // 最前列からステージを見上げる
     screen:   { pos: [0, -2, -5],     target: [0, -3, -10] },    // スクリーン間近
-    stage:    { pos: [0, 0, 10],      target: [0, -3, -8] },     // 観客席中段からステージ全体
-    audience: { pos: [3, -2.5, -9],   target: [-2, -4, 3] },     // ステージ上・アイドル背中越しに客席を見下ろす
+    stage:    { pos: [3, -2.5, -9],   target: [-2, -4, 3] },     // ステージ上・アイドル視点で客席を見る
+    audience: { pos: [0, 0, 10],      target: [0, -3, -8] },     // 観客席中段からステージ全体を見渡す
     ceiling:  { pos: [0, -4.5, -4],   target: [0, 3, -9] },      // 下から天井スクリーンを見上げる
     aerial:   { pos: [8, 8, 6],       target: [0, -4, -8] },     // 斜め前方からの俯瞰（全体が見える）
     side:     { pos: [14, -1, -4],    target: [0, -4, -8] },     // サイドアリーナ
@@ -890,81 +882,6 @@ const sparkleMat = new THREE.PointsMaterial({
 
 const sparkles = new THREE.Points(sparkleGeo, sparkleMat);
 scene.add(sparkles);
-
-// ==================== 8.5) DREAMY BOKEH LIGHTS（夢のようなボケ光）====================
-// 会場全体を包む大きなボケ球（コンサートの光の海感を演出）
-const bokehLights = [];
-const bokehCount = 40;
-for (let i = 0; i < bokehCount; i++) {
-    const size = 0.3 + Math.random() * 1.2;
-    const bokehGeo = new THREE.SphereGeometry(size, 8, 8);
-    const hue = Math.random();
-    const bokehColor = new THREE.Color().setHSL(hue, 0.6, 0.65);
-    const bokehMat = new THREE.MeshBasicMaterial({
-        color: bokehColor,
-        transparent: true,
-        opacity: 0.04 + Math.random() * 0.06,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-    });
-    const bokeh = new THREE.Mesh(bokehGeo, bokehMat);
-    bokeh.position.set(
-        (Math.random() - 0.5) * 40,
-        Math.random() * 16 - 4,
-        (Math.random() - 0.5) * 35
-    );
-    bokeh.userData = {
-        isBokeh: true,
-        baseOpacity: bokehMat.opacity,
-        phase: Math.random() * Math.PI * 2,
-        pulseSpeed: 0.3 + Math.random() * 0.5,
-        driftX: (Math.random() - 0.5) * 0.003,
-        driftY: (Math.random() - 0.5) * 0.002,
-    };
-    scene.add(bokeh);
-    bokehLights.push(bokeh);
-}
-
-// ==================== 8.6) CONSTELLATION LINES（星座のような光の繋がり）====================
-// ステージ上空に星座のような淡い光の線を描画
-const constellationGroup = new THREE.Group();
-const constellationPoints = [];
-for (let i = 0; i < 18; i++) {
-    constellationPoints.push(new THREE.Vector3(
-        (Math.random() - 0.5) * 30,
-        6 + Math.random() * 10,
-        -15 + Math.random() * 20
-    ));
-}
-// 近い点同士を線で繋ぐ
-for (let i = 0; i < constellationPoints.length; i++) {
-    for (let j = i + 1; j < constellationPoints.length; j++) {
-        const dist = constellationPoints[i].distanceTo(constellationPoints[j]);
-        if (dist < 10) {
-            const lineGeo = new THREE.BufferGeometry().setFromPoints([constellationPoints[i], constellationPoints[j]]);
-            const lineMat = new THREE.LineBasicMaterial({
-                color: 0x8866ff,
-                transparent: true,
-                opacity: 0.08,
-                blending: THREE.AdditiveBlending,
-            });
-            constellationGroup.add(new THREE.Line(lineGeo, lineMat));
-        }
-    }
-    // 各点に小さな星
-    const starDotGeo = new THREE.SphereGeometry(0.06, 6, 6);
-    const starDotMat = new THREE.MeshBasicMaterial({
-        color: 0xccaaff,
-        transparent: true,
-        opacity: 0.5,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-    });
-    const starDot = new THREE.Mesh(starDotGeo, starDotMat);
-    starDot.position.copy(constellationPoints[i]);
-    constellationGroup.add(starDot);
-}
-scene.add(constellationGroup);
 
 // ==================== 9) SONG LYRIC TEXT PARTICLES ====================
 // Floating =LOVE song titles / lyrics
@@ -4125,8 +4042,74 @@ if (USE_GLB_STAGE) {
                         return;
                     }
 
-                    // StickLight（観客ペンライト）: アディティブブレンドで光らせる + 変数に保存
-                    if (nameLower.includes('stick') || nameLower.includes('light')) {
+                    // A_04_Light照明器具: SpotLightの光源として使用
+                    if (name === 'A_04_Light01' || name === 'A_04_Light02' || name === 'A_04_Light01_Emit' || name === 'A_04_Light02_Emit') {
+                        // 照明器具メッシュ自体を発光させる
+                        child.material = new THREE.MeshBasicMaterial({
+                            color: 0xff69b4,
+                            transparent: true,
+                            opacity: 0.9,
+                            blending: THREE.AdditiveBlending,
+                            depthWrite: false,
+                        });
+                        child.renderOrder = 5;
+
+                        // Emit系ノードからSpotLightを生成（照明器具から下向きにビームを出す）
+                        if (name.includes('Emit')) {
+                            // GLBメッシュのバウンディングボックスからワールド座標を計算
+                            child.geometry.computeBoundingBox();
+                            const bbox = child.geometry.boundingBox;
+                            const centerX = (bbox.min.x + bbox.max.x) / 2;
+                            const centerY = bbox.min.y;
+                            const centerZ = (bbox.min.z + bbox.max.z) / 2;
+
+                            // 照明器具の範囲に沿って複数のSpotLightを配置
+                            const lightCount = name.includes('01') ? 5 : 3; // Light01は大きいので5個、Light02は3個
+                            const xSpread = (bbox.max.x - bbox.min.x) * 0.7;
+                            for (let li = 0; li < lightCount; li++) {
+                                const t = lightCount > 1 ? (li / (lightCount - 1)) - 0.5 : 0;
+                                const spot = new THREE.SpotLight(0xff69b4, 0.3, 50, Math.PI / 6, 0.5, 1.5);
+                                // GLBモデルのスケール(4)とオフセット(0, -5.8, -7)を考慮
+                                spot.position.set(
+                                    (centerX + t * xSpread) * 4,
+                                    centerY * 4 - 5.8,
+                                    centerZ * 4 - 7
+                                );
+                                // ステージ床に向けてビームを出す
+                                const targetObj = new THREE.Object3D();
+                                targetObj.position.set(
+                                    (centerX + t * xSpread) * 4 + (Math.random() - 0.5) * 2,
+                                    -5.8,
+                                    centerZ * 4 - 7 + 3
+                                );
+                                scene.add(targetObj);
+                                spot.target = targetObj;
+                                spot.userData = {
+                                    baseTargetX: targetObj.position.x,
+                                    baseTargetZ: targetObj.position.z,
+                                    lightIndex: glbSpotLights.length,
+                                };
+                                scene.add(spot);
+                                glbSpotLights.push(spot);
+                            }
+                        }
+                        return;
+                    }
+
+                    // A_04_Audio（スピーカー等）: メタリック暗色
+                    if (name === 'A_04_Audio') {
+                        child.material = new THREE.MeshStandardMaterial({
+                            color: 0x222244,
+                            roughness: 0.5,
+                            metalness: 0.7,
+                            side: THREE.DoubleSide,
+                        });
+                        child.renderOrder = 0;
+                        return;
+                    }
+
+                    // B_StickLight（観客ペンライト）: アディティブブレンドで光らせる + 変数に保存
+                    if (name.startsWith('B_') && nameLower.includes('stick')) {
                         child.material = new THREE.MeshBasicMaterial({
                             color: 0xff69b4,
                             transparent: true,
@@ -4588,25 +4571,27 @@ function animate() {
     }
     sparkleGeo.attributes.position.needsUpdate = true;
 
-    // ===== BOKEH LIGHTS — ゆったり呼吸するボケ光 =====
-    for (const bokeh of bokehLights) {
-        const bd = bokeh.userData;
-        // ゆっくり明滅
-        const pulse = Math.sin(elapsed * bd.pulseSpeed + bd.phase) * 0.5 + 0.5;
-        bokeh.material.opacity = bd.baseOpacity * (0.4 + pulse * 0.6) * (1 + (isMusicPlaying ? musicBeat * 1.5 : 0));
-        // 微細な漂い
-        bokeh.position.x += bd.driftX;
-        bokeh.position.y += bd.driftY;
-        // 曲テーマカラーに徐々に染まる
+    // ===== GLB\u7167\u660e\u5668\u5177SpotLight\u30a2\u30cb\u30e1\u30fc\u30b7\u30e7\u30f3 =====
+    glbSpotLights.forEach((sl, idx) => {
         if (isMusicPlaying && currentSongTheme) {
-            const themeColor = new THREE.Color(currentSongTheme.primary);
-            bokeh.material.color.lerp(themeColor, 0.003);
+            const beatPulse = 0.5 + musicBeat * 2.0;
+            sl.intensity = beatPulse;
+            // 左右交互にカラーを切り替え
+            if (idx % 2 === 0) {
+                sl.color.set(currentSongTheme.primary);
+            } else {
+                sl.color.set(currentSongTheme.accent || currentSongTheme.primary);
+            }
+            // ビートに合わせて角度を揺らす
+            const swayAngle = Math.sin(elapsed * 2 + idx * 1.5) * 0.3 * musicBeat;
+            sl.target.position.x = sl.userData.baseTargetX + Math.sin(swayAngle + idx) * 4;
+            sl.target.position.z = sl.userData.baseTargetZ + Math.cos(swayAngle + idx * 0.7) * 2;
+            sl.target.updateMatrixWorld();
+        } else {
+            sl.intensity = 0.3;
+            sl.color.set(0xff69b4);
         }
-    }
-
-    // ===== CONSTELLATION — 星座の回転 =====
-    constellationGroup.rotation.y = elapsed * 0.015;
-    constellationGroup.rotation.x = Math.sin(elapsed * 0.05) * 0.05;
+    });
 
     // ===== LYRIC TEXT PARTICLES — 音楽再生中はより目立つ & 動きが速い =====
     lyricParticles.forEach(sprite => {
@@ -4824,22 +4809,22 @@ function animate() {
                 sm.material.emissive.lerp(stageEmissive, 0.08);
                 sm.material.emissiveIntensity = 0.3 + musicBeat * 0.2;
             });
-            // ステージ照明も曲テーマに連動
+            // ステージ照明も曲テーマに連動（控えめに）
             stageCenterSpot.color.set(currentSongTheme.primary);
-            stageCenterSpot.intensity = 1.2 + musicBeat * 1.8;
-            hemiLight.color.set(currentSongTheme.primary).multiplyScalar(0.5).add(new THREE.Color(0x332255));
+            stageCenterSpot.intensity = 0.6 + musicBeat * 1.0;
+            hemiLight.color.set(currentSongTheme.primary).multiplyScalar(0.3).add(new THREE.Color(0x221133));
             // 左右スポットもビートに連動
-            stageLeftSpot.intensity = 0.4 + musicBeat * 0.8;
-            stageRightSpot.intensity = 0.4 + musicBeat * 0.8;
+            stageLeftSpot.intensity = 0.2 + musicBeat * 0.5;
+            stageRightSpot.intensity = 0.2 + musicBeat * 0.5;
             stageLeftSpot.color.set(currentSongTheme.accent || currentSongTheme.primary);
             stageRightSpot.color.set(currentSongTheme.primary);
         } else {
             glbStageMeshes.forEach(sm => {
                 sm.material.emissiveIntensity = 0.25;
             });
-            stageCenterSpot.intensity = 1.0;
-            stageLeftSpot.intensity = 0.4;
-            stageRightSpot.intensity = 0.4;
+            stageCenterSpot.intensity = 0.5;
+            stageLeftSpot.intensity = 0.2;
+            stageRightSpot.intensity = 0.2;
         }
     }
 
@@ -5229,7 +5214,7 @@ const memberExtendedData = {
         ],
         history: '穂の国娘。から=LOVEへ。11thシングルから髙松瞳に代わりセンターを担当し、歌唱力と表現力でグループを新時代へ導いている。THE FIRST TAKE出演でも高い評価を得た。',
     },
-    '髙松 瞳': {
+    '高松 瞳': {
         height: '163cm', blood: 'AB型', fanName: 'eye\'s(#eyes)',
         role: '絶対的エースセンター / グループの顔',
         career: '-',
