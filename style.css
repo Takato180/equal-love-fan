@@ -3227,6 +3227,16 @@ body.explore-active .nav-hamburger {
     pointer-events: auto !important;
     z-index: 1002 !important;
 }
+body.explore-active .mobile-menu {
+    pointer-events: auto !important;
+    z-index: 1001 !important;
+}
+body.explore-active .mobile-menu.active {
+    right: 0;
+}
+body.explore-active .mobile-nav-link {
+    pointer-events: auto !important;
+}
 body.explore-active #bg-video-container {
     opacity: 0;
 }

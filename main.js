@@ -10,28 +10,39 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true 
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setClearColor(0x080818, 1);
+renderer.setClearColor(0x0a0818, 1);
 renderer.sortObjects = true; // 透明オブジェクトの正しいソートを保証
 renderer.outputColorSpace = THREE.SRGBColorSpace; // GLBテクスチャの色空間を正しく表示
 camera.position.set(0, 0, 5);
 
 // ==================== ステージ照明 ====================
-// 全体を柔らかく照らす環境光
-const ambientLight = new THREE.AmbientLight(0x334466, 0.6);
+// 全体を柔らかく照らす環境光（少し暖かみを持たせる）
+const ambientLight = new THREE.AmbientLight(0x443355, 0.7);
 scene.add(ambientLight);
-// 上（ステージ照明）と下（フロア反射）の2色ライト
-const hemiLight = new THREE.HemisphereLight(0x6644aa, 0x0a0a2e, 0.5);
+// 上（ステージ照明 = 温かいピンク系）と下（フロア反射 = 深い紫）の2色ライト
+const hemiLight = new THREE.HemisphereLight(0x9966cc, 0x110a1e, 0.6);
 scene.add(hemiLight);
-// ステージ正面からのメインライト
-const stageMainLight = new THREE.DirectionalLight(0xccaaff, 0.4);
+// ステージ正面からのメインライト（少し強め・暖色寄り）
+const stageMainLight = new THREE.DirectionalLight(0xeeccff, 0.6);
 stageMainLight.position.set(0, 8, 5);
 stageMainLight.target.position.set(0, -5, -8);
 scene.add(stageMainLight);
 scene.add(stageMainLight.target);
-// ステージ上を照らすスポット
-const stageCenterSpot = new THREE.PointLight(0xff88cc, 1.0, 30);
+// ステージ上を照らすメインスポット
+const stageCenterSpot = new THREE.PointLight(0xff88cc, 1.2, 35);
 stageCenterSpot.position.set(0, 2, -7);
 scene.add(stageCenterSpot);
+// ステージ左右のアクセントライト
+const stageLeftSpot = new THREE.PointLight(0x6644ff, 0.5, 25);
+stageLeftSpot.position.set(-8, 4, -8);
+scene.add(stageLeftSpot);
+const stageRightSpot = new THREE.PointLight(0xff4488, 0.5, 25);
+stageRightSpot.position.set(8, 4, -8);
+scene.add(stageRightSpot);
+// 観客席を照らすバックライト（ペンライトの海を引き立てる）
+const audienceBackLight = new THREE.PointLight(0x4488ff, 0.3, 40);
+audienceBackLight.position.set(0, 6, 15);
+scene.add(audienceBackLight);
 
 // ==================== ステージ動画オーバーレイ ====================
 const stageVideoContainer = document.createElement('div');
@@ -880,6 +891,81 @@ const sparkleMat = new THREE.PointsMaterial({
 const sparkles = new THREE.Points(sparkleGeo, sparkleMat);
 scene.add(sparkles);
 
+// ==================== 8.5) DREAMY BOKEH LIGHTS（夢のようなボケ光）====================
+// 会場全体を包む大きなボケ球（コンサートの光の海感を演出）
+const bokehLights = [];
+const bokehCount = 40;
+for (let i = 0; i < bokehCount; i++) {
+    const size = 0.3 + Math.random() * 1.2;
+    const bokehGeo = new THREE.SphereGeometry(size, 8, 8);
+    const hue = Math.random();
+    const bokehColor = new THREE.Color().setHSL(hue, 0.6, 0.65);
+    const bokehMat = new THREE.MeshBasicMaterial({
+        color: bokehColor,
+        transparent: true,
+        opacity: 0.04 + Math.random() * 0.06,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+    });
+    const bokeh = new THREE.Mesh(bokehGeo, bokehMat);
+    bokeh.position.set(
+        (Math.random() - 0.5) * 40,
+        Math.random() * 16 - 4,
+        (Math.random() - 0.5) * 35
+    );
+    bokeh.userData = {
+        isBokeh: true,
+        baseOpacity: bokehMat.opacity,
+        phase: Math.random() * Math.PI * 2,
+        pulseSpeed: 0.3 + Math.random() * 0.5,
+        driftX: (Math.random() - 0.5) * 0.003,
+        driftY: (Math.random() - 0.5) * 0.002,
+    };
+    scene.add(bokeh);
+    bokehLights.push(bokeh);
+}
+
+// ==================== 8.6) CONSTELLATION LINES（星座のような光の繋がり）====================
+// ステージ上空に星座のような淡い光の線を描画
+const constellationGroup = new THREE.Group();
+const constellationPoints = [];
+for (let i = 0; i < 18; i++) {
+    constellationPoints.push(new THREE.Vector3(
+        (Math.random() - 0.5) * 30,
+        6 + Math.random() * 10,
+        -15 + Math.random() * 20
+    ));
+}
+// 近い点同士を線で繋ぐ
+for (let i = 0; i < constellationPoints.length; i++) {
+    for (let j = i + 1; j < constellationPoints.length; j++) {
+        const dist = constellationPoints[i].distanceTo(constellationPoints[j]);
+        if (dist < 10) {
+            const lineGeo = new THREE.BufferGeometry().setFromPoints([constellationPoints[i], constellationPoints[j]]);
+            const lineMat = new THREE.LineBasicMaterial({
+                color: 0x8866ff,
+                transparent: true,
+                opacity: 0.08,
+                blending: THREE.AdditiveBlending,
+            });
+            constellationGroup.add(new THREE.Line(lineGeo, lineMat));
+        }
+    }
+    // 各点に小さな星
+    const starDotGeo = new THREE.SphereGeometry(0.06, 6, 6);
+    const starDotMat = new THREE.MeshBasicMaterial({
+        color: 0xccaaff,
+        transparent: true,
+        opacity: 0.5,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+    });
+    const starDot = new THREE.Mesh(starDotGeo, starDotMat);
+    starDot.position.copy(constellationPoints[i]);
+    constellationGroup.add(starDot);
+}
+scene.add(constellationGroup);
+
 // ==================== 9) SONG LYRIC TEXT PARTICLES ====================
 // Floating =LOVE song titles / lyrics
 const lyricTexts = [
@@ -1259,8 +1345,21 @@ hamburger?.addEventListener('click', () => {
 
 document.querySelectorAll('.mobile-nav-link').forEach(link => {
     link.addEventListener('click', () => {
+        // 探索モード中にナビリンクをクリックしたら探索モードも解除
+        if (exploreMode) {
+            toggleExploreMode();
+        }
         hamburger?.classList.remove('active');
         mobileMenu?.classList.remove('active');
+    });
+});
+
+// デスクトップナビリンクでも探索モード解除
+document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+        if (exploreMode) {
+            toggleExploreMode();
+        }
     });
 });
 
@@ -2125,71 +2224,70 @@ function playMV(videoId, title) {
     createSongTransitionFlash(currentSongTheme);
 
     // ★ サムネイルをサブスクリーンに表示（GLBスクリーン含む全画面即時更新）
+    // screenPhotosに含まれない曲（カップリング等）も対応するため、直接videoIdからサムネイルを取得
     const photoIdx = screenPhotos.indexOf(videoId);
     if (photoIdx >= 0) {
         currentPhotoIndex = photoIdx;
-        lastPhotoChange = Infinity;
-        loadScreenPhoto(photoIdx).then(tex => {
-            if (tex) {
-                // サブスクリーンのみサムネイル
-                subScreens.forEach(ss => {
-                    ss.material.map = tex;
-                    ss.material.color.set(0xffffff);
-                    ss.material.needsUpdate = true;
-                });
-                // ★ GLBフロントスクリーンも即時更新
-                glbFrontScreens.forEach(fs => {
-                    const fsTex = tex.clone();
-                    fsTex.flipY = false;
-                    fsTex.needsUpdate = true;
-                    if (fs.material.map) fs.material.map.dispose();
-                    fs.material.map = fsTex;
-                    fs.material.needsUpdate = true;
-                });
-                // ★ GLB天井スクリーンも即時更新
-                glbCeilingScreens.forEach(cs => {
-                    const csTex = tex.clone();
-                    csTex.flipY = false;
-                    csTex.needsUpdate = true;
-                    if (cs.material.map) cs.material.map.dispose();
-                    cs.material.map = csTex;
-                    cs.material.needsUpdate = true;
-                });
-                // ★ GLBバックスクリーンも即時更新
-                if (glbBackScreen) {
-                    const glbTex = tex.clone();
-                    glbTex.flipY = false;
-                    glbTex.needsUpdate = true;
-                    if (glbBackScreen.material.map) glbBackScreen.material.map.dispose();
-                    glbBackScreen.material.map = glbTex;
-                    glbBackScreen.material.needsUpdate = true;
-                }
-                // ★ GLBペンライトの色を曲テーマに合わせる
-                if (currentSongTheme && glbStickLights.length > 0) {
-                    const themeColor = new THREE.Color(currentSongTheme.primary);
-                    glbStickLights.forEach(sl => {
-                        sl.material.color.copy(themeColor);
-                        sl.material.emissive.copy(themeColor);
-                        sl.material.needsUpdate = true;
-                    });
-                }
-            }
-        });
     }
+    lastPhotoChange = Infinity; // 自動切替を一時停止
+
+    // 全曲対応：YouTubeサムネイルを直接読み込んでGLBスクリーンに反映
+    const songThumbLoader = new THREE.TextureLoader();
+    songThumbLoader.load(`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`, (tex) => {
+        if (tex) {
+            // サブスクリーン
+            subScreens.forEach(ss => {
+                ss.material.map = tex;
+                ss.material.color.set(0xffffff);
+                ss.material.needsUpdate = true;
+            });
+            // ★ GLBフロントスクリーン即時更新
+            glbFrontScreens.forEach(fs => {
+                const fsTex = tex.clone();
+                fsTex.flipY = false;
+                fsTex.needsUpdate = true;
+                if (fs.material.map) fs.material.map.dispose();
+                fs.material.map = fsTex;
+                fs.material.needsUpdate = true;
+            });
+            // ★ GLB天井スクリーン即時更新
+            glbCeilingScreens.forEach(cs => {
+                const csTex = tex.clone();
+                csTex.flipY = false;
+                csTex.needsUpdate = true;
+                if (cs.material.map) cs.material.map.dispose();
+                cs.material.map = csTex;
+                cs.material.needsUpdate = true;
+            });
+            // ★ GLBバックスクリーン即時更新
+            if (glbBackScreen) {
+                const glbTex = tex.clone();
+                glbTex.flipY = false;
+                glbTex.needsUpdate = true;
+                if (glbBackScreen.material.map) glbBackScreen.material.map.dispose();
+                glbBackScreen.material.map = glbTex;
+                glbBackScreen.material.needsUpdate = true;
+            }
+            // ★ GLBペンライトの色を曲テーマに合わせる
+            if (currentSongTheme && glbStickLights.length > 0) {
+                const themeColor = new THREE.Color(currentSongTheme.primary);
+                glbStickLights.forEach(sl => {
+                    sl.material.color.copy(themeColor);
+                    sl.material.needsUpdate = true;
+                });
+            }
+            // ★ バックスクリーンにもテクスチャ反映
+            if (backScreen) {
+                backScreen.material.map = tex;
+                backScreen.material.color.set(0xffffff);
+                backScreen.material.opacity = 0.15;
+                backScreen.material.needsUpdate = true;
+            }
+        }
+    });
 
     // ★ ステージ演出を一気にMAXまでブースト
     musicBeat = 0.8;
-
-    // ★ バックスクリーンにサムネイルテクスチャ（斜め時の保険）
-    loadScreenPhoto(photoIdx >= 0 ? photoIdx : 0).then(tex => {
-        if (tex && backScreen) {
-            backScreen.material.map = tex;
-            backScreen.material.color.set(0xffffff);
-            backScreen.material.opacity = 0.15; // iframe表示中はテクスチャ薄く
-            backScreen.material.needsUpdate = true;
-        }
-
-    });
 
     // ★★★ 正面HTML動画オーバーレイ（バックスクリーン位置に重ねる）★★★
     removeStageVideo();
@@ -3062,12 +3160,41 @@ loadScreenPhoto(0).then(tex => {
 
 let lastPhotoChange = 0;
 function updateScreenPhoto(elapsed) {
-    if (elapsed - lastPhotoChange > 8) { // 6秒→8秒に延長（フェッチ頻度削減）
+    if (elapsed - lastPhotoChange > 8) {
         lastPhotoChange = elapsed;
-        currentPhotoIndex = (currentPhotoIndex + 1) % screenPhotos.length;
+        // 再生中の曲がscreenPhotosにある場合はその曲を固定、なければ直接サムネイルで固定
         if (currentSongId) {
             const idx = screenPhotos.indexOf(currentSongId);
-            if (idx >= 0) currentPhotoIndex = idx;
+            if (idx >= 0) {
+                currentPhotoIndex = idx;
+            } else {
+                // カップリング曲等：直接YouTubeサムネイルを読み込んで全スクリーンに反映
+                const directLoader = new THREE.TextureLoader();
+                directLoader.load(`https://img.youtube.com/vi/${currentSongId}/hqdefault.jpg`, (tex) => {
+                    if (tex) {
+                        if (backScreen.material.map && backScreen.material.map !== tex) backScreen.material.map.dispose();
+                        backScreen.material.map = tex;
+                        backScreen.material.needsUpdate = true;
+                        subScreens.forEach(ss => { ss.material.map = tex; ss.material.needsUpdate = true; });
+                        if (glbBackScreen) {
+                            const g = tex.clone(); g.flipY = false; g.needsUpdate = true;
+                            glbBackScreen.material.map = g; glbBackScreen.material.needsUpdate = true;
+                        }
+                        glbFrontScreens.forEach(fs => {
+                            const f = tex.clone(); f.flipY = false; f.needsUpdate = true;
+                            fs.material.map = f; fs.material.needsUpdate = true;
+                        });
+                        glbCeilingScreens.forEach(cs => {
+                            const c = tex.clone(); c.flipY = false; c.needsUpdate = true;
+                            if (cs.material.map) cs.material.map.dispose();
+                            cs.material.map = c; cs.material.opacity = 1.0; cs.material.needsUpdate = true;
+                        });
+                    }
+                });
+                return; // 直接読み込み済みなので以降のscreenPhotos処理をスキップ
+            }
+        } else {
+            currentPhotoIndex = (currentPhotoIndex + 1) % screenPhotos.length;
         }
         loadScreenPhoto(currentPhotoIndex).then(tex => {
             if (tex) {
@@ -3574,9 +3701,9 @@ for (let i = 0; i < 12; i++) {
     lGroup.add(roof);
 
     const side = i % 2 === 0 ? -1 : 1;
-    const baseX = side * (10 + Math.random() * 6);
-    const baseY = 2 + Math.random() * 6;
-    const baseZ = -5 - Math.random() * 12;
+    const baseX = side * (8 + Math.random() * 12);
+    const baseY = 1 + Math.random() * 10;
+    const baseZ = -20 + Math.random() * 35;
     lGroup.position.set(baseX, baseY, baseZ);
     lGroup.userData = { isLantern: true, baseX, baseY, baseZ, phase: Math.random() * Math.PI * 2 };
     stageGroup.add(lGroup);
@@ -3589,9 +3716,9 @@ const stageSakuraGeo = new THREE.BufferGeometry();
 const stageSakuraPos = new Float32Array(stageSakuraCount * 3);
 const stageSakuraVel = [];
 for (let i = 0; i < stageSakuraCount; i++) {
-    stageSakuraPos[i * 3] = (Math.random() - 0.5) * 40;
-    stageSakuraPos[i * 3 + 1] = Math.random() * 20 - 2;
-    stageSakuraPos[i * 3 + 2] = -20 + Math.random() * 24;
+    stageSakuraPos[i * 3] = (Math.random() - 0.5) * 60;
+    stageSakuraPos[i * 3 + 1] = Math.random() * 24 - 4;
+    stageSakuraPos[i * 3 + 2] = -25 + Math.random() * 55;
     stageSakuraVel.push({
         x: (Math.random() - 0.5) * 0.01,
         y: -0.005 - Math.random() * 0.008,
@@ -3616,9 +3743,9 @@ const goldDustCount = 80;
 const goldGeo = new THREE.BufferGeometry();
 const goldPos = new Float32Array(goldDustCount * 3);
 for (let i = 0; i < goldDustCount; i++) {
-    goldPos[i * 3] = (Math.random() - 0.5) * 35;
-    goldPos[i * 3 + 1] = Math.random() * 15 - 3;
-    goldPos[i * 3 + 2] = -18 + Math.random() * 20;
+    goldPos[i * 3] = (Math.random() - 0.5) * 55;
+    goldPos[i * 3 + 1] = Math.random() * 18 - 4;
+    goldPos[i * 3 + 2] = -22 + Math.random() * 50;
 }
 goldGeo.setAttribute('position', new THREE.BufferAttribute(goldPos, 3));
 const goldMat = new THREE.PointsMaterial({
@@ -3678,11 +3805,11 @@ for (let i = 0; i < 6; i++) {
     lotusGroup.add(new THREE.Mesh(coreGeo, coreMat));
 
     const lAngle = (i / 6) * Math.PI * 2;
-    const lRadius = 3 + Math.random() * 5;
+    const lRadius = 5 + Math.random() * 12;
     lotusGroup.position.set(
         Math.cos(lAngle) * lRadius,
-        -4 + Math.random() * 8,
-        -8 + Math.sin(lAngle) * lRadius * 0.5
+        -3 + Math.random() * 10,
+        -10 + Math.sin(lAngle) * lRadius * 0.6
     );
     lotusGroup.userData = {
         isLotus: true, phase: Math.random() * Math.PI * 2,
@@ -3715,9 +3842,9 @@ const fogGeo = new THREE.BufferGeometry();
 const fogPositions = new Float32Array(fogParticleCount * 3);
 const fogSizes = new Float32Array(fogParticleCount);
 for (let i = 0; i < fogParticleCount; i++) {
-    fogPositions[i * 3] = (Math.random() - 0.5) * 30;
-    fogPositions[i * 3 + 1] = -5 + Math.random() * 2;
-    fogPositions[i * 3 + 2] = -15 + Math.random() * 16;
+    fogPositions[i * 3] = (Math.random() - 0.5) * 50;
+    fogPositions[i * 3 + 1] = -5 + Math.random() * 3;
+    fogPositions[i * 3 + 2] = -20 + Math.random() * 40;
     fogSizes[i] = Math.random() * 3 + 1;
 }
 fogGeo.setAttribute('position', new THREE.BufferAttribute(fogPositions, 3));
@@ -4012,9 +4139,37 @@ if (USE_GLB_STAGE) {
                     }
                     // Screen部分: エミッシブで発光感
                     else if (nameLower.includes('screen') || nameLower.includes('celling') || nameLower.includes('sticker')) {
-                        if (child.material.color) {
-                            child.material.emissive = child.material.color.clone();
-                            child.material.emissiveIntensity = 0.5;
+                        // C06_Stage_Sticker はGLBの元テクスチャ（無関係画像）を置き換え
+                        if (name === 'C06_Stage_Sticker') {
+                            // 曲テーマカラーのグラデーションキャンバスで置き換え
+                            const stickerCanvas = document.createElement('canvas');
+                            stickerCanvas.width = 512; stickerCanvas.height = 256;
+                            const sCtx = stickerCanvas.getContext('2d');
+                            const grad = sCtx.createLinearGradient(0, 0, 512, 256);
+                            grad.addColorStop(0, '#1a0a2e');
+                            grad.addColorStop(0.3, '#2d1b69');
+                            grad.addColorStop(0.5, '#ff69b4');
+                            grad.addColorStop(0.7, '#2d1b69');
+                            grad.addColorStop(1, '#1a0a2e');
+                            sCtx.fillStyle = grad;
+                            sCtx.fillRect(0, 0, 512, 256);
+                            sCtx.font = 'bold 60px Poppins, sans-serif';
+                            sCtx.fillStyle = 'rgba(255,255,255,0.6)';
+                            sCtx.textAlign = 'center';
+                            sCtx.textBaseline = 'middle';
+                            sCtx.fillText('=LOVE', 256, 128);
+                            const stickerTex = new THREE.CanvasTexture(stickerCanvas);
+                            stickerTex.flipY = false;
+                            child.material = new THREE.MeshBasicMaterial({
+                                map: stickerTex,
+                                side: THREE.DoubleSide,
+                            });
+                            glbStageMeshes.push(child); // テーマカラー連動用
+                        } else {
+                            if (child.material.color) {
+                                child.material.emissive = child.material.color.clone();
+                                child.material.emissiveIntensity = 0.5;
+                            }
                         }
                         child.renderOrder = 2;
                     }
@@ -4433,6 +4588,26 @@ function animate() {
     }
     sparkleGeo.attributes.position.needsUpdate = true;
 
+    // ===== BOKEH LIGHTS — ゆったり呼吸するボケ光 =====
+    for (const bokeh of bokehLights) {
+        const bd = bokeh.userData;
+        // ゆっくり明滅
+        const pulse = Math.sin(elapsed * bd.pulseSpeed + bd.phase) * 0.5 + 0.5;
+        bokeh.material.opacity = bd.baseOpacity * (0.4 + pulse * 0.6) * (1 + (isMusicPlaying ? musicBeat * 1.5 : 0));
+        // 微細な漂い
+        bokeh.position.x += bd.driftX;
+        bokeh.position.y += bd.driftY;
+        // 曲テーマカラーに徐々に染まる
+        if (isMusicPlaying && currentSongTheme) {
+            const themeColor = new THREE.Color(currentSongTheme.primary);
+            bokeh.material.color.lerp(themeColor, 0.003);
+        }
+    }
+
+    // ===== CONSTELLATION — 星座の回転 =====
+    constellationGroup.rotation.y = elapsed * 0.015;
+    constellationGroup.rotation.x = Math.sin(elapsed * 0.05) * 0.05;
+
     // ===== LYRIC TEXT PARTICLES — 音楽再生中はより目立つ & 動きが速い =====
     lyricParticles.forEach(sprite => {
         const ud = sprite.userData;
@@ -4651,13 +4826,20 @@ function animate() {
             });
             // ステージ照明も曲テーマに連動
             stageCenterSpot.color.set(currentSongTheme.primary);
-            stageCenterSpot.intensity = 1.0 + musicBeat * 1.5;
+            stageCenterSpot.intensity = 1.2 + musicBeat * 1.8;
             hemiLight.color.set(currentSongTheme.primary).multiplyScalar(0.5).add(new THREE.Color(0x332255));
+            // 左右スポットもビートに連動
+            stageLeftSpot.intensity = 0.4 + musicBeat * 0.8;
+            stageRightSpot.intensity = 0.4 + musicBeat * 0.8;
+            stageLeftSpot.color.set(currentSongTheme.accent || currentSongTheme.primary);
+            stageRightSpot.color.set(currentSongTheme.primary);
         } else {
             glbStageMeshes.forEach(sm => {
                 sm.material.emissiveIntensity = 0.25;
             });
-            stageCenterSpot.intensity = 0.8;
+            stageCenterSpot.intensity = 1.0;
+            stageLeftSpot.intensity = 0.4;
+            stageRightSpot.intensity = 0.4;
         }
     }
 
@@ -4764,7 +4946,7 @@ function animate() {
         d.orbitAngle += 0.002;
         lotus.position.x = Math.cos(d.orbitAngle) * d.orbitRadius;
         lotus.position.y = d.baseY + Math.sin(elapsed * 0.4 + d.phase) * 0.6;
-        lotus.position.z = -8 + Math.sin(d.orbitAngle) * d.orbitRadius * 0.5;
+        lotus.position.z = -6 + Math.sin(d.orbitAngle) * d.orbitRadius * 0.6;
         lotus.rotation.y = elapsed * 0.3 + d.phase;
     }
 
