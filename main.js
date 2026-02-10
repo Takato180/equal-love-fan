@@ -2734,6 +2734,8 @@ scene.add(spotGroup);
 const USE_GLB_STAGE = true;
 const stageGroup = new THREE.Group();
 let glbStageModel = null; // GLBモデル参照
+let glbBackScreen = null; // GLBモデルのバックスクリーン参照
+let glbFrontScreens = []; // GLBモデルのフロントスクリーン参照
 const screenBorders = [];
 const stageMovingLights = [];
 const stageTowerLights = [];
@@ -3000,6 +3002,15 @@ function updateScreenPhoto(elapsed) {
                 subScreens.forEach(ss => {
                     ss.material.map = tex;
                     ss.material.needsUpdate = true;
+                });
+                // GLBスクリーンにも同期
+                if (glbBackScreen) {
+                    glbBackScreen.material.map = tex;
+                    glbBackScreen.material.needsUpdate = true;
+                }
+                glbFrontScreens.forEach(fs => {
+                    fs.material.map = tex;
+                    fs.material.needsUpdate = true;
                 });
             }
         });
@@ -3648,7 +3659,7 @@ if (USE_GLB_STAGE) {
     const loadingOverlay = document.createElement('div');
     loadingOverlay.id = 'glb-loading';
     loadingOverlay.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:12px 28px;border-radius:24px;font-size:13px;z-index:9999;pointer-events:none;transition:opacity 0.8s;font-family:sans-serif;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.1);';
-    loadingOverlay.textContent = '🎪 ステージモデル読み込み中...';
+    loadingOverlay.textContent = 'ステージモデル読み込み中...';
     document.body.appendChild(loadingOverlay);
 
     gltfLoader.load(
@@ -3684,29 +3695,49 @@ if (USE_GLB_STAGE) {
 
             stageGroup.add(glbStageModel);
 
-            // 従来の構造物を非表示に（GLBの前に追加された全ての子要素）
-            // ただしパーティクル・シルエット・エフェクト系は残す
+            // GLBモデル内のスクリーンメッシュを探して写真システムと連携
+            glbStageModel.traverse((child) => {
+                if (child.isMesh) {
+                    const name = child.name || '';
+                    if (name === 'C01_Screen_Back') {
+                        glbBackScreen = child;
+                    }
+                    if (name === 'C02_Screen_Front01' || name === 'C03_Screen_Front02') {
+                        glbFrontScreens.push(child);
+                    }
+                }
+            });
+
+            // GLBスクリーンにバックスクリーン写真を反映
+            if (glbBackScreen) {
+                loadScreenPhoto(0).then(tex => {
+                    if (tex) {
+                        glbBackScreen.material = new THREE.MeshBasicMaterial({
+                            map: tex,
+                            side: THREE.DoubleSide,
+                        });
+                        glbFrontScreens.forEach(fs => {
+                            fs.material = new THREE.MeshBasicMaterial({
+                                map: tex,
+                                side: THREE.DoubleSide,
+                            });
+                        });
+                    }
+                });
+            }
+
+            // 従来の構造物を全て非表示に（GLBモデルが代替）
             for (let i = 0; i < fallbackChildCount; i++) {
                 const child = stageGroup.children[i];
                 if (!child) continue;
-                // 動的エフェクト要素は残す（Points, シルエット, ペンライトなど）
-                const keep =
-                    child.isPoints || // パーティクル系
-                    child.isLight || // ライト
-                    stageSilhouettes.includes(child) ||
-                    audiencePenlights.includes(child) ||
-                    child.userData?.isLantern ||
-                    child.userData?.isLotus;
-                if (!keep) {
-                    child.visible = false;
-                }
+                child.visible = false;
             }
 
             // ローディング完了
-            loadingOverlay.textContent = '✅ ステージモデル読み込み完了！';
+            loadingOverlay.textContent = 'ステージモデル読み込み完了！';
             loadingOverlay.style.opacity = '0';
             setTimeout(() => loadingOverlay.remove(), 1200);
-            console.log('🎪 GLB Live Stage loaded successfully');
+            console.log('GLB Live Stage loaded successfully');
             glbStageModel.traverse((child) => {
                 if (child.isMesh) console.log('  GLB Mesh:', child.name);
             });
@@ -3714,12 +3745,12 @@ if (USE_GLB_STAGE) {
         (progress) => {
             if (progress.total > 0) {
                 const pct = Math.round((progress.loaded / progress.total) * 100);
-                loadingOverlay.textContent = `🎪 ステージモデル読み込み中... ${pct}%`;
+                loadingOverlay.textContent = `ステージモデル読み込み中... ${pct}%`;
             }
         },
         (error) => {
-            console.warn('⚠️ GLB model load failed, using fallback programmatic stage:', error);
-            loadingOverlay.textContent = '⚠️ モデル読み込み失敗';
+            console.warn('GLB model load failed, using fallback programmatic stage:', error);
+            loadingOverlay.textContent = 'モデル読み込み失敗';
             loadingOverlay.style.opacity = '0';
             setTimeout(() => loadingOverlay.remove(), 2000);
         }
