@@ -3916,6 +3916,54 @@ if (USE_GLB_STAGE) {
                     child.material.side = THREE.DoubleSide;
                     const name = child.name || '';
                     const nameLower = name.toLowerCase();
+
+                    // === 視界を遮るメッシュを処理 ===
+                    // 壁: 非表示（カメラの視界を完全に塞ぐ）
+                    if (name === 'A_02_Wall') {
+                        child.visible = false;
+                        return;
+                    }
+                    // 天井: 非表示（上からの俯瞰や天井スクリーンが見えなくなる）
+                    if (name === 'A_02_Ceiling') {
+                        child.visible = false;
+                        return;
+                    }
+                    // フェンス: 半透明ワイヤーフレーム風（前方視界を確保）
+                    if (name === 'A_05_Fence') {
+                        child.material = new THREE.MeshBasicMaterial({
+                            color: 0x333355,
+                            transparent: true,
+                            opacity: 0.15,
+                            wireframe: true,
+                            depthWrite: false,
+                        });
+                        return;
+                    }
+                    // 天井鉄骨: 半透明（構造は見せつつ邪魔しない）
+                    if (name === 'A_07_Celing_Iron') {
+                        child.material = new THREE.MeshBasicMaterial({
+                            color: 0x222244,
+                            transparent: true,
+                            opacity: 0.25,
+                            depthWrite: false,
+                        });
+                        return;
+                    }
+                    // スタンドボード（観客席の壁面）: 半透明
+                    if (name === 'A_03_StandBoard') {
+                        child.material = new THREE.MeshStandardMaterial({
+                            color: 0x0a0a2e,
+                            transparent: true,
+                            opacity: 0.4,
+                            roughness: 0.8,
+                            metalness: 0.2,
+                            side: THREE.DoubleSide,
+                            depthWrite: false,
+                        });
+                        glbStageMeshes.push(child);
+                        return;
+                    }
+
                     // StickLight（観客ペンライト）: アディティブブレンドで光らせる + 変数に保存
                     if (nameLower.includes('stick') || nameLower.includes('light')) {
                         child.material = new THREE.MeshBasicMaterial({
@@ -3936,7 +3984,17 @@ if (USE_GLB_STAGE) {
                             child.material.emissiveIntensity = 0.5;
                         }
                     }
-                    // ステージ本体(A_01_Main, A_02_Floor等): ダークネイビー＋微光
+                    // D_Emit系（発光装飾）: アディティブで光らせる
+                    else if (name.startsWith('D_')) {
+                        child.material = new THREE.MeshBasicMaterial({
+                            color: child.material.color ? child.material.color.clone() : new THREE.Color(0x6644aa),
+                            transparent: true,
+                            opacity: 0.7,
+                            blending: THREE.AdditiveBlending,
+                            depthWrite: false,
+                        });
+                    }
+                    // ステージ本体(A_01_Main, A_02_Floor, A_06_Truss等): ダークネイビー＋微光
                     else if (name.startsWith('A_')) {
                         child.material = new THREE.MeshStandardMaterial({
                             color: 0x0a0a2e,
