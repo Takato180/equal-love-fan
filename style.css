@@ -2271,6 +2271,23 @@ body.modal-open #fab-container {
     font-size: 0.65rem !important;
 }
 
+.footer-credit {
+    color: rgba(200, 200, 220, 0.4) !important;
+    font-size: 0.6rem !important;
+    margin-top: 6px !important;
+}
+
+.footer-credit a {
+    color: rgba(200, 200, 220, 0.5);
+    text-decoration: none;
+    border-bottom: 1px dotted rgba(200, 200, 220, 0.3);
+    transition: color 0.3s;
+}
+
+.footer-credit a:hover {
+    color: rgba(255, 200, 255, 0.7);
+}
+
 .footer-heart {
     color: rgba(255, 105, 180, 0.5) !important;
 }
