@@ -160,11 +160,11 @@ const cameraPresets = {
     front:    { pos: [0, -3, 2],      target: [0, -4, -8] },     // 最前列からステージを見上げる
     screen:   { pos: [0, -2, -5],     target: [0, -3, -10] },    // スクリーン間近
     stage:    { pos: [0, 0, 10],      target: [0, -3, -8] },     // 観客席中段からステージ全体
-    audience: { pos: [0, -3.5, -8],   target: [0, -2, 5] },      // ステージ上から客席を見渡す
+    audience: { pos: [3, -2.5, -9],   target: [-2, -4, 3] },     // ステージ上・アイドル背中越しに客席を見下ろす
     ceiling:  { pos: [0, -4.5, -4],   target: [0, 3, -9] },      // 下から天井スクリーンを見上げる
     aerial:   { pos: [8, 8, 6],       target: [0, -4, -8] },     // 斜め前方からの俯瞰（全体が見える）
     side:     { pos: [14, -1, -4],    target: [0, -4, -8] },     // サイドアリーナ
-    backstage:{ pos: [0, -3, -15],    target: [0, -3, -7] },     // 舞台裏からステージ背面
+    backstage:{ pos: [5, -1, -18],    target: [0, -4, -5] },     // 舞台裏から斜め上・裏方スタッフ視点
 };
 
 function animateCameraTo(preset, duration = 1200) {
@@ -2105,7 +2105,7 @@ function playMV(videoId, title) {
     // 曲のテーマカラーで背景にフラッシュ演出
     createSongTransitionFlash(currentSongTheme);
 
-    // ★ サムネイルをサブスクリーンに表示
+    // ★ サムネイルをサブスクリーンに表示（GLBスクリーン含む全画面即時更新）
     const photoIdx = screenPhotos.indexOf(videoId);
     if (photoIdx >= 0) {
         currentPhotoIndex = photoIdx;
@@ -2118,6 +2118,42 @@ function playMV(videoId, title) {
                     ss.material.color.set(0xffffff);
                     ss.material.needsUpdate = true;
                 });
+                // ★ GLBフロントスクリーンも即時更新
+                glbFrontScreens.forEach(fs => {
+                    const fsTex = tex.clone();
+                    fsTex.flipY = false;
+                    fsTex.needsUpdate = true;
+                    if (fs.material.map) fs.material.map.dispose();
+                    fs.material.map = fsTex;
+                    fs.material.needsUpdate = true;
+                });
+                // ★ GLB天井スクリーンも即時更新
+                glbCeilingScreens.forEach(cs => {
+                    const csTex = tex.clone();
+                    csTex.flipY = false;
+                    csTex.needsUpdate = true;
+                    if (cs.material.map) cs.material.map.dispose();
+                    cs.material.map = csTex;
+                    cs.material.needsUpdate = true;
+                });
+                // ★ GLBバックスクリーンも即時更新
+                if (glbBackScreen) {
+                    const glbTex = tex.clone();
+                    glbTex.flipY = false;
+                    glbTex.needsUpdate = true;
+                    if (glbBackScreen.material.map) glbBackScreen.material.map.dispose();
+                    glbBackScreen.material.map = glbTex;
+                    glbBackScreen.material.needsUpdate = true;
+                }
+                // ★ GLBペンライトの色を曲テーマに合わせる
+                if (currentSongTheme && glbStickLights.length > 0) {
+                    const themeColor = new THREE.Color(currentSongTheme.primary);
+                    glbStickLights.forEach(sl => {
+                        sl.material.color.copy(themeColor);
+                        sl.material.emissive.copy(themeColor);
+                        sl.material.needsUpdate = true;
+                    });
+                }
             }
         });
     }
@@ -2757,6 +2793,8 @@ let glbStageModel = null; // GLBモデル参照
 let glbBackScreen = null; // GLBモデルのバックスクリーン参照
 let glbFrontScreens = []; // GLBモデルのフロントスクリーン参照
 let glbCeilingScreens = []; // GLBモデルの天井スクリーン参照
+let glbStickLights = []; // GLBモデルの観客ペンライト参照
+let glbStageMeshes = []; // GLBモデルのステージ本体メッシュ参照
 const screenBorders = [];
 const stageMovingLights = [];
 const stageTowerLights = [];
@@ -3872,24 +3910,43 @@ if (USE_GLB_STAGE) {
             glbStageModel.scale.set(4.0, 4.0, 4.0);
             glbStageModel.position.set(0, -5.8, -7);
 
-            // マテリアル調整（暗めのコンサートシーンに合わせる）
+            // マテリアル調整（ライブ会場風の雰囲気）
             glbStageModel.traverse((child) => {
                 if (child.isMesh && child.material) {
                     child.material.side = THREE.DoubleSide;
-                    const name = (child.name || '').toLowerCase();
-                    // StickLight（観客ペンライト）: アディティブブレンドで光らせる
-                    if (name.includes('stick') || name.includes('light')) {
-                        child.material.transparent = true;
-                        child.material.opacity = 0.7;
-                        child.material.blending = THREE.AdditiveBlending;
-                        child.material.depthWrite = false;
+                    const name = child.name || '';
+                    const nameLower = name.toLowerCase();
+                    // StickLight（観客ペンライト）: アディティブブレンドで光らせる + 変数に保存
+                    if (nameLower.includes('stick') || nameLower.includes('light')) {
+                        child.material = new THREE.MeshBasicMaterial({
+                            color: 0xff69b4,
+                            transparent: true,
+                            opacity: 0.85,
+                            blending: THREE.AdditiveBlending,
+                            depthWrite: false,
+                        });
+                        child.material.emissive = new THREE.Color(0xff69b4);
+                        child.material.emissiveIntensity = 0.8;
+                        glbStickLights.push(child);
                     }
                     // Screen部分: エミッシブで発光感
-                    if (name.includes('screen')) {
+                    else if (nameLower.includes('screen') || nameLower.includes('celling') || nameLower.includes('sticker')) {
                         if (child.material.color) {
                             child.material.emissive = child.material.color.clone();
-                            child.material.emissiveIntensity = 0.4;
+                            child.material.emissiveIntensity = 0.5;
                         }
+                    }
+                    // ステージ本体(A_01_Main, A_02_Floor等): ダークネイビー＋微光
+                    else if (name.startsWith('A_')) {
+                        child.material = new THREE.MeshStandardMaterial({
+                            color: 0x0a0a2e,
+                            roughness: 0.7,
+                            metalness: 0.3,
+                            emissive: new THREE.Color(0x0a0a2e),
+                            emissiveIntensity: 0.15,
+                            side: THREE.DoubleSide,
+                        });
+                        glbStageMeshes.push(child);
                     }
                 }
             });
@@ -4471,6 +4528,30 @@ function animate() {
             }
         });
     });
+
+    // GLBペンライト（観客StickLight）— 曲テーマカラー連動 + ビート脈動
+    if (glbStickLights.length > 0) {
+        const baseColor = currentSongTheme ? new THREE.Color(currentSongTheme.primary) : new THREE.Color(0xff69b4);
+        glbStickLights.forEach((sl, si) => {
+            const phase = si * 0.7 + elapsed * 2.5;
+            const pulse = isMusicPlaying ? 0.55 + musicBeat * 0.45 + Math.sin(phase) * 0.15 : 0.3 + Math.sin(phase * 0.3) * 0.1;
+            sl.material.opacity = pulse;
+            if (isMusicPlaying && currentSongTheme) {
+                // ビート時に少し白く光る
+                const flash = musicBeat > 0.5 ? musicBeat * 0.3 : 0;
+                sl.material.color.copy(baseColor).lerp(new THREE.Color(0xffffff), flash);
+            }
+        });
+    }
+
+    // GLBステージ本体 — 曲テーマカラーで微妙にエミッシブ色変化
+    if (glbStageMeshes.length > 0 && isMusicPlaying && currentSongTheme) {
+        const stageEmissive = new THREE.Color(currentSongTheme.primary).multiplyScalar(0.08);
+        glbStageMeshes.forEach(sm => {
+            sm.material.emissive.lerp(stageEmissive, 0.05);
+            sm.material.emissiveIntensity = 0.15 + musicBeat * 0.1;
+        });
+    }
 
     // センターステージリングライト
     if (ringLight) {
