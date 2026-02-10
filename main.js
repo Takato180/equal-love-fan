@@ -11,6 +11,7 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true 
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setClearColor(0x080818, 1);
+renderer.sortObjects = true; // 透明オブジェクトの正しいソートを保証
 renderer.outputColorSpace = THREE.SRGBColorSpace; // GLBテクスチャの色空間を正しく表示
 camera.position.set(0, 0, 5);
 
@@ -2925,7 +2926,7 @@ const towerPositions = [
 towerPositions.forEach((tp, tIdx) => {
     // メインタワー
     const towerGeo = new THREE.BoxGeometry(0.5, 16, 0.5);
-    const towerMat = new THREE.MeshBasicMaterial({ color: 0x222233, transparent: true, opacity: 0.65 });
+    const towerMat = new THREE.MeshBasicMaterial({ color: 0x222233 });
     const tower = new THREE.Mesh(towerGeo, towerMat);
     tower.position.set(tp.x, 2, tp.z);
     stageGroup.add(tower);
@@ -3127,7 +3128,7 @@ for (let i = 0; i < silhouetteCount; i++) {
     // === 体（上半身：スリムなトルソ + ウエストくびれ）===
     const torsoGeo = new THREE.CylinderGeometry(0.12, 0.18, 0.65 * hScale, 10);
     const torsoMat = new THREE.MeshPhongMaterial({
-        color: memberColor, transparent: true, opacity: 0.92,
+        color: memberColor,
         emissive: memberColor, emissiveIntensity: 0.3,
         shininess: 80,
     });
@@ -3140,7 +3141,7 @@ for (let i = 0; i < silhouetteCount; i++) {
         for (let side = -1; side <= 1; side += 2) {
             const frillGeo = new THREE.SphereGeometry(0.1, 8, 4, 0, Math.PI * 2, 0, Math.PI * 0.5);
             const frillMat = new THREE.MeshBasicMaterial({
-                color: brighterColor, transparent: true, opacity: 0.7,
+                color: brighterColor,
                 side: THREE.DoubleSide,
             });
             const frill = new THREE.Mesh(frillGeo, frillMat);
@@ -3156,7 +3157,7 @@ for (let i = 0; i < silhouetteCount; i++) {
         // フリルスカート（ふわっと広がる・多層）
         const skirtGeo = new THREE.ConeGeometry(0.55, 0.6 * hScale, 16, 1, true);
         const skirtMat = new THREE.MeshPhongMaterial({
-            color: memberColor, transparent: true, opacity: 0.88,
+            color: memberColor,
             side: THREE.DoubleSide, emissive: memberColor, emissiveIntensity: 0.15,
         });
         skirt = new THREE.Mesh(skirtGeo, skirtMat);
@@ -3178,7 +3179,7 @@ for (let i = 0; i < silhouetteCount; i++) {
         // タイトスカート（シャープ）
         const skirtGeo = new THREE.ConeGeometry(0.3, 0.5 * hScale, 10, 1, true);
         const skirtMat = new THREE.MeshPhongMaterial({
-            color: memberColor, transparent: true, opacity: 0.9,
+            color: memberColor,
             side: THREE.DoubleSide, emissive: memberColor, emissiveIntensity: 0.2,
         });
         skirt = new THREE.Mesh(skirtGeo, skirtMat);
@@ -3188,7 +3189,7 @@ for (let i = 0; i < silhouetteCount; i++) {
         // エレガントロングスカート
         const skirtGeo = new THREE.ConeGeometry(0.5, 0.75 * hScale, 14, 1, true);
         const skirtMat = new THREE.MeshPhongMaterial({
-            color: memberColor, transparent: true, opacity: 0.85,
+            color: memberColor,
             side: THREE.DoubleSide, emissive: memberColor, emissiveIntensity: 0.2,
         });
         skirt = new THREE.Mesh(skirtGeo, skirtMat);
@@ -3202,7 +3203,7 @@ for (let i = 0; i < silhouetteCount; i++) {
     for (let leg = -1; leg <= 1; leg += 2) {
         const legGeo = new THREE.CylinderGeometry(0.04, 0.035, 0.55 * hScale, 8);
         const legMat = new THREE.MeshPhongMaterial({
-            color: memberColor, transparent: true, opacity: 0.85,
+            color: memberColor,
             emissive: memberColor, emissiveIntensity: 0.15,
         });
         const legMesh = new THREE.Mesh(legGeo, legMat);
@@ -3211,7 +3212,7 @@ for (let i = 0; i < silhouetteCount; i++) {
         // ブーツ先端
         const bootGeo = new THREE.SphereGeometry(0.045, 6, 4, 0, Math.PI * 2, Math.PI * 0.3, Math.PI * 0.7);
         const bootMat = new THREE.MeshBasicMaterial({
-            color: brighterColor, transparent: true, opacity: 0.8,
+            color: brighterColor,
         });
         const boot = new THREE.Mesh(bootGeo, bootMat);
         boot.position.set(leg * 0.1, -0.45 * hScale, 0.02);
@@ -3221,7 +3222,7 @@ for (let i = 0; i < silhouetteCount; i++) {
     // === 頭（アニメ風のやや大きめ）===
     const headGeo = new THREE.SphereGeometry(0.2, 16, 16);
     const headMat = new THREE.MeshPhongMaterial({
-        color: memberColor, transparent: true, opacity: 0.95,
+        color: memberColor,
         emissive: memberColor, emissiveIntensity: 0.2,
     });
     const head = new THREE.Mesh(headGeo, headMat);
@@ -3235,7 +3236,7 @@ for (let i = 0; i < silhouetteCount; i++) {
         // ロングヘア（背面にたっぷり流れる + 前髪）
         const hairGeo = new THREE.CylinderGeometry(0.2, 0.05, 0.85 * hScale, 10);
         const hairMat = new THREE.MeshPhongMaterial({
-            color: darkColor, transparent: true, opacity: 0.8,
+            color: darkColor,
             emissive: memberColor, emissiveIntensity: 0.1,
         });
         const hair = new THREE.Mesh(hairGeo, hairMat);
@@ -3245,7 +3246,7 @@ for (let i = 0; i < silhouetteCount; i++) {
         // 前髪
         const bangsGeo = new THREE.SphereGeometry(0.21, 10, 6, 0, Math.PI, 0, Math.PI * 0.35);
         const bangsMat = new THREE.MeshBasicMaterial({
-            color: darkColor, transparent: true, opacity: 0.75, side: THREE.DoubleSide,
+            color: darkColor, side: THREE.DoubleSide,
         });
         const bangs = new THREE.Mesh(bangsGeo, bangsMat);
         bangs.position.set(0, 1.48 * hScale, 0.06);
@@ -3256,7 +3257,7 @@ for (let i = 0; i < silhouetteCount; i++) {
         for (let side = -1; side <= 1; side += 2) {
             const tailGeo = new THREE.CylinderGeometry(0.08, 0.025, 0.65 * hScale, 8);
             const tailMat = new THREE.MeshPhongMaterial({
-                color: darkColor, transparent: true, opacity: 0.8,
+                color: darkColor,
                 emissive: memberColor, emissiveIntensity: 0.1,
             });
             const tail = new THREE.Mesh(tailGeo, tailMat);
@@ -3267,7 +3268,7 @@ for (let i = 0; i < silhouetteCount; i++) {
             // リボン
             const ribbonGeo = new THREE.OctahedronGeometry(0.06, 0);
             const ribbonMat = new THREE.MeshBasicMaterial({
-                color: brighterColor, transparent: true, opacity: 0.9,
+                color: brighterColor,
             });
             const ribbon = new THREE.Mesh(ribbonGeo, ribbonMat);
             ribbon.position.set(side * 0.22, 1.35 * hScale, -0.05);
@@ -3278,7 +3279,7 @@ for (let i = 0; i < silhouetteCount; i++) {
         // ボブヘア（おしゃれカット風）
         const bobGeo = new THREE.SphereGeometry(0.25, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.65);
         const bobMat = new THREE.MeshPhongMaterial({
-            color: darkColor, transparent: true, opacity: 0.75,
+            color: darkColor,
             side: THREE.DoubleSide, emissive: memberColor, emissiveIntensity: 0.1,
         });
         const bob = new THREE.Mesh(bobGeo, bobMat);
@@ -3289,7 +3290,7 @@ for (let i = 0; i < silhouetteCount; i++) {
         // ポニーテール（高い位置で束ねて後ろに揺れる）
         const tailGeo = new THREE.CylinderGeometry(0.09, 0.03, 0.7 * hScale, 8);
         const tailMat = new THREE.MeshPhongMaterial({
-            color: darkColor, transparent: true, opacity: 0.8,
+            color: darkColor,
             emissive: memberColor, emissiveIntensity: 0.1,
         });
         const tail = new THREE.Mesh(tailGeo, tailMat);
@@ -3300,7 +3301,7 @@ for (let i = 0; i < silhouetteCount; i++) {
         // ヘアバンド
         const bandGeo = new THREE.TorusGeometry(0.21, 0.015, 8, 16, Math.PI);
         const bandMat = new THREE.MeshBasicMaterial({
-            color: brighterColor, transparent: true, opacity: 0.9,
+            color: brighterColor,
         });
         const band = new THREE.Mesh(bandGeo, bandMat);
         band.position.set(0, 1.48 * hScale, 0);
@@ -3314,7 +3315,7 @@ for (let i = 0; i < silhouetteCount; i++) {
         // 上腕
         const upperArmGeo = new THREE.CylinderGeometry(0.045, 0.035, 0.35 * hScale, 8);
         const upperArmMat = new THREE.MeshPhongMaterial({
-            color: memberColor, transparent: true, opacity: 0.85,
+            color: memberColor,
             emissive: memberColor, emissiveIntensity: 0.15,
         });
         const upperArm = new THREE.Mesh(upperArmGeo, upperArmMat);
@@ -3323,7 +3324,7 @@ for (let i = 0; i < silhouetteCount; i++) {
         // 前腕
         const foreArmGeo = new THREE.CylinderGeometry(0.035, 0.03, 0.3 * hScale, 8);
         const foreArmMat = new THREE.MeshPhongMaterial({
-            color: memberColor, transparent: true, opacity: 0.85,
+            color: memberColor,
             emissive: memberColor, emissiveIntensity: 0.15,
         });
         const foreArm = new THREE.Mesh(foreArmGeo, foreArmMat);
@@ -3332,7 +3333,7 @@ for (let i = 0; i < silhouetteCount; i++) {
         // 手（小さい球）
         const handGeo = new THREE.SphereGeometry(0.04, 8, 8);
         const handMat = new THREE.MeshBasicMaterial({
-            color: memberColor, transparent: true, opacity: 0.88,
+            color: memberColor,
         });
         const hand = new THREE.Mesh(handGeo, handMat);
         hand.position.y = -0.48;
@@ -3341,13 +3342,13 @@ for (let i = 0; i < silhouetteCount; i++) {
         // 右手にマイク
         if (arm === 1) {
             const micGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.18, 6);
-            const micMat = new THREE.MeshBasicMaterial({ color: 0x888888, transparent: true, opacity: 0.9 });
+            const micMat = new THREE.MeshBasicMaterial({ color: 0x888888 });
             const mic = new THREE.Mesh(micGeo, micMat);
             mic.position.y = -0.55;
             armGroup.add(mic);
             const micTop = new THREE.Mesh(
                 new THREE.SphereGeometry(0.025, 6, 6),
-                new THREE.MeshBasicMaterial({ color: 0xaaaaaa, transparent: true, opacity: 0.9 })
+                new THREE.MeshBasicMaterial({ color: 0xaaaaaa })
             );
             micTop.position.y = -0.64;
             armGroup.add(micTop);
@@ -3440,6 +3441,12 @@ for (let i = 0; i < silhouetteCount; i++) {
         -7.5 + rowOffset + fwdOffset
     );
     silGroup.scale.setScalar(hScale);
+    // シルエット内の全メッシュにrenderOrderを設定（GLBステージより前に描画）
+    silGroup.traverse((child) => {
+        if (child.isMesh || child.isSprite) {
+            child.renderOrder = child.material && child.material.blending === THREE.AdditiveBlending ? 6 : 3;
+        }
+    });
     silGroup.userData = {
         isSilhouette: true,
         memberIndex: i,
@@ -3458,14 +3465,14 @@ for (let i = 0; i < silhouetteCount; i++) {
 // --- 花道（センターステージ + T字型）---
 // メイン花道
 const runwayGeo = new THREE.BoxGeometry(3.5, 0.18, 7);
-const runwayMat = new THREE.MeshBasicMaterial({ color: 0x0d0d20, transparent: true, opacity: 0.6 });
+const runwayMat = new THREE.MeshBasicMaterial({ color: 0x0d0d20 });
 const runway = new THREE.Mesh(runwayGeo, runwayMat);
 runway.position.set(0, -5.5, -2);
 stageGroup.add(runway);
 
 // T字の先端（センターステージ）
 const centerStageGeo = new THREE.CylinderGeometry(2.5, 2.5, 0.18, 24);
-const centerStageMat = new THREE.MeshBasicMaterial({ color: 0x0d0d20, transparent: true, opacity: 0.6 });
+const centerStageMat = new THREE.MeshBasicMaterial({ color: 0x0d0d20 });
 const centerStage = new THREE.Mesh(centerStageGeo, centerStageMat);
 centerStage.position.set(0, -5.5, 1.5);
 stageGroup.add(centerStage);
@@ -3549,7 +3556,6 @@ for (let i = 0; i < 12; i++) {
     const bodyGeo = new THREE.CylinderGeometry(0.25, 0.35, 0.8, 6);
     const bodyMat = new THREE.MeshBasicMaterial({
         color: new THREE.Color().setHSL(0.08, 0.7, 0.6),
-        transparent: true, opacity: 0.7,
     });
     lGroup.add(new THREE.Mesh(bodyGeo, bodyMat));
     // 灯り（内部グロー）
@@ -3562,7 +3568,7 @@ for (let i = 0; i < 12; i++) {
     lGroup.add(new THREE.Mesh(glowGeo2, glowMat2));
     // 屋根
     const roofGeo = new THREE.ConeGeometry(0.4, 0.3, 6);
-    const roofMat = new THREE.MeshBasicMaterial({ color: 0x8b4513, transparent: true, opacity: 0.6 });
+    const roofMat = new THREE.MeshBasicMaterial({ color: 0x8b4513 });
     const roof = new THREE.Mesh(roofGeo, roofMat);
     roof.position.y = 0.55;
     lGroup.add(roof);
@@ -3871,6 +3877,7 @@ const glassScreenMat = new THREE.MeshBasicMaterial({
 });
 const glassScreen = new THREE.Mesh(glassScreenGeo, glassScreenMat);
 glassScreen.position.set(0, 2, 24);
+glassScreen.renderOrder = 8;
 stageGroup.add(glassScreen);
 // モニター枠（光るフレーム）
 const glassFrameGeo = new THREE.EdgesGeometry(glassScreenGeo);
@@ -3890,6 +3897,7 @@ const userPlane = new THREE.Mesh(
     })
 );
 userPlane.position.set(0, 3, 30);
+userPlane.renderOrder = 9;
 stageGroup.add(userPlane);
 // テクスチャ読み込み
 userTexLoader.load('figure/user_from_stage.png', (tex) => {
@@ -3953,8 +3961,9 @@ if (USE_GLB_STAGE) {
                             transparent: true,
                             opacity: 0.15,
                             wireframe: true,
-                            depthWrite: false,
+                            depthWrite: true,
                         });
+                        child.renderOrder = 1;
                         return;
                     }
                     // 天井鉄骨: メタリック風半透明（構造は見せつつ邪魔しない）
@@ -3965,9 +3974,10 @@ if (USE_GLB_STAGE) {
                             opacity: 0.35,
                             metalness: 0.8,
                             roughness: 0.3,
-                            depthWrite: false,
+                            depthWrite: true,
                             side: THREE.DoubleSide,
                         });
+                        child.renderOrder = 1;
                         return;
                     }
                     // スタンドボード（観客席の壁面）: 半透明
@@ -3981,8 +3991,9 @@ if (USE_GLB_STAGE) {
                             emissive: new THREE.Color(0x1a1a40),
                             emissiveIntensity: 0.2,
                             side: THREE.DoubleSide,
-                            depthWrite: false,
+                            depthWrite: true,
                         });
+                        child.renderOrder = 0;
                         glbStageMeshes.push(child);
                         return;
                     }
@@ -3996,8 +4007,7 @@ if (USE_GLB_STAGE) {
                             blending: THREE.AdditiveBlending,
                             depthWrite: false,
                         });
-                        child.material.emissive = new THREE.Color(0xff69b4);
-                        child.material.emissiveIntensity = 0.8;
+                        child.renderOrder = 5;
                         glbStickLights.push(child);
                     }
                     // Screen部分: エミッシブで発光感
@@ -4006,6 +4016,7 @@ if (USE_GLB_STAGE) {
                             child.material.emissive = child.material.color.clone();
                             child.material.emissiveIntensity = 0.5;
                         }
+                        child.renderOrder = 2;
                     }
                     // D_Emit系（発光装飾）: アディティブで明るく光らせる
                     else if (name.startsWith('D_')) {
@@ -4016,6 +4027,7 @@ if (USE_GLB_STAGE) {
                             blending: THREE.AdditiveBlending,
                             depthWrite: false,
                         });
+                        child.renderOrder = 4;
                     }
                     // ステージ本体(A_01_Main, A_02_Floor, A_06_Truss等): ダークパープル＋メタリック光沢
                     else if (name.startsWith('A_')) {
@@ -4027,6 +4039,7 @@ if (USE_GLB_STAGE) {
                             emissiveIntensity: 0.3,
                             side: THREE.DoubleSide,
                         });
+                        child.renderOrder = 0;
                         glbStageMeshes.push(child);
                     }
                 }
@@ -4040,12 +4053,15 @@ if (USE_GLB_STAGE) {
                     const name = child.name || '';
                     if (name === 'C01_Screen_Back') {
                         glbBackScreen = child;
+                        child.renderOrder = 2;
                     }
                     if (name === 'C02_Screen_Front01' || name === 'C03_Screen_Front02') {
                         glbFrontScreens.push(child);
+                        child.renderOrder = 2;
                     }
                     if (name === 'C04_Screen_Celling_01' || name === 'C05_Sticker_Celling') {
                         glbCeilingScreens.push(child);
+                        child.renderOrder = 2;
                     }
                 }
             });
@@ -4118,7 +4134,7 @@ if (USE_GLB_STAGE) {
     );
 }
 
-stageGroup.renderOrder = 10;
+// renderOrderはGLBローダー内で個別メッシュに設定済み（構造体:0, フェンス/鉄骨:1, スクリーン:2, シルエット:3, D_Emit/エフェクト:4-5）
 scene.add(stageGroup);
 
 // ==================== ANIMATION LOOP ====================
