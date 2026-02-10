@@ -2389,8 +2389,10 @@ function updateStageVideoOverlay() {
         camera.getWorldDirection(camDir);
         const toScreen = screenCenter.clone().sub(camera.position).normalize();
         const viewAngle = camDir.dot(toScreen); // 1=正面, 0=真横, -1=背面
-        // カメラがスクリーンからおよそ45度以上逸れたら非表示
-        if (viewAngle < 0.5) {
+        // カメラ距離に応じて角度閾値を動的変更（遠いほど厳しく）
+        const distToScreen = camera.position.distanceTo(screenCenter);
+        const angleThreshold = distToScreen > 25 ? 0.85 : distToScreen > 15 ? 0.78 : 0.7;
+        if (viewAngle < angleThreshold) {
             stageVideoIframe.style.display = 'none';
             if (activeScreen.material) activeScreen.material.opacity = 0.95;
             stageVideoShowingIframe = false;
@@ -3719,7 +3721,7 @@ for (let i = 0; i < 12; i++) {
     const glowGeo2 = new THREE.SphereGeometry(0.2, 8, 8);
     const glowMat2 = new THREE.MeshBasicMaterial({
         color: 0xffaa44,
-        transparent: true, opacity: 0.3,
+        transparent: true, opacity: 0.5,
         blending: THREE.AdditiveBlending,
     });
     lGroup.add(new THREE.Mesh(glowGeo2, glowMat2));
@@ -4793,7 +4795,7 @@ function animate() {
     stageGroup.children.forEach(child => {
         if (child.userData && child.userData.isTrussVisualBeam) {
             const parentSpot = child.userData.parentSpot;
-            child.material.opacity = isMusicPlaying ? 0.015 + musicBeat * 0.03 : 0.005;
+            child.material.opacity = isMusicPlaying ? 0.025 + musicBeat * 0.045 : 0.008;
             if (parentSpot) child.material.color.copy(parentSpot.color);
         }
     });
@@ -5002,7 +5004,7 @@ function animate() {
         fogPos[i * 3 + 1] += Math.sin(elapsed * 0.15 + i * 0.5) * 0.002;
     }
     fogGeo.attributes.position.needsUpdate = true;
-    fogMat.opacity = isMusicPlaying ? 0.015 + musicBeat * 0.02 : 0.01;
+    fogMat.opacity = isMusicPlaying ? 0.025 + musicBeat * 0.035 : 0.015;
 
     // 花火エフェクト更新
     for (let i = stageFireworks.length - 1; i >= 0; i--) {
@@ -5062,7 +5064,7 @@ function animate() {
         }
     }
     stageSakuraGeo.attributes.position.needsUpdate = true;
-    stageSakuraMat.opacity = 0.15 + Math.sin(elapsed * 0.7) * 0.08 + (isMusicPlaying ? musicBeat * 0.08 : 0);
+    stageSakuraMat.opacity = 0.28 + Math.sin(elapsed * 0.7) * 0.12 + (isMusicPlaying ? musicBeat * 0.15 : 0);
 
     // 金粉きらめき
     const gPos = goldGeo.attributes.position.array;
@@ -5072,14 +5074,14 @@ function animate() {
         gPos[i * 3 + 2] += Math.sin(elapsed * 0.15 + i * 0.7) * 0.002;
     }
     goldGeo.attributes.position.needsUpdate = true;
-    goldMat.opacity = 0.15 + Math.sin(elapsed * 1.5) * 0.1 + (isMusicPlaying ? musicBeat * 0.1 : 0);
+    goldMat.opacity = 0.25 + Math.sin(elapsed * 1.5) * 0.15 + (isMusicPlaying ? musicBeat * 0.18 : 0);
 
     // レーザービーム回転
     for (const laser of laserBeams) {
         const d = laser.userData;
         laser.rotation.x = Math.sin(elapsed * 0.7 + d.phase) * 0.8;
         laser.rotation.z = elapsed * 0.5 + d.phase;
-        laser.material.opacity = isMusicPlaying ? musicBeat * 0.1 : 0;
+        laser.material.opacity = isMusicPlaying ? musicBeat * 0.18 : 0;
     }
 
     // 蓮の花 浮遊回転
@@ -5095,13 +5097,13 @@ function animate() {
     // 鳥居のグロー脈動
     for (let i = 0; i < toriiArches.length; i++) {
         const a = toriiArches[i];
-        const pulse = 0.15 + Math.sin(elapsed * 1.5 + i * 1.5) * 0.1 + (isMusicPlaying ? musicBeat * 0.1 : 0);
+        const pulse = 0.25 + Math.sin(elapsed * 1.5 + i * 1.5) * 0.15 + (isMusicPlaying ? musicBeat * 0.18 : 0);
         a.children.forEach(c => {
             if (c.material) c.material.opacity = pulse * (c.material.opacity > 0 ? 1 : 0);
         });
         // PointLight
         const pl = a.children.find(c => c.isLight);
-        if (pl) pl.intensity = isMusicPlaying ? musicBeat * 0.8 : 0.15;
+        if (pl) pl.intensity = isMusicPlaying ? musicBeat * 1.5 : 0.3;
     }
     // ====================  END 超輝夜姫アニメーション ====================
 
