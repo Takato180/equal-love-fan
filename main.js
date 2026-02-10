@@ -94,6 +94,7 @@ exploreHelp.innerHTML = `
             <button class="explore-preset" data-view="screen">スクリーン前</button>
             <button class="explore-preset" data-view="stage">観客席</button>
             <button class="explore-preset" data-view="audience">ステージ上</button>
+            <button class="explore-preset" data-view="ceiling">天井演出</button>
             <button class="explore-preset" data-view="aerial">俯瞰</button>
             <button class="explore-preset" data-view="side">サイド</button>
             <button class="explore-preset" data-view="backstage">舞台裏</button>
@@ -160,7 +161,8 @@ const cameraPresets = {
     screen:   { pos: [0, -2, -5],     target: [0, -3, -10] },    // スクリーン間近
     stage:    { pos: [0, 0, 10],      target: [0, -3, -8] },     // 観客席中段からステージ全体
     audience: { pos: [0, -3.5, -8],   target: [0, -2, 5] },      // ステージ上から客席を見渡す
-    aerial:   { pos: [0, 12, 3],      target: [0, -5, -8] },     // 高い俯瞰
+    ceiling:  { pos: [0, -4.5, -4],   target: [0, 3, -9] },      // 下から天井スクリーンを見上げる
+    aerial:   { pos: [8, 8, 6],       target: [0, -4, -8] },     // 斜め前方からの俯瞰（全体が見える）
     side:     { pos: [14, -1, -4],    target: [0, -4, -8] },     // サイドアリーナ
     backstage:{ pos: [0, -3, -15],    target: [0, -3, -7] },     // 舞台裏からステージ背面
 };
@@ -3041,7 +3043,9 @@ function updateScreenPhoto(elapsed) {
                     const csTex = tex.clone();
                     csTex.flipY = false;
                     csTex.needsUpdate = true;
+                    if (cs.material.map && cs.material.map !== csTex) cs.material.map.dispose();
                     cs.material.map = csTex;
+                    cs.material.opacity = 1.0;
                     cs.material.needsUpdate = true;
                 });
             }
@@ -3367,14 +3371,15 @@ for (let i = 0; i < silhouetteCount; i++) {
     beam.userData = { isBeam: true };
     silGroup.add(beam);
 
-    // ポジション（V字フォーメーション + 前後差）
+    // ポジション（広いV字フォーメーション + 前後差）
     const formation = i < 5 ? 'front' : 'back';
     const idx = i < 5 ? i : i - 5;
-    const rowOffset = formation === 'front' ? 0 : -1.2;
-    const spreadAngle = ((idx - 2) / 2.5) * 0.35; // 左右に広がる
-    const fwdOffset = -Math.abs(idx - 2) * 0.3; // V字の前後差
+    const rowOffset = formation === 'front' ? 0 : -2.0; // 前後列の間隔を広く
+    const spreadAngle = ((idx - 2) / 2.0) * 0.55; // 左右の広がりを大きく
+    const fwdOffset = -Math.abs(idx - 2) * 0.5; // V字の前後差を大きく
+    const baseRadius = formation === 'front' ? 8.0 : 6.5; // 半径を大幅拡大
     silGroup.position.set(
-        Math.sin(spreadAngle) * 5.5 * (formation === 'back' ? 0.85 : 1),
+        Math.sin(spreadAngle) * baseRadius,
         -5.3,
         -7.5 + rowOffset + fwdOffset
     );
@@ -3934,8 +3939,7 @@ if (USE_GLB_STAGE) {
                             cs.material = new THREE.MeshBasicMaterial({
                                 map: csTex,
                                 side: THREE.DoubleSide,
-                                transparent: true,
-                                opacity: 0.8,
+                                transparent: false,
                             });
                         });
                     }
