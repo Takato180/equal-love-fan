@@ -2337,68 +2337,39 @@ function removeStageVideo() {
     }
 }
 
-// ★ backScreenのスクリーン座標を計算 + 正面判定
+// ★ backScreenのスクリーン座標を計算 — 通常モード・探索モード両方で3D投影
 function updateStageVideoOverlay() {
     if (!stageVideoIframe) return;
 
-    // =========================
-    // 通常モード: 画面上半分にステージスクリーン風に固定表示
-    // =========================
-    if (!exploreMode) {
-        // ビューポートの上半分中央に16:9で配置
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        const maxW = vw * 0.52;  // 画面幅52%
-        const maxH = vh * 0.32;  // 画面高32%
-        let w = maxW;
-        let h = w * 9 / 16;
-        if (h > maxH) { h = maxH; w = h * 16 / 9; }
-        const left = (vw - w) / 2;
-        const top = vh * 0.08; // 上から8%の位置（ステージバックスクリーン風）
-
-        stageVideoIframe.style.display = 'block';
-        stageVideoIframe.style.left = left + 'px';
-        stageVideoIframe.style.top = top + 'px';
-        stageVideoIframe.style.width = w + 'px';
-        stageVideoIframe.style.height = h + 'px';
-
-        // GLBバックスクリーンのテクスチャは薄く（iframeと二重にならないよう）
-        if (glbBackScreen && glbBackScreen.material) glbBackScreen.material.opacity = 0.15;
-        if (backScreen && backScreen.material) backScreen.material.opacity = 0.15;
-        stageVideoShowingIframe = true;
-        return;
-    }
-
-    // =========================
-    // 探索モード: GLBバックスクリーンに3D投影
-    // =========================
     const activeScreen = glbBackScreen || backScreen;
     if (!activeScreen) {
-        // スクリーンがない場合はフォールバック表示
-        const fbW = window.innerWidth * 0.45;
+        // スクリーンオブジェクトがまだロードされていない場合 → 中央フォールバック
+        const vw = window.innerWidth, vh = window.innerHeight;
+        const fbW = Math.min(vw * 0.5, 800);
         const fbH = fbW * 9 / 16;
         stageVideoIframe.style.display = 'block';
-        stageVideoIframe.style.left = ((window.innerWidth - 300 - fbW) / 2) + 'px';
-        stageVideoIframe.style.top = ((window.innerHeight - fbH) / 2) + 'px';
+        stageVideoIframe.style.left = ((vw - fbW) / 2) + 'px';
+        stageVideoIframe.style.top = ((vh - fbH) / 2) + 'px';
         stageVideoIframe.style.width = fbW + 'px';
         stageVideoIframe.style.height = fbH + 'px';
         stageVideoShowingIframe = true;
         return;
     }
 
+    // カメラとスクリーンのワールド行列を更新
     camera.updateMatrixWorld();
     activeScreen.updateWorldMatrix(true, false);
 
-    // 四隅をスクリーン座標に射影
+    // 四隅をローカル座標で取得
     let screenCorners;
     if (activeScreen === glbBackScreen) {
         if (!glbBackScreen.geometry.boundingBox) glbBackScreen.geometry.computeBoundingBox();
         const bb = glbBackScreen.geometry.boundingBox;
         screenCorners = [
-            new THREE.Vector3(bb.min.x, bb.max.y, bb.min.z),
-            new THREE.Vector3(bb.max.x, bb.max.y, bb.min.z),
-            new THREE.Vector3(bb.min.x, bb.min.y, bb.min.z),
-            new THREE.Vector3(bb.max.x, bb.min.y, bb.min.z),
+            new THREE.Vector3(bb.min.x, bb.max.y, (bb.min.z + bb.max.z) / 2),
+            new THREE.Vector3(bb.max.x, bb.max.y, (bb.min.z + bb.max.z) / 2),
+            new THREE.Vector3(bb.min.x, bb.min.y, (bb.min.z + bb.max.z) / 2),
+            new THREE.Vector3(bb.max.x, bb.min.y, (bb.min.z + bb.max.z) / 2),
         ];
     } else {
         const halfW = 12, halfH = 5;
@@ -2410,6 +2381,7 @@ function updateStageVideoOverlay() {
         ];
     }
 
+    // ワールド座標→スクリーン座標に射影
     const pts = [];
     let behindCamera = false;
     for (const c of screenCorners) {
@@ -2423,12 +2395,14 @@ function updateStageVideoOverlay() {
     }
 
     if (behindCamera || pts.length < 4) {
-        // スクリーンが見えない → 左寄りフォールバック表示（探索パネルを避ける）
-        const fbW = Math.min(window.innerWidth * 0.45, 640);
+        // スクリーンがカメラの後ろ → フォールバック表示
+        const vw = window.innerWidth, vh = window.innerHeight;
+        const fbW = Math.min(vw * 0.45, 640);
         const fbH = fbW * 9 / 16;
+        const offsetX = exploreMode ? -150 : 0; // 探索パネル回避
         stageVideoIframe.style.display = 'block';
-        stageVideoIframe.style.left = ((window.innerWidth - 300 - fbW) / 2) + 'px';
-        stageVideoIframe.style.top = ((window.innerHeight - fbH) / 2) + 'px';
+        stageVideoIframe.style.left = ((vw - fbW) / 2 + offsetX) + 'px';
+        stageVideoIframe.style.top = ((vh - fbH) / 2) + 'px';
         stageVideoIframe.style.width = fbW + 'px';
         stageVideoIframe.style.height = fbH + 'px';
         if (activeScreen.material) activeScreen.material.opacity = 0.95;
@@ -2444,11 +2418,13 @@ function updateStageVideoOverlay() {
         left + projW < -50 || top + projH < -50 ||
         left > window.innerWidth + 50 || top > window.innerHeight + 50) {
         // 小さすぎるまたは画面外 → フォールバック
-        const fbW = Math.min(window.innerWidth * 0.45, 640);
+        const vw = window.innerWidth, vh = window.innerHeight;
+        const fbW = Math.min(vw * 0.45, 640);
         const fbH = fbW * 9 / 16;
+        const offsetX = exploreMode ? -150 : 0;
         stageVideoIframe.style.display = 'block';
-        stageVideoIframe.style.left = ((window.innerWidth - 300 - fbW) / 2) + 'px';
-        stageVideoIframe.style.top = ((window.innerHeight - fbH) / 2) + 'px';
+        stageVideoIframe.style.left = ((vw - fbW) / 2 + offsetX) + 'px';
+        stageVideoIframe.style.top = ((vh - fbH) / 2) + 'px';
         stageVideoIframe.style.width = fbW + 'px';
         stageVideoIframe.style.height = fbH + 'px';
         if (activeScreen.material) activeScreen.material.opacity = 0.95;
@@ -4848,16 +4824,20 @@ function animate() {
     });
 
     // GLBペンライト（観客StickLight）— 曲テーマカラー連動 + ビート脈動
+    try {
     if (glbStickLights.length > 0) {
         const baseColor = currentSongTheme ? new THREE.Color(currentSongTheme.primary[0], currentSongTheme.primary[1], currentSongTheme.primary[2]) : new THREE.Color(0xff69b4);
         glbStickLights.forEach((sl, si) => {
+            if (!sl.material) return;
             const phase = si * 0.7 + elapsed * 2.5;
             const pulse = isMusicPlaying ? 0.55 + musicBeat * 0.45 + Math.sin(phase) * 0.15 : 0.3 + Math.sin(phase * 0.3) * 0.1;
             sl.material.opacity = pulse;
             if (isMusicPlaying && currentSongTheme) {
                 // ビート時に少し白く光る
                 const flash = musicBeat > 0.5 ? musicBeat * 0.3 : 0;
-                sl.material.color.copy(baseColor).lerp(new THREE.Color(0xffffff), flash);
+                if (sl.material.color) {
+                    sl.material.color.copy(baseColor).lerp(new THREE.Color(0xffffff), flash);
+                }
             }
         });
     }
@@ -4868,7 +4848,7 @@ function animate() {
             const sp = currentSongTheme.primary;
             const stageEmissive = new THREE.Color(sp[0], sp[1], sp[2]).multiplyScalar(0.15);
             glbStageMeshes.forEach(sm => {
-                if (!sm.material.emissive) return;
+                if (!sm.material || !sm.material.emissive) return;
                 sm.material.emissive.lerp(stageEmissive, 0.08);
                 sm.material.emissiveIntensity = 0.3 + musicBeat * 0.2;
             });
@@ -4885,13 +4865,14 @@ function animate() {
             stageRightSpot.color.setRGB(cp[0], cp[1], cp[2]);
         } else {
             glbStageMeshes.forEach(sm => {
-                sm.material.emissiveIntensity = 0.25;
+                if (sm.material) sm.material.emissiveIntensity = 0.25;
             });
             stageCenterSpot.intensity = 0.5;
             stageLeftSpot.intensity = 0.2;
             stageRightSpot.intensity = 0.2;
         }
     }
+    } catch(glbErr) { /* GLBエフェクトのエラーでanimate停止を防止 */ }
 
     // センターステージリングライト
     if (ringLight) {
