@@ -13,7 +13,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setClearColor(0x050505, 1);
 renderer.sortObjects = true; // 透明オブジェクトの正しいソートを保証
 renderer.outputColorSpace = THREE.SRGBColorSpace; // GLBテクスチャの色空間を正しく表示
-camera.position.set(0, 0, 5);
+camera.position.set(0, 2, 12);
 
 // ==================== ステージ照明 ====================
 // GLBモデルを最低限照らす環境光（元の暗い世界観を保持）
@@ -5137,9 +5137,9 @@ function animate() {
     glassScreenMat.opacity = 0.02 + Math.sin(elapsed * 1.2) * 0.01 + (isMusicPlaying ? musicBeat * 0.02 : 0);
     glassFrameMat.opacity = 0.08 + (isMusicPlaying ? musicBeat * 0.08 : 0);
     userGlow.intensity = 0.3 + Math.sin(elapsed * 1.5) * 0.1 + (isMusicPlaying ? musicBeat * 0.2 : 0);
-    // ステージ全体のスクロール連動
-    stageGroup.position.z = -3 + scrollProgress * -5;
-    stageGroup.position.y = scrollProgress * -2;
+    // ステージ全体のスクロール連動（控えめに）
+    stageGroup.position.z = -3 + scrollProgress * -2;
+    stageGroup.position.y = scrollProgress * -0.5;
 
     // ===== CAMERA =====
     if (exploreMode) {
@@ -5150,9 +5150,12 @@ function animate() {
         const shakeAmount = isMusicPlaying ? (theme.cameraShake || 0.008) * musicBeat : 0;
         const shakeX = Math.sin(elapsed * 15.7) * shakeAmount;
         const shakeY = Math.cos(elapsed * 13.3) * shakeAmount;
-        camera.position.x = mouse.x * 0.5 + shakeX;
-        camera.position.y = mouse.y * 0.3 - scrollProgress * 0.5 + shakeY;
-        camera.lookAt(shakeX * 0.3, -scrollProgress * 0.5 + shakeY * 0.3, 0);
+        // ステージ中心(0, -3, -8)を基準にカメラ配置
+        camera.position.x = mouse.x * 0.8 + shakeX;
+        camera.position.y = 2 + mouse.y * 0.5 - scrollProgress * 1.5 + shakeY;
+        camera.position.z = 12 - scrollProgress * 2;
+        const lookY = -3 - scrollProgress * 1.5 + shakeY * 0.3;
+        camera.lookAt(shakeX * 0.3, lookY, -8);
     }
 
     // 動画オーバーレイ位置更新は3フレームに1回（DOM操作削減）
