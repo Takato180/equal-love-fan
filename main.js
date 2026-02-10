@@ -10,7 +10,7 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true 
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setClearColor(0x000000, 0);
+renderer.setClearColor(0x050505, 1);
 renderer.sortObjects = true; // 透明オブジェクトの正しいソートを保証
 renderer.outputColorSpace = THREE.SRGBColorSpace; // GLBテクスチャの色空間を正しく表示
 camera.position.set(0, 0, 5);
@@ -39,7 +39,7 @@ scene.add(stageRightSpot);
 // ==================== ステージ動画オーバーレイ ====================
 const stageVideoContainer = document.createElement('div');
 stageVideoContainer.id = 'stage-video-container';
-stageVideoContainer.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none;overflow:hidden;display:none;';
+stageVideoContainer.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:2;pointer-events:none;overflow:hidden;display:none;';
 document.body.appendChild(stageVideoContainer);
 let stageVideoIframe = null;
 let stageVideoActive = false;
@@ -286,7 +286,6 @@ const bgShaderMat = new THREE.ShaderMaterial({
         uSectionCount: { value: 6.0 },
         uSongTint: { value: new THREE.Vector3(0, 0, 0) }, // 曲テーマティント
         uLiveIntensity: { value: 0.0 }, // ライブ感度
-        uVideoRect: { value: new THREE.Vector4(-1, -1, -1, -1) }, // 動画透過領域 (left, top, right, bottom) 0-1のNDC
     },
     vertexShader: `
         varying vec2 vUv;
@@ -305,7 +304,6 @@ const bgShaderMat = new THREE.ShaderMaterial({
         uniform float uSectionCount;
         uniform vec3 uSongTint;
         uniform float uLiveIntensity;
-        uniform vec4 uVideoRect; // 動画透過領域
 
         float hash(vec2 p) {
             return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
@@ -590,22 +588,11 @@ const bgShaderMat = new THREE.ShaderMaterial({
             vec3 flashColor = length(uSongTint) > 0.01 ? uSongTint : vec3(1.0, 0.4, 0.6);
             bg += flashColor * uBeat * uLiveIntensity * 0.12;
 
-            // 動画透過領域: バックスクリーン部分を透明にして動画を見せる
-            float alpha = 1.0;
-            if (uVideoRect.x >= 0.0) {
-                // ビデオ領域内ならalpha=0（動画が透けて見える）
-                float inX = step(uVideoRect.x, uv.x) * step(uv.x, uVideoRect.z);
-                float inY = step(uVideoRect.y, 1.0 - uv.y) * step(1.0 - uv.y, uVideoRect.w);
-                float inVideo = inX * inY;
-                alpha = 1.0 - inVideo;
-            }
-
-            gl_FragColor = vec4(bg, alpha);
+            gl_FragColor = vec4(bg, 1.0);
         }
     `,
     depthWrite: false,
     depthTest: false,
-    transparent: true,
 });
 
 const bgQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), bgShaderMat);
@@ -2474,14 +2461,15 @@ function updateStageVideoOverlay() {
     if (left + projW > vw) { projW = vw - left; }
     if (top + projH > vh) { projH = vh - top; }
 
-    // 投影成功 → iframeをGLBバックスクリーンに重ねて配置（背景として）
-    // バックスクリーンを完全透明にして動画が透けて見えるようにする
+    // 投影成功 → iframeをGLBバックスクリーンに重ねて配置
+    // バックスクリーンのopacityを下げて動画表示を示す
     if (activeScreen.material) {
-        activeScreen.material.opacity = 0.0;
+        activeScreen.material.opacity = 0.15;
         activeScreen.material.transparent = true;
     }
     stageVideoShowingIframe = true;
     stageVideoIframe.style.display = 'block';
+    stageVideoIframe.style.opacity = '0.75'; // 半透明にして3Dエフェクトが透けて見える
     stageVideoIframe.style.left = left + 'px';
     stageVideoIframe.style.top = top + 'px';
     stageVideoIframe.style.width = projW + 'px';
@@ -5168,20 +5156,7 @@ function animate() {
     // 動画オーバーレイ位置更新は3フレームに1回（DOM操作削減）
     if (ribbonFrame % 3 === 0) {
         updateStageVideoOverlay();
-        stageVideoContainer.style.zIndex = exploreMode ? '799' : '1';
-        // 背景シェーダーの動画透過領域を更新
-        if (stageVideoIframe && stageVideoShowingIframe && stageVideoIframe.style.display !== 'none') {
-            const vw = window.innerWidth, vh = window.innerHeight;
-            const iLeft = parseFloat(stageVideoIframe.style.left) || 0;
-            const iTop = parseFloat(stageVideoIframe.style.top) || 0;
-            const iW = parseFloat(stageVideoIframe.style.width) || 0;
-            const iH = parseFloat(stageVideoIframe.style.height) || 0;
-            bgShaderMat.uniforms.uVideoRect.value.set(
-                iLeft / vw, iTop / vh, (iLeft + iW) / vw, (iTop + iH) / vh
-            );
-        } else {
-            bgShaderMat.uniforms.uVideoRect.value.set(-1, -1, -1, -1);
-        }
+        stageVideoContainer.style.zIndex = exploreMode ? '850' : '2';
     }
 
     renderer.render(scene, camera);
