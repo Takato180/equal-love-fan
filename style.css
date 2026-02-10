@@ -729,6 +729,21 @@ button { border: none; background: none; cursor: none; font-family: inherit; }
     border-radius: 50px;
     transition: all 0.4s ease;
     letter-spacing: 0.1em;
+    position: relative;
+}
+
+.penlight-hint {
+    display: block;
+    font-size: 0.58rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+    margin-top: 2px;
+}
+
+.btn-penlight:hover .penlight-hint {
+    opacity: 1;
+    color: #ff69b4;
 }
 
 .btn-penlight:hover {
@@ -1204,6 +1219,38 @@ button { border: none; background: none; cursor: none; font-family: inherit; }
     letter-spacing: 0.1em;
     white-space: nowrap;
     text-transform: uppercase;
+}
+
+/* Show More Button */
+.btn-show-more {
+    display: block;
+    margin: 30px auto 0;
+    padding: 14px 40px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: #ff69b4;
+    background: rgba(255, 105, 180, 0.08);
+    border: 1px solid rgba(255, 105, 180, 0.3);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.05em;
+}
+
+.btn-show-more:hover {
+    background: rgba(255, 105, 180, 0.18);
+    border-color: rgba(255, 105, 180, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(255, 105, 180, 0.15);
+}
+
+.btn-show-more small {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.45);
+    margin-top: 4px;
 }
 
 /* Now Playing Bar */
@@ -2330,19 +2377,23 @@ body.modal-open #fab-container {
     .video-overlay {
         max-width: 94vw;
         width: 94vw;
-        bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+        bottom: calc(18px + env(safe-area-inset-bottom, 0px));
         left: 3vw;
         transform: translateX(0) translateY(20px);
-        padding: 8px 10px 8px 14px;
+        padding: 10px 10px 10px 14px;
         border-radius: 28px;
         overflow: visible;
+        touch-action: none;
     }
     .video-overlay.active {
         transform: translateX(0) translateY(0);
     }
+    .video-overlay.dragging {
+        transition: none !important;
+    }
     .video-overlay-title { font-size: 0.68rem; min-width: 0; flex-shrink: 1; }
-    .video-overlay-close { width: 32px; height: 32px; min-width: 32px; }
-    .video-control-btn { width: 34px; height: 34px; min-width: 34px; }
+    .video-overlay-close { width: 38px; height: 38px; min-width: 38px; -webkit-tap-highlight-color: transparent; }
+    .video-control-btn { width: 40px; height: 40px; min-width: 40px; -webkit-tap-highlight-color: transparent; }
     .timeline { padding-left: 30px; }
     .timeline::before { left: 12px; }
     .timeline-item { padding-left: 25px; margin-bottom: 30px; }
@@ -2794,19 +2845,23 @@ body.modal-open #fab-container {
     .video-overlay {
         max-width: 94vw !important;
         width: 94vw !important;
-        bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+        bottom: calc(18px + env(safe-area-inset-bottom, 0px)) !important;
         left: 3vw !important;
         transform: translateX(0) translateY(20px) !important;
-        padding: 8px 10px 8px 14px !important;
+        padding: 10px 10px 10px 14px !important;
         border-radius: 28px !important;
         overflow: visible !important;
+        touch-action: none !important;
     }
     .video-overlay.active {
         transform: translateX(0) translateY(0) !important;
     }
+    .video-overlay.dragging {
+        transition: none !important;
+    }
     .video-overlay-title { font-size: 0.68rem !important; }
-    .video-control-btn { width: 34px !important; height: 34px !important; min-width: 34px !important; }
-    .video-overlay-close { width: 32px !important; height: 32px !important; min-width: 32px !important; }
+    .video-control-btn { width: 40px !important; height: 40px !important; min-width: 40px !important; -webkit-tap-highlight-color: transparent; }
+    .video-overlay-close { width: 38px !important; height: 38px !important; min-width: 38px !important; -webkit-tap-highlight-color: transparent; }
 
     /* ボーナスポップアップをスマホ中央に */
     .member-bonus-popup {
@@ -3154,11 +3209,23 @@ body.explore-active #cursor-trail {
 body.explore-active .hero,
 body.explore-active .members-section,
 body.explore-active .discography-section,
-body.explore-active .footer-section,
-body.explore-active .nav-bar {
+body.explore-active .footer-section {
     opacity: 0.15;
     pointer-events: none;
     transition: opacity 0.5s ease;
+}
+body.explore-active #scroll-container {
+    pointer-events: none;
+    opacity: 0.1;
+    transition: opacity 0.5s ease;
+}
+body.explore-active #navbar {
+    pointer-events: auto;
+    z-index: 1000;
+}
+body.explore-active .nav-hamburger {
+    pointer-events: auto !important;
+    z-index: 1002 !important;
 }
 body.explore-active #bg-video-container {
     opacity: 0;

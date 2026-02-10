@@ -23,17 +23,25 @@ let stageVideoShowingIframe = true;
 
 // ==================== 自動再生（連続再生）====================
 let autoPlayEnabled = true;
+let shuffleEnabled = false;
 let autoPlayTimer = null;
 let ytPlayer = null;
 let ytApiReady = false;
 
 function playNextSong() {
     if (!autoPlayEnabled || !currentSongId) return;
-    const currentIdx = mvList.findIndex(mv => mv.id === currentSongId);
-    const nextIdx = (currentIdx + 1) % mvList.length;
-    const next = mvList[nextIdx];
-    if (next) {
-        playMV(next.id, next.title);
+    const allSongs = [...mvList, ...extraMvList];
+    if (shuffleEnabled) {
+        // シャッフル: 現在の曲以外からランダムに選択
+        const candidates = allSongs.filter(mv => mv.id !== currentSongId);
+        const next = candidates[Math.floor(Math.random() * candidates.length)];
+        if (next) playMV(next.id, next.title);
+    } else {
+        // 通常: mvListのみで順番再生
+        const currentIdx = mvList.findIndex(mv => mv.id === currentSongId);
+        const nextIdx = (currentIdx + 1) % mvList.length;
+        const next = mvList[nextIdx];
+        if (next) playMV(next.id, next.title);
     }
 }
 
@@ -1000,20 +1008,24 @@ penlightBtn?.addEventListener('click', () => {
 // ペンライトUI（モード切替・カラー選択・コンボ表示）
 function showPenlightUI() {
     if (document.getElementById('penlight-ui')) return;
+    const isMobile = window.innerWidth <= 768;
     const ui = document.createElement('div');
     ui.id = 'penlight-ui';
     ui.innerHTML = `
-        <div style="position:fixed;bottom:120px;left:50%;transform:translateX(-50%);z-index:9999;
-            display:flex;gap:8px;align-items:center;padding:10px 18px;border-radius:30px;
-            background:rgba(0,0,0,0.75);backdrop-filter:blur(10px);border:1px solid rgba(255,105,180,0.4);">
-            <div style="display:flex;gap:4px;" id="pl-color-dots"></div>
-            <span style="color:#fff;font-size:10px;margin:0 6px;">|</span>
+        <div style="position:fixed;bottom:${isMobile ? '80px' : '120px'};left:50%;transform:translateX(-50%);z-index:9999;
+            display:flex;gap:${isMobile ? '6px' : '8px'};align-items:center;padding:${isMobile ? '8px 12px' : '10px 18px'};border-radius:30px;
+            background:rgba(0,0,0,0.75);backdrop-filter:blur(10px);border:1px solid rgba(255,105,180,0.4);
+            max-width:${isMobile ? '94vw' : 'none'};flex-wrap:${isMobile ? 'wrap' : 'nowrap'};justify-content:center;">
+            <div style="display:flex;gap:4px;${isMobile ? 'overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:60vw;padding:4px 0;' : ''}" id="pl-color-dots"></div>
+            <span style="color:#fff;font-size:10px;margin:0 6px;${isMobile ? 'display:none;' : ''}">|</span>
             <button id="pl-mode-btn" style="background:none;border:1px solid #ff69b4;color:#ff69b4;
-                padding:4px 10px;border-radius:15px;font-size:11px;cursor:pointer;font-family:inherit;">WAVE</button>
+                padding:${isMobile ? '6px 14px' : '4px 10px'};border-radius:15px;font-size:${isMobile ? '13px' : '11px'};cursor:pointer;font-family:inherit;
+                min-height:${isMobile ? '40px' : 'auto'};">WAVE</button>
             <button id="pl-tap-btn" style="background:linear-gradient(135deg,#ff1493,#ff69b4);border:none;color:#fff;
-                width:48px;height:48px;border-radius:50%;font-size:20px;cursor:pointer;
-                box-shadow:0 0 15px rgba(255,20,147,0.5);transition:transform 0.1s;">🔦</button>
-            <div id="pl-combo" style="color:#ffd700;font-weight:bold;font-size:14px;min-width:50px;text-align:center;"></div>
+                width:${isMobile ? '60px' : '48px'};height:${isMobile ? '60px' : '48px'};border-radius:50%;font-size:${isMobile ? '26px' : '20px'};cursor:pointer;
+                box-shadow:0 0 15px rgba(255,20,147,0.5);transition:transform 0.1s;
+                -webkit-tap-highlight-color:transparent;touch-action:manipulation;">🔦</button>
+            <div id="pl-combo" style="color:#ffd700;font-weight:bold;font-size:${isMobile ? '16px' : '14px'};min-width:50px;text-align:center;"></div>
         </div>
     `;
     document.body.appendChild(ui);
@@ -1211,6 +1223,10 @@ const hamburger = document.getElementById('hamburger');
 const mobileMenu = document.getElementById('mobile-menu');
 
 hamburger?.addEventListener('click', () => {
+    // 探索モード中はまず探索モードを解除する
+    if (exploreMode) {
+        toggleExploreMode();
+    }
     hamburger.classList.toggle('active');
     mobileMenu?.classList.toggle('active');
 });
@@ -1523,7 +1539,7 @@ const songThemes = {
         mood: 'sweet', laserSpeed: 0.8, strobeChance: 0.15,
         shaderTint: [0.85, 0.4, 0.7], cameraShake: 0.005,
     },
-    'p-jc9qMpBb4': { // 恋人以上、好き未満 (18th c/w)
+    'p-jc9qMpBb4': { // 恋人以上、好き未満 (18th 両A面)
         name: 'koibitoijou', bpm: 118, intensity: 0.9,
         primary: [1.0, 0.6, 0.7], secondary: [0.95, 0.4, 0.55], accent: [1.0, 0.85, 0.8],
         mood: 'sweet', laserSpeed: 0.7, strobeChance: 0.1,
@@ -1789,6 +1805,45 @@ const songThemes = {
         mood: 'emotional', laserSpeed: 0.4, strobeChance: 0.05,
         shaderTint: [0.45, 0.7, 1.0], cameraShake: 0.003,
     },
+    // ===== 4th カップリング =====
+    'canxm5HHHQc': { // 今、この船に乗れ！
+        name: 'kono_fune', bpm: 152, intensity: 1.3,
+        primary: [0.0, 0.5, 1.0], secondary: [0.2, 0.7, 0.9], accent: [1.0, 0.9, 0.3],
+        mood: 'energetic', laserSpeed: 1.5, strobeChance: 0.4,
+        shaderTint: [0.1, 0.55, 1.0], cameraShake: 0.014,
+    },
+    'SrqqHpWIN9M': { // アイカツハッピーエンド
+        name: 'aikatsu', bpm: 138, intensity: 1.1,
+        primary: [1.0, 0.6, 0.2], secondary: [1.0, 0.8, 0.4], accent: [1.0, 0.95, 0.6],
+        mood: 'cheerful', laserSpeed: 1.0, strobeChance: 0.2,
+        shaderTint: [1.0, 0.65, 0.25], cameraShake: 0.008,
+    },
+    // ===== 3rd カップリング =====
+    'vJIPN_iZnIU': { // 部活中に目が合うなって思ってたんだ
+        name: 'bukatsu', bpm: 128, intensity: 0.95,
+        primary: [0.3, 0.8, 0.5], secondary: [0.5, 0.9, 0.7], accent: [1.0, 1.0, 0.7],
+        mood: 'sweet', laserSpeed: 0.8, strobeChance: 0.12,
+        shaderTint: [0.35, 0.8, 0.55], cameraShake: 0.005,
+    },
+    'Qg9344QHJDU': { // 樹愛羅、助けに来たぞ
+        name: 'kiara_tasuke', bpm: 144, intensity: 1.2,
+        primary: [1.0, 0.3, 0.4], secondary: [1.0, 0.55, 0.6], accent: [1.0, 0.85, 0.5],
+        mood: 'dramatic', laserSpeed: 1.3, strobeChance: 0.3,
+        shaderTint: [1.0, 0.35, 0.45], cameraShake: 0.01,
+    },
+    // ===== 2nd カップリング =====
+    'RxcNhst20uw': { // 届いてLOVE YOU♡
+        name: 'todoke_love', bpm: 120, intensity: 0.9,
+        primary: [1.0, 0.5, 0.65], secondary: [1.0, 0.7, 0.8], accent: [1.0, 0.9, 0.95],
+        mood: 'sweet', laserSpeed: 0.7, strobeChance: 0.1,
+        shaderTint: [1.0, 0.55, 0.65], cameraShake: 0.004,
+    },
+    'z858cLcnaJo': { // ようこそ！イコラブ沼
+        name: 'icolove_numa', bpm: 136, intensity: 1.1,
+        primary: [1.0, 0.4, 0.55], secondary: [0.9, 0.3, 0.7], accent: [1.0, 0.8, 0.4],
+        mood: 'cheerful', laserSpeed: 1.0, strobeChance: 0.2,
+        shaderTint: [1.0, 0.45, 0.55], cameraShake: 0.007,
+    },
     // ===== アルバム曲 =====
     '0ImFNEs7P_Q': { // 桜の咲く音がした
         name: 'sakura_oto', bpm: 84, intensity: 0.75,
@@ -1849,7 +1904,7 @@ const extraMvList = [
     { id: 'Pyts1pc0u1A', title: 'Queens', single: '19th c/w', year: '2025', type: 'coupling' },
     { id: '4xBmuiQNGdc', title: '木漏れ日メゾフォルテ', single: '19th c/w', year: '2025', type: 'coupling' },
     // ─── 18th カップリング ───
-    { id: 'p-jc9qMpBb4', title: '恋人以上、好き未満', single: '18th c/w', year: '2025', type: 'coupling' },
+    { id: 'p-jc9qMpBb4', title: '恋人以上、好き未満', single: '18th 両A面', year: '2025', type: 'coupling' },
     { id: 'd20dEAtbL08', title: '超特急逃走中', single: '18th c/w', year: '2025', type: 'coupling' },
     // ─── 17th カップリング ───
     { id: 'D0SfIi-0Zpo', title: '仲直りシュークリーム', single: '17th c/w', year: '2024', type: 'coupling' },
@@ -1896,6 +1951,15 @@ const extraMvList = [
     // ─── 5th カップリング ───
     { id: 'hRdSH41gjx0', title: 'いらない ツインテール', single: '5th c/w', year: '2019', type: 'coupling' },
     { id: 'qoPqgiQVhok', title: '虹の素', single: '5th c/w', year: '2019', type: 'coupling' },
+    // ─── 4th カップリング ───
+    { id: 'canxm5HHHQc', title: '今、この船に乗れ！', single: '4th c/w', year: '2018', type: 'coupling' },
+    { id: 'SrqqHpWIN9M', title: 'アイカツハッピーエンド', single: '4th c/w', year: '2018', type: 'coupling' },
+    // ─── 3rd カップリング ───
+    { id: 'vJIPN_iZnIU', title: '部活中に目が合うなって思ってたんだ', single: '3rd c/w', year: '2018', type: 'coupling' },
+    { id: 'Qg9344QHJDU', title: '樹愛羅、助けに来たぞ', single: '3rd c/w', year: '2018', type: 'coupling' },
+    // ─── 2nd カップリング ───
+    { id: 'RxcNhst20uw', title: '届いてLOVE YOU♡', single: '2nd c/w', year: '2017', type: 'coupling' },
+    { id: 'z858cLcnaJo', title: 'ようこそ！イコラブ沼', single: '2nd c/w', year: '2017', type: 'coupling' },
     // ─── アルバム曲 ───
     { id: '0ImFNEs7P_Q', title: '桜の咲く音がした', single: '1st Album', year: '2023', type: 'coupling' },
     // ─── ソロ曲 ───
@@ -1963,9 +2027,42 @@ if (musicGrid) {
     extraGrid.className = 'music-grid';
     separator.parentNode.insertBefore(extraGrid, separator.nextSibling);
 
-    extraMvList.forEach((mv, i) => {
-        extraGrid.appendChild(buildMvCard(mv, mvList.length + i, false));
-    });
+    // 遅延読み込み: 最初に12曲だけ表示、残りは「もっと見る」で
+    const EXTRA_INITIAL = 12;
+    let extraShowCount = 0;
+
+    function showMoreExtras() {
+        const start = extraShowCount;
+        const end = Math.min(extraShowCount + EXTRA_INITIAL, extraMvList.length);
+        for (let i = start; i < end; i++) {
+            extraGrid.appendChild(buildMvCard(extraMvList[i], mvList.length + i, false));
+        }
+        extraShowCount = end;
+        // もっと見るボタン更新
+        const existBtn = document.getElementById('show-more-extras');
+        if (extraShowCount >= extraMvList.length) {
+            existBtn?.remove();
+        } else if (!existBtn) {
+            const moreBtn = document.createElement('button');
+            moreBtn.id = 'show-more-extras';
+            moreBtn.className = 'btn-show-more';
+            moreBtn.innerHTML = `もっと見る <small>(残り${extraMvList.length - extraShowCount}曲)</small>`;
+            moreBtn.addEventListener('click', () => {
+                showMoreExtras();
+                // ボタンテキスト更新
+                if (extraShowCount < extraMvList.length) {
+                    moreBtn.innerHTML = `もっと見る <small>(残り${extraMvList.length - extraShowCount}曲)</small>`;
+                }
+                // 新しく追加されたカードのアニメーション
+                setTimeout(revealElements, 100);
+            });
+            extraGrid.parentNode.insertBefore(moreBtn, extraGrid.nextSibling);
+        } else {
+            existBtn.innerHTML = `もっと見る <small>(残り${extraMvList.length - extraShowCount}曲)</small>`;
+        }
+    }
+
+    showMoreExtras(); // 最初の12曲表示
 }
 
 // ★ 探索モード用ミニ曲セレクター構築
@@ -2330,6 +2427,62 @@ if (autoPlayBtn) {
         autoPlayBtn.style.opacity = autoPlayEnabled ? '1' : '0.4';
     });
 }
+
+// シャッフル再生トグルボタン
+const shuffleBtn = document.getElementById('video-shuffle-btn');
+if (shuffleBtn) {
+    shuffleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        shuffleEnabled = !shuffleEnabled;
+        shuffleBtn.classList.toggle('active', shuffleEnabled);
+        shuffleBtn.title = shuffleEnabled ? 'シャッフル ON' : 'シャッフル OFF';
+        shuffleBtn.style.opacity = shuffleEnabled ? '1' : '0.4';
+    });
+}
+
+// ==================== モバイル: 再生バーのドラッグ移動 ====================
+(function initOverlayDrag() {
+    const overlay = document.getElementById('video-overlay');
+    if (!overlay) return;
+    let isDragging = false;
+    let startY = 0;
+    let startBottom = 0;
+    let dragThreshold = 8; // px - この距離以上動かしたらドラッグとみなす
+    let hasMoved = false;
+
+    overlay.addEventListener('touchstart', (e) => {
+        // ボタン類のタッチは無視
+        if (e.target.closest('button') || e.target.closest('.video-overlay-title')) return;
+        const touch = e.touches[0];
+        startY = touch.clientY;
+        const rect = overlay.getBoundingClientRect();
+        startBottom = window.innerHeight - rect.bottom;
+        hasMoved = false;
+    }, { passive: true });
+
+    overlay.addEventListener('touchmove', (e) => {
+        if (startY === 0) return;
+        const touch = e.touches[0];
+        const deltaY = startY - touch.clientY;
+        if (!hasMoved && Math.abs(deltaY) < dragThreshold) return;
+        hasMoved = true;
+        if (!isDragging) {
+            isDragging = true;
+            overlay.classList.add('dragging');
+        }
+        const newBottom = Math.max(5, Math.min(window.innerHeight - 70, startBottom + deltaY));
+        overlay.style.bottom = newBottom + 'px';
+        e.preventDefault();
+    }, { passive: false });
+
+    overlay.addEventListener('touchend', () => {
+        if (isDragging) {
+            isDragging = false;
+            overlay.classList.remove('dragging');
+        }
+        startY = 0;
+    });
+})();
 
 // 一時停止/再開ボタン — NOW PLAYING側（動画オーバーレイと同じ関数を使う）
 document.getElementById('music-pause')?.addEventListener('click', () => {
