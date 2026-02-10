@@ -2198,7 +2198,8 @@ function playMV(videoId, title) {
             }
             // ★ GLBペンライトの色を曲テーマに合わせる
             if (currentSongTheme && glbStickLights.length > 0) {
-                const themeColor = new THREE.Color(currentSongTheme.primary);
+                const p = currentSongTheme.primary;
+                const themeColor = new THREE.Color(p[0], p[1], p[2]);
                 glbStickLights.forEach(sl => {
                     sl.material.color.copy(themeColor);
                     sl.material.needsUpdate = true;
@@ -4636,9 +4637,11 @@ function animate() {
             sl.intensity = beatPulse;
             // 左右交互にカラーを切り替え
             if (idx % 2 === 0) {
-                sl.color.set(currentSongTheme.primary);
+                const p = currentSongTheme.primary;
+                sl.color.setRGB(p[0], p[1], p[2]);
             } else {
-                sl.color.set(currentSongTheme.accent || currentSongTheme.primary);
+                const a = currentSongTheme.accent || currentSongTheme.primary;
+                sl.color.setRGB(a[0], a[1], a[2]);
             }
             // ビートに合わせて角度を揺らす
             const swayAngle = Math.sin(elapsed * 2 + idx * 1.5) * 0.3 * musicBeat;
@@ -4846,7 +4849,7 @@ function animate() {
 
     // GLBペンライト（観客StickLight）— 曲テーマカラー連動 + ビート脈動
     if (glbStickLights.length > 0) {
-        const baseColor = currentSongTheme ? new THREE.Color(currentSongTheme.primary) : new THREE.Color(0xff69b4);
+        const baseColor = currentSongTheme ? new THREE.Color(currentSongTheme.primary[0], currentSongTheme.primary[1], currentSongTheme.primary[2]) : new THREE.Color(0xff69b4);
         glbStickLights.forEach((sl, si) => {
             const phase = si * 0.7 + elapsed * 2.5;
             const pulse = isMusicPlaying ? 0.55 + musicBeat * 0.45 + Math.sin(phase) * 0.15 : 0.3 + Math.sin(phase * 0.3) * 0.1;
@@ -4862,20 +4865,24 @@ function animate() {
     // GLBステージ本体 — 曲テーマカラーでエミッシブ色変化 + 環境光連動
     if (glbStageMeshes.length > 0) {
         if (isMusicPlaying && currentSongTheme) {
-            const stageEmissive = new THREE.Color(currentSongTheme.primary).multiplyScalar(0.15);
+            const sp = currentSongTheme.primary;
+            const stageEmissive = new THREE.Color(sp[0], sp[1], sp[2]).multiplyScalar(0.15);
             glbStageMeshes.forEach(sm => {
+                if (!sm.material.emissive) return;
                 sm.material.emissive.lerp(stageEmissive, 0.08);
                 sm.material.emissiveIntensity = 0.3 + musicBeat * 0.2;
             });
             // ステージ照明も曲テーマに連動（控えめに）
-            stageCenterSpot.color.set(currentSongTheme.primary);
+            const cp = currentSongTheme.primary;
+            stageCenterSpot.color.setRGB(cp[0], cp[1], cp[2]);
             stageCenterSpot.intensity = 0.6 + musicBeat * 1.0;
-            hemiLight.color.set(currentSongTheme.primary).multiplyScalar(0.3).add(new THREE.Color(0x221133));
+            hemiLight.color.setRGB(cp[0], cp[1], cp[2]).multiplyScalar(0.3).add(new THREE.Color(0x221133));
             // 左右スポットもビートに連動
             stageLeftSpot.intensity = 0.2 + musicBeat * 0.5;
             stageRightSpot.intensity = 0.2 + musicBeat * 0.5;
-            stageLeftSpot.color.set(currentSongTheme.accent || currentSongTheme.primary);
-            stageRightSpot.color.set(currentSongTheme.primary);
+            const la = currentSongTheme.accent || currentSongTheme.primary;
+            stageLeftSpot.color.setRGB(la[0], la[1], la[2]);
+            stageRightSpot.color.setRGB(cp[0], cp[1], cp[2]);
         } else {
             glbStageMeshes.forEach(sm => {
                 sm.material.emissiveIntensity = 0.25;
