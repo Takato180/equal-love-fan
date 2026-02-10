@@ -10,7 +10,7 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true 
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setClearColor(0x050505, 1);
+renderer.setClearColor(0x000000, 0);
 renderer.sortObjects = true; // 透明オブジェクトの正しいソートを保証
 renderer.outputColorSpace = THREE.SRGBColorSpace; // GLBテクスチャの色空間を正しく表示
 camera.position.set(0, 0, 5);
@@ -39,7 +39,7 @@ scene.add(stageRightSpot);
 // ==================== ステージ動画オーバーレイ ====================
 const stageVideoContainer = document.createElement('div');
 stageVideoContainer.id = 'stage-video-container';
-stageVideoContainer.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:2;pointer-events:none;overflow:hidden;display:none;';
+stageVideoContainer.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none;overflow:hidden;display:none;';
 document.body.appendChild(stageVideoContainer);
 let stageVideoIframe = null;
 let stageVideoActive = false;
@@ -286,6 +286,7 @@ const bgShaderMat = new THREE.ShaderMaterial({
         uSectionCount: { value: 6.0 },
         uSongTint: { value: new THREE.Vector3(0, 0, 0) }, // 曲テーマティント
         uLiveIntensity: { value: 0.0 }, // ライブ感度
+        uVideoRect: { value: new THREE.Vector4(-1, -1, -1, -1) }, // 動画透過領域 (left, top, right, bottom) 0-1のNDC
     },
     vertexShader: `
         varying vec2 vUv;
@@ -304,6 +305,7 @@ const bgShaderMat = new THREE.ShaderMaterial({
         uniform float uSectionCount;
         uniform vec3 uSongTint;
         uniform float uLiveIntensity;
+        uniform vec4 uVideoRect; // 動画透過領域
 
         float hash(vec2 p) {
             return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
@@ -588,11 +590,22 @@ const bgShaderMat = new THREE.ShaderMaterial({
             vec3 flashColor = length(uSongTint) > 0.01 ? uSongTint : vec3(1.0, 0.4, 0.6);
             bg += flashColor * uBeat * uLiveIntensity * 0.12;
 
-            gl_FragColor = vec4(bg, 1.0);
+            // 動画透過領域: バックスクリーン部分を透明にして動画を見せる
+            float alpha = 1.0;
+            if (uVideoRect.x >= 0.0) {
+                // ビデオ領域内ならalpha=0（動画が透けて見える）
+                float inX = step(uVideoRect.x, uv.x) * step(uv.x, uVideoRect.z);
+                float inY = step(uVideoRect.y, 1.0 - uv.y) * step(1.0 - uv.y, uVideoRect.w);
+                float inVideo = inX * inY;
+                alpha = 1.0 - inVideo;
+            }
+
+            gl_FragColor = vec4(bg, alpha);
         }
     `,
     depthWrite: false,
     depthTest: false,
+    transparent: true,
 });
 
 const bgQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), bgShaderMat);
@@ -2462,7 +2475,11 @@ function updateStageVideoOverlay() {
     if (top + projH > vh) { projH = vh - top; }
 
     // 投影成功 → iframeをGLBバックスクリーンに重ねて配置（背景として）
-    if (activeScreen.material) activeScreen.material.opacity = 0.15;
+    // バックスクリーンを完全透明にして動画が透けて見えるようにする
+    if (activeScreen.material) {
+        activeScreen.material.opacity = 0.0;
+        activeScreen.material.transparent = true;
+    }
     stageVideoShowingIframe = true;
     stageVideoIframe.style.display = 'block';
     stageVideoIframe.style.left = left + 'px';
@@ -3714,7 +3731,7 @@ for (let i = 0; i < 12; i++) {
     const glowGeo2 = new THREE.SphereGeometry(0.2, 8, 8);
     const glowMat2 = new THREE.MeshBasicMaterial({
         color: 0xffaa44,
-        transparent: true, opacity: 0.9,
+        transparent: true, opacity: 0.3,
         blending: THREE.AdditiveBlending,
     });
     lGroup.add(new THREE.Mesh(glowGeo2, glowMat2));
@@ -4788,7 +4805,7 @@ function animate() {
     stageGroup.children.forEach(child => {
         if (child.userData && child.userData.isTrussVisualBeam) {
             const parentSpot = child.userData.parentSpot;
-            child.material.opacity = isMusicPlaying ? 0.03 + musicBeat * 0.06 : 0.01;
+            child.material.opacity = isMusicPlaying ? 0.015 + musicBeat * 0.03 : 0.005;
             if (parentSpot) child.material.color.copy(parentSpot.color);
         }
     });
@@ -4997,7 +5014,7 @@ function animate() {
         fogPos[i * 3 + 1] += Math.sin(elapsed * 0.15 + i * 0.5) * 0.002;
     }
     fogGeo.attributes.position.needsUpdate = true;
-    fogMat.opacity = isMusicPlaying ? 0.03 + musicBeat * 0.05 : 0.02;
+    fogMat.opacity = isMusicPlaying ? 0.015 + musicBeat * 0.02 : 0.01;
 
     // 花火エフェクト更新
     for (let i = stageFireworks.length - 1; i >= 0; i--) {
@@ -5057,7 +5074,7 @@ function animate() {
         }
     }
     stageSakuraGeo.attributes.position.needsUpdate = true;
-    stageSakuraMat.opacity = 0.4 + Math.sin(elapsed * 0.7) * 0.2 + (isMusicPlaying ? musicBeat * 0.2 : 0);
+    stageSakuraMat.opacity = 0.15 + Math.sin(elapsed * 0.7) * 0.08 + (isMusicPlaying ? musicBeat * 0.08 : 0);
 
     // 金粉きらめき
     const gPos = goldGeo.attributes.position.array;
@@ -5067,14 +5084,14 @@ function animate() {
         gPos[i * 3 + 2] += Math.sin(elapsed * 0.15 + i * 0.7) * 0.002;
     }
     goldGeo.attributes.position.needsUpdate = true;
-    goldMat.opacity = 0.4 + Math.sin(elapsed * 1.5) * 0.3 + (isMusicPlaying ? musicBeat * 0.3 : 0);
+    goldMat.opacity = 0.15 + Math.sin(elapsed * 1.5) * 0.1 + (isMusicPlaying ? musicBeat * 0.1 : 0);
 
     // レーザービーム回転
     for (const laser of laserBeams) {
         const d = laser.userData;
         laser.rotation.x = Math.sin(elapsed * 0.7 + d.phase) * 0.8;
         laser.rotation.z = elapsed * 0.5 + d.phase;
-        laser.material.opacity = isMusicPlaying ? musicBeat * 0.25 : 0;
+        laser.material.opacity = isMusicPlaying ? musicBeat * 0.1 : 0;
     }
 
     // 蓮の花 浮遊回転
@@ -5090,13 +5107,13 @@ function animate() {
     // 鳥居のグロー脈動
     for (let i = 0; i < toriiArches.length; i++) {
         const a = toriiArches[i];
-        const pulse = 0.4 + Math.sin(elapsed * 1.5 + i * 1.5) * 0.3 + (isMusicPlaying ? musicBeat * 0.3 : 0);
+        const pulse = 0.15 + Math.sin(elapsed * 1.5 + i * 1.5) * 0.1 + (isMusicPlaying ? musicBeat * 0.1 : 0);
         a.children.forEach(c => {
             if (c.material) c.material.opacity = pulse * (c.material.opacity > 0 ? 1 : 0);
         });
         // PointLight
         const pl = a.children.find(c => c.isLight);
-        if (pl) pl.intensity = isMusicPlaying ? musicBeat * 3 : 0.5;
+        if (pl) pl.intensity = isMusicPlaying ? musicBeat * 0.8 : 0.15;
     }
     // ====================  END 超輝夜姫アニメーション ====================
 
@@ -5151,7 +5168,20 @@ function animate() {
     // 動画オーバーレイ位置更新は3フレームに1回（DOM操作削減）
     if (ribbonFrame % 3 === 0) {
         updateStageVideoOverlay();
-        stageVideoContainer.style.zIndex = exploreMode ? '850' : '2';
+        stageVideoContainer.style.zIndex = exploreMode ? '799' : '1';
+        // 背景シェーダーの動画透過領域を更新
+        if (stageVideoIframe && stageVideoShowingIframe && stageVideoIframe.style.display !== 'none') {
+            const vw = window.innerWidth, vh = window.innerHeight;
+            const iLeft = parseFloat(stageVideoIframe.style.left) || 0;
+            const iTop = parseFloat(stageVideoIframe.style.top) || 0;
+            const iW = parseFloat(stageVideoIframe.style.width) || 0;
+            const iH = parseFloat(stageVideoIframe.style.height) || 0;
+            bgShaderMat.uniforms.uVideoRect.value.set(
+                iLeft / vw, iTop / vh, (iLeft + iW) / vw, (iTop + iH) / vh
+            );
+        } else {
+            bgShaderMat.uniforms.uVideoRect.value.set(-1, -1, -1, -1);
+        }
     }
 
     renderer.render(scene, camera);
