@@ -4,12 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>=LOVE（イコールラブ）| Interactive Fan Experience</title>
-    <meta name="description" content="=LOVE（イコールラブ）ファンサイト - 指原莉乃プロデュース声優アイドルグループ">
-    <link rel="stylesheet" href="style.css?v=20260211i">
+    <meta name="description" content="=LOVE（イコールラブ）非公式ファンサイト - 指原莉乃プロデュース声優アイドルグループの3Dインタラクティブ体験。メンバー紹介、楽曲、ライブステージを3D空間で楽しめます。">
+    <meta name="keywords" content="=LOVE,イコールラブ,指原莉乃,声優アイドル,ファンサイト,3D,ライブステージ">
+    <meta name="author" content="=LOVE Fan">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://takato180.github.io/equal-love-fan/">
+
+    <!-- OGP -->
+    <meta property="og:title" content="=LOVE（イコールラブ）| Interactive Fan Experience">
+    <meta property="og:description" content="指原莉乃プロデュース声優アイドルグループ =LOVE の非公式ファンサイト。3Dライブステージ体験、メンバー紹介、楽曲MV再生など。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://takato180.github.io/equal-love-fan/">
+    <meta property="og:image" content="https://takato180.github.io/equal-love-fan/figure/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="=LOVE Fan Experience">
+    <meta property="og:locale" content="ja_JP">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="=LOVE（イコールラブ）| Interactive Fan Experience">
+    <meta name="twitter:description" content="3Dライブステージで =LOVE の世界を体験。メンバー紹介・MV再生・ペンライト演出など。">
+    <meta name="twitter:image" content="https://takato180.github.io/equal-love-fan/figure/og-image.png">
+
+    <!-- JSON-LD 構造化データ -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "=LOVE Interactive Fan Experience",
+        "alternateName": "イコールラブ ファンサイト",
+        "url": "https://takato180.github.io/equal-love-fan/",
+        "description": "=LOVE（イコールラブ）非公式ファンサイト - 3Dインタラクティブ体験",
+        "inLanguage": "ja",
+        "about": {
+            "@type": "MusicGroup",
+            "name": "=LOVE",
+            "alternateName": "イコールラブ",
+            "url": "https://equal-love.jp/",
+            "genre": ["J-Pop", "Idol"],
+            "numberOfMembers": 10,
+            "foundingDate": "2017",
+            "sameAs": [
+                "https://twitter.com/Equal_LOVE_12",
+                "https://www.instagram.com/equal_love.official/",
+                "https://www.youtube.com/channel/UCv7VutirxDn3RWIJXI68n_A",
+                "https://open.spotify.com/artist/1j2WhcTW00Zd2SjFYsJVc6"
+            ]
+        }
+    }
+    </script>
+    <link rel="stylesheet" href="style.css?v=20260211j">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Site Notice Banner -->
+    <div id="site-notice" class="site-notice">
+        <span class="notice-text">📱 PC推奨 ｜ ⚡ 非公式ファンサイト</span>
+        <button class="notice-close" onclick="this.parentElement.style.display='none'" aria-label="閉じる">✕</button>
+    </div>
     <!-- Loading Screen -->
     <div id="loading-screen">
         <div class="loader-content">
@@ -660,7 +714,10 @@
                 </div>
 
                 <footer class="footer">
-                    <p>This is an unofficial fan site. All rights belong to =LOVE, 代々木アニメーション学院, and Sony Music.</p>
+                    <div class="footer-notices">
+                        <p class="footer-unofficial">⚠ This is an <strong>unofficial</strong> fan-made site. Not affiliated with =LOVE, 代々木アニメーション学院, or Sony Music.</p>
+                        <p class="footer-pc-notice">🖥 PC推奨 ― 3D演出はデスクトップ環境での閲覧を推奨します</p>
+                    </div>
                     <p class="footer-heart">Built with Three.js ♡ 2026</p>
                 </footer>
             </div>
@@ -710,6 +767,6 @@
         }
     }
     </script>
-    <script type="module" src="main.js?v=20260211i"></script>
+    <script type="module" src="main.js?v=20260211j"></script>
 </body>
 </html>

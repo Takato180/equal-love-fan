@@ -2253,8 +2253,79 @@ body.modal-open #fab-container {
     letter-spacing: 0.05em;
 }
 
+.footer-notices {
+    margin-bottom: 12px;
+}
+
+.footer-unofficial {
+    color: rgba(255, 200, 200, 0.6) !important;
+    font-size: 0.7rem !important;
+}
+
+.footer-unofficial strong {
+    color: rgba(255, 150, 150, 0.8);
+}
+
+.footer-pc-notice {
+    color: rgba(180, 200, 255, 0.5) !important;
+    font-size: 0.65rem !important;
+}
+
 .footer-heart {
     color: rgba(255, 105, 180, 0.5) !important;
+}
+
+/* ========== Site Notice Banner ========== */
+.site-notice {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 6px 16px;
+    background: linear-gradient(135deg, rgba(20, 10, 30, 0.92), rgba(30, 15, 40, 0.92));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 105, 180, 0.15);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    animation: noticeSlideIn 0.6s ease-out, noticeFadeOut 0.8s ease 8s forwards;
+}
+
+@keyframes noticeSlideIn {
+    from { transform: translateY(-100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes noticeFadeOut {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+}
+
+.notice-text {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.notice-close {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    line-height: 1;
+}
+
+.notice-close:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.8);
+    border-color: rgba(255, 105, 180, 0.3);
 }
 
 /* ========== FAB ========== */
