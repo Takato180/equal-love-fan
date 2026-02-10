@@ -2959,7 +2959,7 @@ body.modal-open #fab-container {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    z-index: 2;
+    z-index: 1;
     pointer-events: none;
     overflow: hidden;
     display: none;
@@ -3235,6 +3235,9 @@ body.explore-active #scroll-container {
     pointer-events: none;
     opacity: 0.1;
     transition: opacity 0.5s ease;
+}
+body.explore-active #stage-video-container {
+    z-index: 799;
 }
 body.explore-active #navbar {
     pointer-events: auto;
