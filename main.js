@@ -91,11 +91,12 @@ exploreHelp.innerHTML = `
         </div>
         <div class="explore-presets">
             <button class="explore-preset" data-view="front">正面</button>
-            <button class="explore-preset" data-view="stage">ステージ上</button>
-            <button class="explore-preset" data-view="audience">観客席</button>
+            <button class="explore-preset" data-view="screen">スクリーン前</button>
+            <button class="explore-preset" data-view="stage">観客席</button>
+            <button class="explore-preset" data-view="audience">ステージ上</button>
             <button class="explore-preset" data-view="aerial">俯瞰</button>
             <button class="explore-preset" data-view="side">サイド</button>
-            <button class="explore-preset" data-view="backstage">客席を見る</button>
+            <button class="explore-preset" data-view="backstage">舞台裏</button>
         </div>
         <div class="explore-song-selector">
             <div class="explore-song-label">曲を選択</div>
@@ -155,12 +156,13 @@ document.body.appendChild(exploreHelp);
 
 // カメラプリセット
 const cameraPresets = {
-    front:    { pos: [0, 0, 5],     target: [0, -1, -8] },
-    stage:    { pos: [0, -3, -8],   target: [0, -1, 5] },
-    audience: { pos: [0, 1, 12],    target: [0, -2, -8] },
-    aerial:   { pos: [0, 15, -2],   target: [0, -3, -8] },
-    side:     { pos: [18, 2, -6],   target: [0, -1, -8] },
-    backstage:{ pos: [0, -3.5, -14], target: [0, 0, 5] },
+    front:    { pos: [0, -3, 2],      target: [0, -4, -8] },     // 最前列からステージを見上げる
+    screen:   { pos: [0, -2, -5],     target: [0, -3, -10] },    // スクリーン間近
+    stage:    { pos: [0, 0, 10],      target: [0, -3, -8] },     // 観客席中段からステージ全体
+    audience: { pos: [0, -3.5, -8],   target: [0, -2, 5] },      // ステージ上から客席を見渡す
+    aerial:   { pos: [0, 12, 3],      target: [0, -5, -8] },     // 高い俯瞰
+    side:     { pos: [14, -1, -4],    target: [0, -4, -8] },     // サイドアリーナ
+    backstage:{ pos: [0, -3, -15],    target: [0, -3, -7] },     // 舞台裏からステージ背面
 };
 
 function animateCameraTo(preset, duration = 1200) {
@@ -668,7 +670,7 @@ for (let r = 0; r < ribbonCount; r++) {
 }
 
 // ==================== 4) PENLIGHT SEA (Concert crowd effect) ====================
-const penlightCount = 1500;
+const penlightCount = 3000;
 const penlightGeo = new THREE.BufferGeometry();
 const plPositions = new Float32Array(penlightCount * 3);
 const plColors = new Float32Array(penlightCount * 3);
@@ -676,12 +678,13 @@ const plPhases = new Float32Array(penlightCount);
 
 for (let i = 0; i < penlightCount; i++) {
     const i3 = i * 3;
-    // Arena-like distribution — front: dense, back: sparse, curved
-    const angle = (Math.random() - 0.5) * Math.PI * 0.8;
-    const dist = Math.random() * 10 + 4;
+    // GLBステージの前方（Z+方向）にアリーナ状に広がる
+    const angle = (Math.random() - 0.5) * Math.PI * 1.0;
+    const dist = Math.random() * 15 + 3;
+    const tier = Math.floor(Math.random() * 5); // 階層（5段）
     plPositions[i3] = Math.sin(angle) * dist;
-    plPositions[i3 + 1] = (Math.random() - 0.5) * 3 - 4;
-    plPositions[i3 + 2] = -Math.cos(angle) * dist - 2;
+    plPositions[i3 + 1] = -5 + tier * 1.2 + (Math.random() - 0.5) * 0.8;
+    plPositions[i3 + 2] = 2 + Math.cos(angle) * dist * 0.4 + tier * 1.5;
 
     const color = penlightColors[Math.floor(Math.random() * penlightColors.length)];
     plColors[i3] = color.r;
@@ -694,10 +697,10 @@ penlightGeo.setAttribute('position', new THREE.BufferAttribute(plPositions, 3));
 penlightGeo.setAttribute('color', new THREE.BufferAttribute(plColors, 3));
 
 const penlightMat = new THREE.PointsMaterial({
-    size: 0.025,
+    size: 0.06,
     vertexColors: true,
     transparent: true,
-    opacity: 0.5,
+    opacity: 0.7,
     sizeAttenuation: true,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
@@ -994,14 +997,14 @@ penlightBtn?.addEventListener('click', () => {
     penlightBtn.classList.toggle('active', penlightMode);
     penlightOverlay?.classList.toggle('active', penlightMode);
     if (penlightMode) {
-        penlightMat.opacity = 0.8;
-        penlightMat.size = 0.05;
+        penlightMat.opacity = 0.9;
+        penlightMat.size = 0.1;
         createPenlightFlash();
         startPenlightColorCycle();
         showPenlightUI();
     } else {
-        penlightMat.opacity = 0.5;
-        penlightMat.size = 0.025;
+        penlightMat.opacity = 0.7;
+        penlightMat.size = 0.06;
         stopPenlightColorCycle();
         hidePenlightUI();
     }
@@ -3046,107 +3049,222 @@ function updateScreenPhoto(elapsed) {
     }
 }
 
-// --- ステージ上のシルエットキャラクター（10人・アイドル風）---
+// --- ステージ上のシルエットキャラクター（10人・リアルアイドル風）---
 const silhouetteCount = 10;
+// メンバーごとの衣装スタイル（5パターン×2で全員違う）
+const costumeStyles = ['frilly','cool','princess','sporty','elegant','frilly','cool','princess','sporty','elegant'];
+// メンバーごとの身長差（小さなバリエーション）
+const heightVariation = [0.95, 1.0, 0.92, 1.05, 0.98, 1.02, 0.93, 1.0, 0.97, 1.03];
+
 for (let i = 0; i < silhouetteCount; i++) {
     const silGroup = new THREE.Group();
     const memberColor = penlightColors[i % penlightColors.length];
     const glowColor = memberColor.clone();
+    const brighterColor = memberColor.clone().multiplyScalar(1.3);
+    const hScale = heightVariation[i]; // 身長スケール
+    const costume = costumeStyles[i];
 
-    // === 体（上半身：スリムなトルソ）===
-    const torsoGeo = new THREE.CylinderGeometry(0.14, 0.2, 0.7, 8);
-    const torsoMat = new THREE.MeshBasicMaterial({
-        color: memberColor, transparent: true, opacity: 0.9,
+    // === 体（上半身：スリムなトルソ + ウエストくびれ）===
+    const torsoGeo = new THREE.CylinderGeometry(0.12, 0.18, 0.65 * hScale, 10);
+    const torsoMat = new THREE.MeshPhongMaterial({
+        color: memberColor, transparent: true, opacity: 0.92,
+        emissive: memberColor, emissiveIntensity: 0.3,
+        shininess: 80,
     });
     const torso = new THREE.Mesh(torsoGeo, torsoMat);
-    torso.position.y = 0.85;
+    torso.position.y = 0.85 * hScale;
     silGroup.add(torso);
 
-    // === スカート（コーン型・ふわっと広がる）===
-    const skirtGeo = new THREE.ConeGeometry(0.45, 0.55, 12, 1, true);
-    const skirtMat = new THREE.MeshBasicMaterial({
-        color: memberColor, transparent: true, opacity: 0.85,
-        side: THREE.DoubleSide,
-    });
-    const skirt = new THREE.Mesh(skirtGeo, skirtMat);
-    skirt.position.y = 0.35;
-    skirt.rotation.x = Math.PI; // コーンを逆さに
+    // === 肩のフリル / ディティール ===
+    if (costume === 'frilly' || costume === 'princess') {
+        for (let side = -1; side <= 1; side += 2) {
+            const frillGeo = new THREE.SphereGeometry(0.1, 8, 4, 0, Math.PI * 2, 0, Math.PI * 0.5);
+            const frillMat = new THREE.MeshBasicMaterial({
+                color: brighterColor, transparent: true, opacity: 0.7,
+                side: THREE.DoubleSide,
+            });
+            const frill = new THREE.Mesh(frillGeo, frillMat);
+            frill.position.set(side * 0.18, 1.15 * hScale, 0);
+            frill.scale.set(1.3, 0.6, 1);
+            silGroup.add(frill);
+        }
+    }
+
+    // === スカート（衣装スタイル別）===
+    let skirt;
+    if (costume === 'frilly' || costume === 'princess') {
+        // フリルスカート（ふわっと広がる・多層）
+        const skirtGeo = new THREE.ConeGeometry(0.55, 0.6 * hScale, 16, 1, true);
+        const skirtMat = new THREE.MeshPhongMaterial({
+            color: memberColor, transparent: true, opacity: 0.88,
+            side: THREE.DoubleSide, emissive: memberColor, emissiveIntensity: 0.15,
+        });
+        skirt = new THREE.Mesh(skirtGeo, skirtMat);
+        skirt.position.y = 0.35 * hScale;
+        skirt.rotation.x = Math.PI;
+        // サブレイヤー（チュール風）
+        const tulle = new THREE.Mesh(
+            new THREE.ConeGeometry(0.58, 0.55 * hScale, 16, 1, true),
+            new THREE.MeshBasicMaterial({
+                color: brighterColor, transparent: true, opacity: 0.2,
+                side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false,
+            })
+        );
+        tulle.position.y = 0.37 * hScale;
+        tulle.rotation.x = Math.PI;
+        tulle.userData = { isSkirt: true };
+        silGroup.add(tulle);
+    } else if (costume === 'cool' || costume === 'sporty') {
+        // タイトスカート（シャープ）
+        const skirtGeo = new THREE.ConeGeometry(0.3, 0.5 * hScale, 10, 1, true);
+        const skirtMat = new THREE.MeshPhongMaterial({
+            color: memberColor, transparent: true, opacity: 0.9,
+            side: THREE.DoubleSide, emissive: memberColor, emissiveIntensity: 0.2,
+        });
+        skirt = new THREE.Mesh(skirtGeo, skirtMat);
+        skirt.position.y = 0.32 * hScale;
+        skirt.rotation.x = Math.PI;
+    } else {
+        // エレガントロングスカート
+        const skirtGeo = new THREE.ConeGeometry(0.5, 0.75 * hScale, 14, 1, true);
+        const skirtMat = new THREE.MeshPhongMaterial({
+            color: memberColor, transparent: true, opacity: 0.85,
+            side: THREE.DoubleSide, emissive: memberColor, emissiveIntensity: 0.2,
+        });
+        skirt = new THREE.Mesh(skirtGeo, skirtMat);
+        skirt.position.y = 0.25 * hScale;
+        skirt.rotation.x = Math.PI;
+    }
     skirt.userData = { isSkirt: true };
     silGroup.add(skirt);
 
-    // === 脚（すらっとした2本）===
+    // === 脚（ハイヒールブーツ風、少し長く）===
     for (let leg = -1; leg <= 1; leg += 2) {
-        const legGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.55, 6);
-        const legMat = new THREE.MeshBasicMaterial({
-            color: memberColor, transparent: true, opacity: 0.8,
+        const legGeo = new THREE.CylinderGeometry(0.04, 0.035, 0.55 * hScale, 8);
+        const legMat = new THREE.MeshPhongMaterial({
+            color: memberColor, transparent: true, opacity: 0.85,
+            emissive: memberColor, emissiveIntensity: 0.15,
         });
         const legMesh = new THREE.Mesh(legGeo, legMat);
-        legMesh.position.set(leg * 0.1, -0.15, 0);
+        legMesh.position.set(leg * 0.1, -0.15 * hScale, 0);
         silGroup.add(legMesh);
+        // ブーツ先端
+        const bootGeo = new THREE.SphereGeometry(0.045, 6, 4, 0, Math.PI * 2, Math.PI * 0.3, Math.PI * 0.7);
+        const bootMat = new THREE.MeshBasicMaterial({
+            color: brighterColor, transparent: true, opacity: 0.8,
+        });
+        const boot = new THREE.Mesh(bootGeo, bootMat);
+        boot.position.set(leg * 0.1, -0.45 * hScale, 0.02);
+        silGroup.add(boot);
     }
 
-    // === 頭（やや大きめ・アニメ風）===
+    // === 頭（アニメ風のやや大きめ）===
     const headGeo = new THREE.SphereGeometry(0.2, 16, 16);
-    const headMat = new THREE.MeshBasicMaterial({
+    const headMat = new THREE.MeshPhongMaterial({
         color: memberColor, transparent: true, opacity: 0.95,
+        emissive: memberColor, emissiveIntensity: 0.2,
     });
     const head = new THREE.Mesh(headGeo, headMat);
-    head.position.y = 1.38;
+    head.position.y = 1.38 * hScale;
     silGroup.add(head);
 
-    // === 髪（ツインテール or ロングヘア風の装飾）===
-    const hairStyle = i % 3; // 0:ロング, 1:ツインテ, 2:ボブ
+    // === 髪（4スタイル: ロング, ツインテ, ボブ, ポニーテール）===
+    const hairStyle = i % 4;
+    const darkColor = memberColor.clone().multiplyScalar(0.7);
     if (hairStyle === 0) {
-        // ロングヘア（背面に垂れる）
-        const hairGeo = new THREE.CylinderGeometry(0.18, 0.06, 0.7, 8);
-        const hairMat = new THREE.MeshBasicMaterial({
-            color: memberColor, transparent: true, opacity: 0.7,
+        // ロングヘア（背面にたっぷり流れる + 前髪）
+        const hairGeo = new THREE.CylinderGeometry(0.2, 0.05, 0.85 * hScale, 10);
+        const hairMat = new THREE.MeshPhongMaterial({
+            color: darkColor, transparent: true, opacity: 0.8,
+            emissive: memberColor, emissiveIntensity: 0.1,
         });
         const hair = new THREE.Mesh(hairGeo, hairMat);
-        hair.position.set(0, 1.0, -0.08);
+        hair.position.set(0, 0.95 * hScale, -0.1);
         hair.userData = { isHair: true };
         silGroup.add(hair);
+        // 前髪
+        const bangsGeo = new THREE.SphereGeometry(0.21, 10, 6, 0, Math.PI, 0, Math.PI * 0.35);
+        const bangsMat = new THREE.MeshBasicMaterial({
+            color: darkColor, transparent: true, opacity: 0.75, side: THREE.DoubleSide,
+        });
+        const bangs = new THREE.Mesh(bangsGeo, bangsMat);
+        bangs.position.set(0, 1.48 * hScale, 0.06);
+        bangs.rotation.x = 0.2;
+        silGroup.add(bangs);
     } else if (hairStyle === 1) {
-        // ツインテール
+        // ツインテール（長めのリボン付き）
         for (let side = -1; side <= 1; side += 2) {
-            const tailGeo = new THREE.CylinderGeometry(0.07, 0.03, 0.5, 6);
-            const tailMat = new THREE.MeshBasicMaterial({
-                color: memberColor, transparent: true, opacity: 0.7,
+            const tailGeo = new THREE.CylinderGeometry(0.08, 0.025, 0.65 * hScale, 8);
+            const tailMat = new THREE.MeshPhongMaterial({
+                color: darkColor, transparent: true, opacity: 0.8,
+                emissive: memberColor, emissiveIntensity: 0.1,
             });
             const tail = new THREE.Mesh(tailGeo, tailMat);
-            tail.position.set(side * 0.2, 1.1, -0.05);
-            tail.rotation.z = side * 0.3;
+            tail.position.set(side * 0.22, 1.05 * hScale, -0.05);
+            tail.rotation.z = side * 0.35;
             tail.userData = { isHair: true };
             silGroup.add(tail);
+            // リボン
+            const ribbonGeo = new THREE.OctahedronGeometry(0.06, 0);
+            const ribbonMat = new THREE.MeshBasicMaterial({
+                color: brighterColor, transparent: true, opacity: 0.9,
+            });
+            const ribbon = new THREE.Mesh(ribbonGeo, ribbonMat);
+            ribbon.position.set(side * 0.22, 1.35 * hScale, -0.05);
+            ribbon.scale.set(1.5, 0.8, 0.5);
+            silGroup.add(ribbon);
         }
-    } else {
-        // ボブヘア（丸みを帯びた短め）
-        const bobGeo = new THREE.SphereGeometry(0.23, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.7);
-        const bobMat = new THREE.MeshBasicMaterial({
-            color: memberColor, transparent: true, opacity: 0.65,
-            side: THREE.DoubleSide,
+    } else if (hairStyle === 2) {
+        // ボブヘア（おしゃれカット風）
+        const bobGeo = new THREE.SphereGeometry(0.25, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.65);
+        const bobMat = new THREE.MeshPhongMaterial({
+            color: darkColor, transparent: true, opacity: 0.75,
+            side: THREE.DoubleSide, emissive: memberColor, emissiveIntensity: 0.1,
         });
         const bob = new THREE.Mesh(bobGeo, bobMat);
-        bob.position.set(0, 1.35, -0.03);
+        bob.position.set(0, 1.35 * hScale, -0.03);
         bob.userData = { isHair: true };
         silGroup.add(bob);
+    } else {
+        // ポニーテール（高い位置で束ねて後ろに揺れる）
+        const tailGeo = new THREE.CylinderGeometry(0.09, 0.03, 0.7 * hScale, 8);
+        const tailMat = new THREE.MeshPhongMaterial({
+            color: darkColor, transparent: true, opacity: 0.8,
+            emissive: memberColor, emissiveIntensity: 0.1,
+        });
+        const tail = new THREE.Mesh(tailGeo, tailMat);
+        tail.position.set(0, 1.15 * hScale, -0.12);
+        tail.rotation.x = 0.4;
+        tail.userData = { isHair: true };
+        silGroup.add(tail);
+        // ヘアバンド
+        const bandGeo = new THREE.TorusGeometry(0.21, 0.015, 8, 16, Math.PI);
+        const bandMat = new THREE.MeshBasicMaterial({
+            color: brighterColor, transparent: true, opacity: 0.9,
+        });
+        const band = new THREE.Mesh(bandGeo, bandMat);
+        band.position.set(0, 1.48 * hScale, 0);
+        band.rotation.x = -0.2;
+        silGroup.add(band);
     }
 
-    // === 腕（左右・やや細め）===
+    // === 腕（左右・マイクを持つ手 + サイリウムを振る手）===
     for (let arm = -1; arm <= 1; arm += 2) {
         const armGroup = new THREE.Group();
         // 上腕
-        const upperArmGeo = new THREE.CylinderGeometry(0.05, 0.04, 0.35, 6);
-        const upperArmMat = new THREE.MeshBasicMaterial({
-            color: memberColor, transparent: true, opacity: 0.8,
+        const upperArmGeo = new THREE.CylinderGeometry(0.045, 0.035, 0.35 * hScale, 8);
+        const upperArmMat = new THREE.MeshPhongMaterial({
+            color: memberColor, transparent: true, opacity: 0.85,
+            emissive: memberColor, emissiveIntensity: 0.15,
         });
         const upperArm = new THREE.Mesh(upperArmGeo, upperArmMat);
         upperArm.position.y = -0.15;
         armGroup.add(upperArm);
         // 前腕
-        const foreArmGeo = new THREE.CylinderGeometry(0.04, 0.035, 0.3, 6);
-        const foreArmMat = new THREE.MeshBasicMaterial({
-            color: memberColor, transparent: true, opacity: 0.8,
+        const foreArmGeo = new THREE.CylinderGeometry(0.035, 0.03, 0.3 * hScale, 8);
+        const foreArmMat = new THREE.MeshPhongMaterial({
+            color: memberColor, transparent: true, opacity: 0.85,
+            emissive: memberColor, emissiveIntensity: 0.15,
         });
         const foreArm = new THREE.Mesh(foreArmGeo, foreArmMat);
         foreArm.position.y = -0.33;
@@ -3154,59 +3272,72 @@ for (let i = 0; i < silhouetteCount; i++) {
         // 手（小さい球）
         const handGeo = new THREE.SphereGeometry(0.04, 8, 8);
         const handMat = new THREE.MeshBasicMaterial({
-            color: memberColor, transparent: true, opacity: 0.85,
+            color: memberColor, transparent: true, opacity: 0.88,
         });
         const hand = new THREE.Mesh(handGeo, handMat);
         hand.position.y = -0.48;
         armGroup.add(hand);
 
-        armGroup.position.set(arm * 0.25, 1.05, 0);
-        armGroup.rotation.z = arm * 0.2;
+        // 右手にマイク
+        if (arm === 1) {
+            const micGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.18, 6);
+            const micMat = new THREE.MeshBasicMaterial({ color: 0x888888, transparent: true, opacity: 0.9 });
+            const mic = new THREE.Mesh(micGeo, micMat);
+            mic.position.y = -0.55;
+            armGroup.add(mic);
+            const micTop = new THREE.Mesh(
+                new THREE.SphereGeometry(0.025, 6, 6),
+                new THREE.MeshBasicMaterial({ color: 0xaaaaaa, transparent: true, opacity: 0.9 })
+            );
+            micTop.position.y = -0.64;
+            armGroup.add(micTop);
+        }
+
+        armGroup.position.set(arm * 0.22, 1.05 * hScale, 0);
+        armGroup.rotation.z = arm * 0.15;
         armGroup.userData = { isArm: true, armSide: arm };
         silGroup.add(armGroup);
     }
 
-    // === メンバーカラーのオーラ（体を包むグロー）===
-    const auraGeo = new THREE.CylinderGeometry(0.35, 0.5, 1.8, 12, 1, true);
+    // === メンバーカラーのオーラ（体を包む強めのグロー）===
+    const auraGeo = new THREE.CylinderGeometry(0.4, 0.55, 2.0 * hScale, 14, 1, true);
     const auraMat = new THREE.MeshBasicMaterial({
-        color: glowColor, transparent: true, opacity: 0.15,
+        color: glowColor, transparent: true, opacity: 0.2,
         side: THREE.DoubleSide,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
     });
     const aura = new THREE.Mesh(auraGeo, auraMat);
-    aura.position.y = 0.7;
+    aura.position.y = 0.7 * hScale;
     aura.userData = { isAura: true };
     silGroup.add(aura);
 
-    // === ペンライトグロー（頭上・キラキラ）===
-    const glowGeo = new THREE.SphereGeometry(0.1, 12, 12);
-    const glowMat = new THREE.MeshBasicMaterial({
-        color: glowColor,
-        transparent: true,
-        opacity: 0.9,
+    // === 頭上のスターエフェクト（キラキラ星）===
+    const starGeo = new THREE.OctahedronGeometry(0.08, 0);
+    const starMat = new THREE.MeshBasicMaterial({
+        color: glowColor, transparent: true, opacity: 0.9,
         blending: THREE.AdditiveBlending,
     });
-    const glow = new THREE.Mesh(glowGeo, glowMat);
-    glow.position.y = 1.75;
-    glow.userData = { isGlow: true };
-    silGroup.add(glow);
+    const star = new THREE.Mesh(starGeo, starMat);
+    star.position.y = 1.8 * hScale;
+    star.userData = { isGlow: true };
+    silGroup.add(star);
 
-    // ペンライトのハロー
-    const haloGeo = new THREE.RingGeometry(0.12, 0.22, 16);
+    // 星のハロー（大きめの光輪）
+    const haloGeo = new THREE.RingGeometry(0.15, 0.28, 20);
     const haloMat = new THREE.MeshBasicMaterial({
-        color: glowColor, transparent: true, opacity: 0.3,
+        color: glowColor, transparent: true, opacity: 0.35,
         side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false,
     });
     const halo = new THREE.Mesh(haloGeo, haloMat);
-    halo.position.y = 1.75;
+    halo.position.y = 1.8 * hScale;
     halo.userData = { isHalo: true };
     silGroup.add(halo);
 
-    // === 足元スポットライト ===
-    const spotGeo = new THREE.CircleGeometry(0.6, 16);
+    // === 足元スポットライト（大きめ + 二重リング）===
+    const spotGeo = new THREE.CircleGeometry(0.7, 20);
     const spotMat = new THREE.MeshBasicMaterial({
-        color: glowColor, transparent: true, opacity: 0.25,
+        color: glowColor, transparent: true, opacity: 0.3,
         blending: THREE.AdditiveBlending, depthWrite: false,
     });
     const spot = new THREE.Mesh(spotGeo, spotMat);
@@ -3214,23 +3345,50 @@ for (let i = 0; i < silhouetteCount; i++) {
     spot.rotation.x = -Math.PI / 2;
     spot.userData = { isSpot: true };
     silGroup.add(spot);
+    // スポットの外側リング
+    const spotRingGeo = new THREE.RingGeometry(0.7, 0.85, 20);
+    const spotRingMat = new THREE.MeshBasicMaterial({
+        color: glowColor, transparent: true, opacity: 0.15,
+        side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    const spotRing = new THREE.Mesh(spotRingGeo, spotRingMat);
+    spotRing.position.y = -0.43;
+    spotRing.rotation.x = -Math.PI / 2;
+    silGroup.add(spotRing);
 
-    // ポジション（弧状に配置）
-    const angle = ((i - silhouetteCount / 2 + 0.5) / silhouetteCount) * Math.PI * 0.5;
-    const radius = 4.5;
+    // === ライトビーム（天井から降りてくるスポット光）===
+    const beamGeo = new THREE.CylinderGeometry(0.02, 0.5, 6, 8, 1, true);
+    const beamMat = new THREE.MeshBasicMaterial({
+        color: glowColor, transparent: true, opacity: 0.06,
+        side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    const beam = new THREE.Mesh(beamGeo, beamMat);
+    beam.position.y = 2.5;
+    beam.userData = { isBeam: true };
+    silGroup.add(beam);
+
+    // ポジション（V字フォーメーション + 前後差）
+    const formation = i < 5 ? 'front' : 'back';
+    const idx = i < 5 ? i : i - 5;
+    const rowOffset = formation === 'front' ? 0 : -1.2;
+    const spreadAngle = ((idx - 2) / 2.5) * 0.35; // 左右に広がる
+    const fwdOffset = -Math.abs(idx - 2) * 0.3; // V字の前後差
     silGroup.position.set(
-        Math.sin(angle) * radius,
+        Math.sin(spreadAngle) * 5.5 * (formation === 'back' ? 0.85 : 1),
         -5.3,
-        -8 + Math.cos(angle) * -1.5
+        -7.5 + rowOffset + fwdOffset
     );
+    silGroup.scale.setScalar(hScale);
     silGroup.userData = {
         isSilhouette: true,
         memberIndex: i,
         baseX: silGroup.position.x,
+        baseY: silGroup.position.y,
         baseZ: silGroup.position.z,
         dancePhase: (i / silhouetteCount) * Math.PI * 2,
-        danceStyle: Math.floor(Math.random() * 4), // 0:bounce, 1:sway, 2:wave, 3:spin
-        hairStyle: i % 3,
+        danceStyle: Math.floor(Math.random() * 4),
+        hairStyle: hairStyle,
+        costume: costume,
     };
     stageGroup.add(silGroup);
     stageSilhouettes.push(silGroup);
@@ -3541,19 +3699,19 @@ function createFirework(x, y, z, color) {
     stageFireworks.push(fw);
 }
 
-// --- 観客席（アリーナ風の扇形パーティクル増量）---
-// 既存のpenlightParticlesを補完する追加の観客光
-const arenaExtraCount = 800;
+// --- 観客席（アリーナ風の扇形パーティクル大増量 + 華やかペンライト）---
+// 既存のpenlightParticlesを補完する追加の観客光（大幅増量）
+const arenaExtraCount = 2000;
 const arenaGeo = new THREE.BufferGeometry();
 const arenaPos = new Float32Array(arenaExtraCount * 3);
 const arenaCol = new Float32Array(arenaExtraCount * 3);
 for (let i = 0; i < arenaExtraCount; i++) {
-    const angle = (Math.random() - 0.5) * Math.PI * 1.2;
-    const dist = 8 + Math.random() * 14;
-    const height = Math.random() * 6 - 2;
+    const angle = (Math.random() - 0.5) * Math.PI * 1.3;
+    const dist = 4 + Math.random() * 18;
+    const tier = Math.floor(Math.random() * 8);
     arenaPos[i * 3] = Math.sin(angle) * dist;
-    arenaPos[i * 3 + 1] = height - 4;
-    arenaPos[i * 3 + 2] = -Math.cos(angle) * dist - 5;
+    arenaPos[i * 3 + 1] = -5 + tier * 1.0 + (Math.random() - 0.5) * 0.6;
+    arenaPos[i * 3 + 2] = 2 + Math.cos(angle) * dist * 0.4 + tier * 1.3;
     const c = penlightColors[Math.floor(Math.random() * penlightColors.length)];
     arenaCol[i * 3] = c.r;
     arenaCol[i * 3 + 1] = c.g;
@@ -3562,10 +3720,10 @@ for (let i = 0; i < arenaExtraCount; i++) {
 arenaGeo.setAttribute('position', new THREE.BufferAttribute(arenaPos, 3));
 arenaGeo.setAttribute('color', new THREE.BufferAttribute(arenaCol, 3));
 const arenaMat = new THREE.PointsMaterial({
-    size: 0.02,
+    size: 0.04,
     vertexColors: true,
     transparent: true,
-    opacity: 0.3,
+    opacity: 0.5,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
 });
@@ -3574,41 +3732,51 @@ stageGroup.add(arenaParticles);
 
 // ==================== 観客エリア（ペンライト半円+巨大ユーザー）====================
 
-// --- 観客ペンライト（半円周上にグロー球として配置）---
+// --- 観客ペンライト（半円周上にグロー球として配置 - 300本に増量）---
 const audiencePenlights = [];
-const audiencePLCount = 150;
+const audiencePLCount = 300;
 for (let i = 0; i < audiencePLCount; i++) {
-    const angle = (Math.random() - 0.5) * Math.PI * 0.9;
-    const dist = 5 + Math.random() * 18;
-    const tier = Math.floor(Math.random() * 6);
+    const angle = (Math.random() - 0.5) * Math.PI * 1.1;
+    const dist = 3 + Math.random() * 20;
+    const tier = Math.floor(Math.random() * 8);
     const x = Math.sin(angle) * dist;
-    const y = -5 + tier * 1.0 + Math.random() * 0.5;
-    const z = 3 + Math.cos(angle) * dist * 0.35 + tier * 1.2;
+    const y = -5 + tier * 0.9 + Math.random() * 0.5;
+    const z = 2 + Math.cos(angle) * dist * 0.35 + tier * 1.0;
     const plColor = penlightColors[Math.floor(Math.random() * penlightColors.length)];
 
     const plGroup = new THREE.Group();
     plGroup.position.set(x, y, z);
 
-    // グロー球（メイン光源）
-    const glowSize = 0.05 + Math.random() * 0.06;
-    const glowGeo = new THREE.SphereGeometry(glowSize, 6, 6);
+    // グロー球（メイン光源・大きめ）
+    const glowSize = 0.06 + Math.random() * 0.08;
+    const glowGeo = new THREE.SphereGeometry(glowSize, 8, 8);
     const glowMat = new THREE.MeshBasicMaterial({
-        color: plColor, transparent: true, opacity: 0.9,
+        color: plColor, transparent: true, opacity: 0.95,
         blending: THREE.AdditiveBlending, depthWrite: false,
     });
     const glow = new THREE.Mesh(glowGeo, glowMat);
     glow.position.y = 0.8;
     plGroup.add(glow);
 
-    // 光のにじみ（大きい半透明球）
-    const haloGeo = new THREE.SphereGeometry(glowSize * 3, 6, 6);
+    // 光のにじみ（大きい半透明球 + さらに大きい拡散）
+    const haloGeo = new THREE.SphereGeometry(glowSize * 3.5, 8, 8);
     const haloMat = new THREE.MeshBasicMaterial({
-        color: plColor, transparent: true, opacity: 0.15,
+        color: plColor, transparent: true, opacity: 0.2,
         blending: THREE.AdditiveBlending, depthWrite: false,
     });
     const halo = new THREE.Mesh(haloGeo, haloMat);
     halo.position.y = 0.8;
     plGroup.add(halo);
+
+    // さらに大きな拡散光（遠くからでも光の海に見える）
+    const outerGlowGeo = new THREE.SphereGeometry(glowSize * 6, 6, 6);
+    const outerGlowMat = new THREE.MeshBasicMaterial({
+        color: plColor, transparent: true, opacity: 0.06,
+        blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    const outerGlow = new THREE.Mesh(outerGlowGeo, outerGlowMat);
+    outerGlow.position.y = 0.8;
+    plGroup.add(outerGlow);
 
     // 棒（細い半透明の持ち手）
     const stickGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.5, 3);
@@ -4203,35 +4371,36 @@ function animate() {
         }
     });
 
-    // シルエットキャラクター — ダンスアニメーション（アイドル風）
+    // シルエットキャラクター — ダンスアニメーション（アイドル風・強化版）
     stageSilhouettes.forEach(sil => {
         const ud = sil.userData;
         const bpmFactor = currentSongTheme ? currentSongTheme.bpm / 140 : 1;
         const danceSpeed = isMusicPlaying ? bpmFactor * 3.0 : 0.5;
         const beatIntensity = isMusicPlaying ? musicBeat * liveBoost : 0;
+        const baseY = ud.baseY || -5.3;
 
         // ダンススタイル別アニメーション
         if (ud.danceStyle === 0) {
             // バウンス（上下跳ねる・アイドルジャンプ）
-            sil.position.y = -5.3 + Math.abs(Math.sin(elapsed * danceSpeed + ud.dancePhase)) * (0.12 + beatIntensity * 0.5);
-            sil.rotation.y = Math.sin(elapsed * danceSpeed * 0.3 + ud.dancePhase) * 0.1;
+            sil.position.y = baseY + Math.abs(Math.sin(elapsed * danceSpeed + ud.dancePhase)) * (0.12 + beatIntensity * 0.5);
+            sil.rotation.y = Math.sin(elapsed * danceSpeed * 0.3 + ud.dancePhase) * 0.15;
         } else if (ud.danceStyle === 1) {
             // スウェイ（左右ステップ・体を傾ける）
             const sway = Math.sin(elapsed * danceSpeed * 0.7 + ud.dancePhase);
-            sil.position.x = ud.baseX + sway * (0.2 + beatIntensity * 0.4);
-            sil.position.y = -5.3 + Math.abs(Math.sin(elapsed * danceSpeed * 1.5 + ud.dancePhase)) * (0.06 + beatIntensity * 0.25);
-            sil.rotation.z = sway * 0.08; // 体を傾ける
+            sil.position.x = ud.baseX + sway * (0.25 + beatIntensity * 0.5);
+            sil.position.y = baseY + Math.abs(Math.sin(elapsed * danceSpeed * 1.5 + ud.dancePhase)) * (0.08 + beatIntensity * 0.3);
+            sil.rotation.z = sway * 0.1;
         } else if (ud.danceStyle === 2) {
             // ウェーブ（波打つ・回転しながら）
-            sil.position.y = -5.3 + Math.sin(elapsed * danceSpeed + ud.dancePhase) * (0.1 + beatIntensity * 0.35);
-            sil.rotation.y = Math.sin(elapsed * danceSpeed * 0.5 + ud.dancePhase) * (0.2 + beatIntensity * 0.4);
+            sil.position.y = baseY + Math.sin(elapsed * danceSpeed + ud.dancePhase) * (0.1 + beatIntensity * 0.35);
+            sil.rotation.y = Math.sin(elapsed * danceSpeed * 0.5 + ud.dancePhase) * (0.25 + beatIntensity * 0.5);
         } else {
             // スピン（サビでくるっと回転）
-            sil.position.y = -5.3 + Math.abs(Math.sin(elapsed * danceSpeed * 1.2 + ud.dancePhase)) * (0.08 + beatIntensity * 0.3);
+            sil.position.y = baseY + Math.abs(Math.sin(elapsed * danceSpeed * 1.2 + ud.dancePhase)) * (0.1 + beatIntensity * 0.35);
             if (beatIntensity > 0.4) {
-                sil.rotation.y += beatIntensity * 0.15;
+                sil.rotation.y += beatIntensity * 0.18;
             } else {
-                sil.rotation.y = Math.sin(elapsed * danceSpeed * 0.4 + ud.dancePhase) * 0.15;
+                sil.rotation.y = Math.sin(elapsed * danceSpeed * 0.4 + ud.dancePhase) * 0.2;
             }
         }
 
@@ -4240,53 +4409,60 @@ function animate() {
             // 腕の振り（グループ化された腕）
             if (child.userData.isArm) {
                 const armSwing = Math.sin(elapsed * danceSpeed * 1.2 + ud.dancePhase + child.userData.armSide * 0.5);
-                child.rotation.z = child.userData.armSide * (0.2 + armSwing * (0.35 + beatIntensity * 0.8));
+                child.rotation.z = child.userData.armSide * (0.2 + armSwing * (0.4 + beatIntensity * 0.9));
                 // ビート時は腕を大きく上げる（コール風）
                 if (beatIntensity > 0.3) {
-                    child.rotation.z += child.userData.armSide * beatIntensity * 0.6;
-                    child.rotation.x = Math.sin(elapsed * danceSpeed * 2 + ud.dancePhase) * beatIntensity * 0.3;
+                    child.rotation.z += child.userData.armSide * beatIntensity * 0.7;
+                    child.rotation.x = Math.sin(elapsed * danceSpeed * 2 + ud.dancePhase) * beatIntensity * 0.35;
                 }
             }
-            // ペンライトグロー
+            // 頭上スター
             if (child.userData.isGlow) {
                 child.material.opacity = 0.5 + musicBeat * 0.5;
-                child.position.y = 1.75 + Math.sin(elapsed * danceSpeed + ud.dancePhase) * 0.12;
-                child.scale.setScalar(0.8 + musicBeat * 0.6);
+                child.position.y = 1.8 + Math.sin(elapsed * danceSpeed + ud.dancePhase) * 0.15;
+                child.scale.setScalar(0.8 + musicBeat * 0.7);
+                child.rotation.y = elapsed * 3;
+                child.rotation.z = elapsed * 1.5;
             }
-            // ペンライトハロー
+            // ハロー
             if (child.userData.isHalo) {
-                child.material.opacity = 0.1 + musicBeat * 0.4;
-                child.position.y = 1.75 + Math.sin(elapsed * danceSpeed + ud.dancePhase) * 0.12;
+                child.material.opacity = 0.15 + musicBeat * 0.45;
+                child.position.y = 1.8 + Math.sin(elapsed * danceSpeed + ud.dancePhase) * 0.15;
                 child.rotation.z = elapsed * 2;
             }
             // スカートの揺れ
             if (child.userData.isSkirt) {
-                child.rotation.z = Math.sin(elapsed * danceSpeed * 0.8 + ud.dancePhase) * (0.05 + beatIntensity * 0.15);
-                const skirtScale = 1.0 + Math.abs(Math.sin(elapsed * danceSpeed + ud.dancePhase)) * (0.05 + beatIntensity * 0.15);
+                child.rotation.z = Math.sin(elapsed * danceSpeed * 0.8 + ud.dancePhase) * (0.06 + beatIntensity * 0.18);
+                const skirtScale = 1.0 + Math.abs(Math.sin(elapsed * danceSpeed + ud.dancePhase)) * (0.06 + beatIntensity * 0.18);
                 child.scale.set(skirtScale, 1, skirtScale);
             }
             // 髪の揺れ
             if (child.userData.isHair) {
-                child.rotation.z = Math.sin(elapsed * danceSpeed * 0.6 + ud.dancePhase + 0.5) * (0.08 + beatIntensity * 0.2);
-                child.rotation.x = Math.sin(elapsed * danceSpeed * 0.4 + ud.dancePhase) * 0.05;
+                child.rotation.z = Math.sin(elapsed * danceSpeed * 0.6 + ud.dancePhase + 0.5) * (0.1 + beatIntensity * 0.25);
+                child.rotation.x = Math.sin(elapsed * danceSpeed * 0.4 + ud.dancePhase) * 0.06;
             }
             // オーラ
             if (child.userData.isAura) {
-                child.material.opacity = isMusicPlaying ? 0.1 + musicBeat * 0.2 : 0.06;
+                child.material.opacity = isMusicPlaying ? 0.15 + musicBeat * 0.25 : 0.08;
                 child.rotation.y = elapsed * 0.5;
             }
             // 足元スポットライト
             if (child.userData.isSpot) {
-                child.material.opacity = isMusicPlaying ? 0.15 + musicBeat * 0.3 : 0.1;
-                const spotScale = 1.0 + musicBeat * 0.3;
+                child.material.opacity = isMusicPlaying ? 0.2 + musicBeat * 0.35 : 0.12;
+                const spotScale = 1.0 + musicBeat * 0.35;
                 child.scale.set(spotScale, spotScale, 1);
+            }
+            // 天井からのビーム
+            if (child.userData.isBeam) {
+                child.material.opacity = isMusicPlaying ? 0.04 + musicBeat * 0.08 : 0.02;
+                child.rotation.x = Math.sin(elapsed * 0.3 + ud.dancePhase) * 0.05;
             }
         });
 
         // メンバーカラーでの光り方（ライブ中は明るく）
-        const brightness = isMusicPlaying ? 0.75 + musicBeat * 0.25 : 0.6;
+        const brightness = isMusicPlaying ? 0.8 + musicBeat * 0.2 : 0.65;
         sil.children.forEach(child => {
-            if (child.material && !child.userData.isGlow && !child.userData.isHalo && !child.userData.isAura && !child.userData.isSpot) {
+            if (child.material && !child.userData.isGlow && !child.userData.isHalo && !child.userData.isAura && !child.userData.isSpot && !child.userData.isBeam) {
                 child.material.opacity = brightness;
             }
         });
