@@ -10,9 +10,27 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true 
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setClearColor(0x050505, 1);
+renderer.setClearColor(0x080818, 1);
 renderer.outputColorSpace = THREE.SRGBColorSpace; // GLBテクスチャの色空間を正しく表示
 camera.position.set(0, 0, 5);
+
+// ==================== ステージ照明 ====================
+// 全体を柔らかく照らす環境光
+const ambientLight = new THREE.AmbientLight(0x334466, 0.6);
+scene.add(ambientLight);
+// 上（ステージ照明）と下（フロア反射）の2色ライト
+const hemiLight = new THREE.HemisphereLight(0x6644aa, 0x0a0a2e, 0.5);
+scene.add(hemiLight);
+// ステージ正面からのメインライト
+const stageMainLight = new THREE.DirectionalLight(0xccaaff, 0.4);
+stageMainLight.position.set(0, 8, 5);
+stageMainLight.target.position.set(0, -5, -8);
+scene.add(stageMainLight);
+scene.add(stageMainLight.target);
+// ステージ上を照らすスポット
+const stageCenterSpot = new THREE.PointLight(0xff88cc, 1.0, 30);
+stageCenterSpot.position.set(0, 2, -7);
+scene.add(stageCenterSpot);
 
 // ==================== ステージ動画オーバーレイ ====================
 const stageVideoContainer = document.createElement('div');
@@ -814,7 +832,7 @@ for (let i = 0; i < rayCount; i++) {
     const rayMat = new THREE.MeshBasicMaterial({
         color: color,
         transparent: true,
-        opacity: 0.025,
+        opacity: 0.06,
         side: THREE.DoubleSide,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
@@ -826,7 +844,7 @@ for (let i = 0; i < rayCount; i++) {
         swaySpeed: Math.random() * 0.4 + 0.15,
         swayAmount: Math.random() * 0.5 + 0.15,
         initialX: ray.position.x,
-        baseOpacity: 0.025,
+        baseOpacity: 0.06,
     };
     rayGroup.add(ray);
     raysArr.push(ray);
@@ -2770,7 +2788,7 @@ for (let i = 0; i < spotCount; i++) {
     const coneMat = new THREE.MeshBasicMaterial({
         color: penlightColors[i % penlightColors.length],
         transparent: true,
-        opacity: 0.03,
+        opacity: 0.06,
         side: THREE.DoubleSide,
         blending: THREE.AdditiveBlending,
     });
@@ -3884,7 +3902,7 @@ userTexLoader.load('figure/user_from_stage.png', (tex) => {
     userPlane.material.opacity = 0.1;
 });
 // ユーザー周辺の画面光グロー
-const userGlow = new THREE.PointLight(0x6688cc, 0.4, 20);
+const userGlow = new THREE.PointLight(0x6688cc, 0.8, 30);
 userGlow.position.set(0, 5, 28);
 stageGroup.add(userGlow);
 
@@ -3939,24 +3957,29 @@ if (USE_GLB_STAGE) {
                         });
                         return;
                     }
-                    // 天井鉄骨: 半透明（構造は見せつつ邪魔しない）
+                    // 天井鉄骨: メタリック風半透明（構造は見せつつ邪魔しない）
                     if (name === 'A_07_Celing_Iron') {
-                        child.material = new THREE.MeshBasicMaterial({
-                            color: 0x222244,
+                        child.material = new THREE.MeshStandardMaterial({
+                            color: 0x445566,
                             transparent: true,
-                            opacity: 0.25,
+                            opacity: 0.35,
+                            metalness: 0.8,
+                            roughness: 0.3,
                             depthWrite: false,
+                            side: THREE.DoubleSide,
                         });
                         return;
                     }
                     // スタンドボード（観客席の壁面）: 半透明
                     if (name === 'A_03_StandBoard') {
                         child.material = new THREE.MeshStandardMaterial({
-                            color: 0x0a0a2e,
+                            color: 0x1a1a40,
                             transparent: true,
-                            opacity: 0.4,
-                            roughness: 0.8,
-                            metalness: 0.2,
+                            opacity: 0.5,
+                            roughness: 0.6,
+                            metalness: 0.3,
+                            emissive: new THREE.Color(0x1a1a40),
+                            emissiveIntensity: 0.2,
                             side: THREE.DoubleSide,
                             depthWrite: false,
                         });
@@ -3984,24 +4007,24 @@ if (USE_GLB_STAGE) {
                             child.material.emissiveIntensity = 0.5;
                         }
                     }
-                    // D_Emit系（発光装飾）: アディティブで光らせる
+                    // D_Emit系（発光装飾）: アディティブで明るく光らせる
                     else if (name.startsWith('D_')) {
                         child.material = new THREE.MeshBasicMaterial({
-                            color: child.material.color ? child.material.color.clone() : new THREE.Color(0x6644aa),
+                            color: child.material.color ? child.material.color.clone() : new THREE.Color(0x8866cc),
                             transparent: true,
-                            opacity: 0.7,
+                            opacity: 0.85,
                             blending: THREE.AdditiveBlending,
                             depthWrite: false,
                         });
                     }
-                    // ステージ本体(A_01_Main, A_02_Floor, A_06_Truss等): ダークネイビー＋微光
+                    // ステージ本体(A_01_Main, A_02_Floor, A_06_Truss等): ダークパープル＋メタリック光沢
                     else if (name.startsWith('A_')) {
                         child.material = new THREE.MeshStandardMaterial({
-                            color: 0x0a0a2e,
-                            roughness: 0.7,
-                            metalness: 0.3,
-                            emissive: new THREE.Color(0x0a0a2e),
-                            emissiveIntensity: 0.15,
+                            color: 0x1a1a40,
+                            roughness: 0.4,
+                            metalness: 0.6,
+                            emissive: new THREE.Color(0x1a1a40),
+                            emissiveIntensity: 0.3,
                             side: THREE.DoubleSide,
                         });
                         glbStageMeshes.push(child);
@@ -4351,8 +4374,8 @@ function animate() {
         const ud = cone.userData;
         const swingAmp = 2 + (isMusicPlaying ? musicBeat * 4 * liveBoost : 0);
         cone.position.x = (i - spotCount / 2) * 4 + Math.sin(elapsed * 0.4 * (1 + liveBoost) + ud.phaseOffset) * swingAmp;
-        const ambient = 0.02 + Math.sin(elapsed * 0.5 + ud.phaseOffset) * 0.01;
-        const boost = (isMusicPlaying ? musicBeat * 0.15 * liveBoost : 0) + (penlightMode ? 0.04 : 0);
+        const ambient = 0.04 + Math.sin(elapsed * 0.5 + ud.phaseOffset) * 0.02;
+        const boost = (isMusicPlaying ? musicBeat * 0.25 * liveBoost : 0) + (penlightMode ? 0.06 : 0);
         cone.material.opacity = ambient + boost;
         if (isMusicPlaying && currentSongTheme) {
             const tc = i % 3 === 0 ? theme.primary : i % 3 === 1 ? theme.secondary : theme.accent;
@@ -4602,13 +4625,24 @@ function animate() {
         });
     }
 
-    // GLBステージ本体 — 曲テーマカラーで微妙にエミッシブ色変化
-    if (glbStageMeshes.length > 0 && isMusicPlaying && currentSongTheme) {
-        const stageEmissive = new THREE.Color(currentSongTheme.primary).multiplyScalar(0.08);
-        glbStageMeshes.forEach(sm => {
-            sm.material.emissive.lerp(stageEmissive, 0.05);
-            sm.material.emissiveIntensity = 0.15 + musicBeat * 0.1;
-        });
+    // GLBステージ本体 — 曲テーマカラーでエミッシブ色変化 + 環境光連動
+    if (glbStageMeshes.length > 0) {
+        if (isMusicPlaying && currentSongTheme) {
+            const stageEmissive = new THREE.Color(currentSongTheme.primary).multiplyScalar(0.15);
+            glbStageMeshes.forEach(sm => {
+                sm.material.emissive.lerp(stageEmissive, 0.08);
+                sm.material.emissiveIntensity = 0.3 + musicBeat * 0.2;
+            });
+            // ステージ照明も曲テーマに連動
+            stageCenterSpot.color.set(currentSongTheme.primary);
+            stageCenterSpot.intensity = 1.0 + musicBeat * 1.5;
+            hemiLight.color.set(currentSongTheme.primary).multiplyScalar(0.5).add(new THREE.Color(0x332255));
+        } else {
+            glbStageMeshes.forEach(sm => {
+                sm.material.emissiveIntensity = 0.25;
+            });
+            stageCenterSpot.intensity = 0.8;
+        }
     }
 
     // センターステージリングライト
