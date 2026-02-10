@@ -156,11 +156,11 @@ document.body.appendChild(exploreHelp);
 // カメラプリセット
 const cameraPresets = {
     front:    { pos: [0, 0, 5],     target: [0, -1, -8] },
-    stage:    { pos: [0, -3, -6],   target: [0, -3, -12] },
+    stage:    { pos: [0, -3, -8],   target: [0, -1, 5] },
     audience: { pos: [0, 1, 12],    target: [0, -2, -8] },
     aerial:   { pos: [0, 15, -2],   target: [0, -3, -8] },
     side:     { pos: [18, 2, -6],   target: [0, -1, -8] },
-    backstage:{ pos: [0, -3.5, -10], target: [0, 0, 20] },
+    backstage:{ pos: [0, -3.5, -14], target: [0, 0, 5] },
 };
 
 function animateCameraTo(preset, duration = 1200) {
@@ -2240,13 +2240,15 @@ function removeStageVideo() {
 
 // ★ backScreenのスクリーン座標を計算 + 正面判定
 function updateStageVideoOverlay() {
-    if (!stageVideoIframe || !backScreen) return;
+    // GLBモード時はGLBスクリーンを使用、なければ従来のbackScreen
+    const activeScreen = glbBackScreen || backScreen;
+    if (!stageVideoIframe || !activeScreen) return;
 
-    // 通常モード時：backScreenの中心がビューポート内にあるかチェック
+    // 通常モード時：activeScreenの中心がビューポート内にあるかチェック
     if (!exploreMode) {
         camera.updateMatrixWorld();
         const screenCenter = new THREE.Vector3();
-        backScreen.getWorldPosition(screenCenter);
+        activeScreen.getWorldPosition(screenCenter);
         const ndc = screenCenter.clone().project(camera);
         // backScreenがカメラの後ろ or 画面外なら非表示
         if (ndc.z > 1 || Math.abs(ndc.x) > 1.5 || Math.abs(ndc.y) > 1.5) {
@@ -2259,8 +2261,8 @@ function updateStageVideoOverlay() {
 
     // カメラからバックスクリーンへの角度チェック
     const screenNormal = new THREE.Vector3(0, 0, 1);
-    backScreen.updateWorldMatrix(true, false);
-    screenNormal.applyQuaternion(backScreen.getWorldQuaternion(new THREE.Quaternion()));
+    activeScreen.updateWorldMatrix(true, false);
+    screenNormal.applyQuaternion(activeScreen.getWorldQuaternion(new THREE.Quaternion()));
     const camDir = new THREE.Vector3();
     camera.getWorldDirection(camDir);
     const dot = screenNormal.dot(camDir.negate());
@@ -2269,21 +2271,22 @@ function updateStageVideoOverlay() {
     const angleThreshold = exploreMode ? 0.85 : 0.55;
     if (dot < angleThreshold) {
         stageVideoIframe.style.display = 'none';
-        if (stageVideoShowingIframe && backScreen.material) {
-            backScreen.material.opacity = 0.95;
+        if (stageVideoShowingIframe && activeScreen.material) {
+            activeScreen.material.opacity = 0.95;
             stageVideoShowingIframe = false;
         }
         return;
     }
 
     // 正面に戻った → iframe復活、バックスクリーンは薄く
-    if (!stageVideoShowingIframe && backScreen.material) {
-        backScreen.material.opacity = 0.15;
+    if (!stageVideoShowingIframe && activeScreen.material) {
+        activeScreen.material.opacity = 0.15;
         stageVideoShowingIframe = true;
     }
 
-    // 四隅をスクリーン座標に射影
-    const halfW = 12, halfH = 5;
+    // 四隅をスクリーン座標に射影（GLBモデル時はスクリーンサイズが異なる）
+    const isGlb = activeScreen === glbBackScreen;
+    const halfW = isGlb ? 6 : 12, halfH = isGlb ? 3.5 : 5;
     const corners = [
         new THREE.Vector3(-halfW, halfH, 0),
         new THREE.Vector3(halfW, halfH, 0),
@@ -2292,7 +2295,7 @@ function updateStageVideoOverlay() {
     ];
     const pts = [];
     for (const c of corners) {
-        const w = c.clone().applyMatrix4(backScreen.matrixWorld);
+        const w = c.clone().applyMatrix4(activeScreen.matrixWorld);
         const ndc = w.project(camera);
         if (ndc.z > 1) { stageVideoIframe.style.display = 'none'; return; }
         pts.push({ x: (ndc.x * 0.5 + 0.5) * window.innerWidth, y: (-ndc.y * 0.5 + 0.5) * window.innerHeight });
@@ -2304,8 +2307,8 @@ function updateStageVideoOverlay() {
     const viewportCoverage = (w * h) / (window.innerWidth * window.innerHeight);
     if (w < 10 || h < 10 || left + w < 0 || top + h < 0 || left > window.innerWidth || top > window.innerHeight || viewportCoverage > 0.7) {
         stageVideoIframe.style.display = 'none';
-        if (stageVideoShowingIframe && backScreen.material) {
-            backScreen.material.opacity = 0.95;
+        if (stageVideoShowingIframe && activeScreen.material) {
+            activeScreen.material.opacity = 0.95;
             stageVideoShowingIframe = false;
         }
         return;
@@ -3003,13 +3006,19 @@ function updateScreenPhoto(elapsed) {
                     ss.material.map = tex;
                     ss.material.needsUpdate = true;
                 });
-                // GLBスクリーンにも同期
+                // GLBスクリーンにも同期（flipYを反転した複製テクスチャを使用）
                 if (glbBackScreen) {
-                    glbBackScreen.material.map = tex;
+                    const glbTex = tex.clone();
+                    glbTex.flipY = false;
+                    glbTex.needsUpdate = true;
+                    glbBackScreen.material.map = glbTex;
                     glbBackScreen.material.needsUpdate = true;
                 }
                 glbFrontScreens.forEach(fs => {
-                    fs.material.map = tex;
+                    const fsTex = tex.clone();
+                    fsTex.flipY = false;
+                    fsTex.needsUpdate = true;
+                    fs.material.map = fsTex;
                     fs.material.needsUpdate = true;
                 });
             }
@@ -3669,7 +3678,6 @@ if (USE_GLB_STAGE) {
             // モデルのスケールと位置を調整（既存シーンに合わせる）
             glbStageModel.scale.set(4.0, 4.0, 4.0);
             glbStageModel.position.set(0, -5.8, -7);
-            glbStageModel.rotation.y = Math.PI; // ステージが観客側を向くように
 
             // マテリアル調整（暗めのコンサートシーンに合わせる）
             glbStageModel.traverse((child) => {
@@ -3712,13 +3720,19 @@ if (USE_GLB_STAGE) {
             if (glbBackScreen) {
                 loadScreenPhoto(0).then(tex => {
                     if (tex) {
+                        // GLBモデルのUVに合わせてテクスチャを上下反転
+                        tex.flipY = false;
+                        tex.needsUpdate = true;
                         glbBackScreen.material = new THREE.MeshBasicMaterial({
                             map: tex,
                             side: THREE.DoubleSide,
                         });
                         glbFrontScreens.forEach(fs => {
+                            const fsTex = tex.clone();
+                            fsTex.flipY = false;
+                            fsTex.needsUpdate = true;
                             fs.material = new THREE.MeshBasicMaterial({
-                                map: tex,
+                                map: fsTex,
                                 side: THREE.DoubleSide,
                             });
                         });
