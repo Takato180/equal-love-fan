@@ -339,31 +339,48 @@ const bgShaderMat = new THREE.ShaderMaterial({
 
             vec3 bg = vec3(0.0);
 
-            // ==== SECTION 0: HERO — ホットピンクのコンサートステージ ====
-            vec3 s0 = vec3(0.08, 0.0, 0.02);
+            // ==== SECTION 0: HERO — 神秘的なコンサート空間 ====
+            vec3 s0 = vec3(0.03, 0.0, 0.06);
             {
-                // ピンクのグラデーション基盤
-                s0 = mix(vec3(0.12, 0.0, 0.04), vec3(0.22, 0.02, 0.08), uv.y * 0.8 + fbm(uv * 2.0 + t) * 0.2);
-                // 大きなピンクスポットライト中央
-                float spot1 = exp(-length((uv - vec2(0.5, 0.4)) * vec2(1.0, 1.2)) * 1.5);
-                s0 += vec3(1.0, 0.2, 0.45) * spot1 * 0.45;
-                // 左下のコーラルグロー
-                float spot2 = exp(-length((uv - vec2(0.15, 0.15)) * 1.8) * 2.0);
-                s0 += vec3(1.0, 0.4, 0.3) * spot2 * 0.25;
-                // 右上のローズグロー
-                float spot3 = exp(-length((uv - vec2(0.85, 0.8)) * 1.8) * 2.0);
-                s0 += vec3(1.0, 0.3, 0.5) * spot3 * 0.2;
-                // 動くボケ玉
-                for (int i = 0; i < 6; i++) {
+                // 深い宇宙的なグラデーション
+                float cosmicN = fbm(uv * 3.0 + t * 0.3);
+                s0 = mix(vec3(0.02, 0.0, 0.06), vec3(0.08, 0.0, 0.12), uv.y * 0.6 + cosmicN * 0.3);
+                // ピンクの星雲（中央上）
+                float nebula1 = fbm(uv * 4.0 + vec2(t * 0.2, -t * 0.1));
+                float nebula1Mask = exp(-length((uv - vec2(0.5, 0.6)) * vec2(1.2, 1.5)) * 1.0);
+                s0 += vec3(1.0, 0.15, 0.4) * nebula1 * nebula1Mask * 0.25;
+                // ラベンダーの星雲（右上）
+                float nebula2 = fbm(uv * 3.5 + vec2(-t * 0.15, t * 0.08));
+                float nebula2Mask = exp(-length((uv - vec2(0.8, 0.75)) * 1.8) * 1.5);
+                s0 += vec3(0.6, 0.2, 0.8) * nebula2 * nebula2Mask * 0.18;
+                // 柔らかなピンクセンターグロー
+                float cGlow = exp(-length((uv - vec2(0.5, 0.45)) * vec2(1.0, 1.3)) * 1.2);
+                s0 += vec3(1.0, 0.3, 0.55) * cGlow * 0.2;
+                // 左下の深いローズグロー
+                float roseGlow = exp(-length((uv - vec2(0.15, 0.15)) * 2.0) * 2.0);
+                s0 += vec3(0.8, 0.15, 0.35) * roseGlow * 0.15;
+                // キラキラ星（繊細な点群）
+                for (int i = 0; i < 20; i++) {
                     float fi = float(i);
-                    vec2 c = vec2(0.5 + sin(t * 0.7 + fi * 1.4) * 0.4, 0.5 + cos(t * 0.5 + fi * 1.2) * 0.4);
-                    float d = length(uv - c);
-                    float bk = smoothstep(0.12, 0.0, d) * 0.4;
-                    s0 += mix(vec3(1.0, 0.4, 0.6), vec3(1.0, 0.7, 0.5), fi / 6.0) * bk;
+                    vec2 starPos = vec2(hash(vec2(fi, 7.0)), hash(vec2(7.0, fi)));
+                    float twinkle = sin(t * 3.0 + fi * 2.7) * 0.5 + 0.5;
+                    float d = smoothstep(0.005, 0.0, length(uv - starPos));
+                    s0 += vec3(1.0, 0.85, 0.95) * d * twinkle * 0.6;
+                    // 星のハロー
+                    float sh = exp(-length(uv - starPos) * 40.0);
+                    s0 += vec3(1.0, 0.6, 0.8) * sh * twinkle * 0.02;
                 }
-                // 水平レンズフレア
-                float flare = exp(-abs(uv.y - 0.42) * 10.0) * exp(-pow((uv.x - 0.5) * 2.0, 2.0));
-                s0 += vec3(1.0, 0.55, 0.7) * flare * 0.15;
+                // 動くボケ玉（ピンク系）
+                for (int i = 0; i < 4; i++) {
+                    float fi = float(i);
+                    vec2 c = vec2(0.5 + sin(t * 0.5 + fi * 1.7) * 0.35, 0.5 + cos(t * 0.4 + fi * 1.3) * 0.35);
+                    float d = length(uv - c);
+                    float bk = smoothstep(0.1, 0.0, d) * 0.25;
+                    s0 += mix(vec3(1.0, 0.4, 0.65), vec3(0.7, 0.3, 0.9), fi / 4.0) * bk;
+                }
+                // 水平レンズフレア（微実）
+                float flare = exp(-abs(uv.y - 0.45) * 12.0) * exp(-pow((uv.x - 0.5) * 2.5, 2.0));
+                s0 += vec3(1.0, 0.5, 0.75) * flare * 0.08;
             }
 
             // ==== SECTION 1: ABOUT — 夕焼けオレンジ×ゴールド ====
@@ -2372,8 +2389,8 @@ function updateStageVideoOverlay() {
         camera.getWorldDirection(camDir);
         const toScreen = screenCenter.clone().sub(camera.position).normalize();
         const viewAngle = camDir.dot(toScreen); // 1=正面, 0=真横, -1=背面
-        // カメラがスクリーンからおよそ60度以上逸れたら非表示
-        if (viewAngle < 0.35) {
+        // カメラがスクリーンからおよそ45度以上逸れたら非表示
+        if (viewAngle < 0.5) {
             stageVideoIframe.style.display = 'none';
             if (activeScreen.material) activeScreen.material.opacity = 0.95;
             stageVideoShowingIframe = false;
@@ -2975,6 +2992,50 @@ for (let row = 0; row < 3; row++) {
         beam.userData = { isSpotBeam: true, parentLight: ml, row, phase: ml.userData.phase };
         stageGroup.add(beam);
         stageSpotBeams.push(beam);
+    }
+}
+
+// --- トラスからのリアルスポットライト（THREE.SpotLight）---
+const trussSpotLights = [];
+for (let row = 0; row < 3; row++) {
+    const trussW = 26 - row * 2;
+    const trussH = 7.5 + row * 1.5;
+    const trussZ = -8 - row * 2;
+    const spotCount = row === 0 ? 5 : 3; // 前段は多め
+    for (let i = 0; i < spotCount; i++) {
+        const xPos = (i - spotCount / 2 + 0.5) * (trussW / spotCount);
+        const hue = (i / spotCount + row * 0.3) % 1;
+        const spotColor = new THREE.Color().setHSL(hue, 0.8, 0.6);
+        const spot = new THREE.SpotLight(spotColor, 0.8, 40, Math.PI / 8, 0.6, 1.2);
+        spot.position.set(xPos, trussH - 0.5, trussZ);
+        const target = new THREE.Object3D();
+        target.position.set(xPos * 0.3, -5.5, trussZ + 6 + row * 2);
+        stageGroup.add(target);
+        spot.target = target;
+        spot.userData = {
+            isTrussSpot: true,
+            baseTargetX: target.position.x,
+            baseTargetZ: target.position.z,
+            phase: (i / spotCount + row * 0.3) * Math.PI * 2,
+            row: row,
+        };
+        stageGroup.add(spot);
+        trussSpotLights.push(spot);
+
+        // スポット光の視覚的なビーム円錐（半透明コーン）
+        const vBeamGeo = new THREE.ConeGeometry(1.5 - row * 0.2, 12 - row * 2, 16, 1, true);
+        const vBeamMat = new THREE.MeshBasicMaterial({
+            color: spotColor,
+            transparent: true,
+            opacity: 0.04,
+            side: THREE.DoubleSide,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+        });
+        const vBeam = new THREE.Mesh(vBeamGeo, vBeamMat);
+        vBeam.position.set(xPos, trussH - 6.5 + row, trussZ);
+        vBeam.userData = { isTrussVisualBeam: true, parentSpot: spot, phase: spot.userData.phase };
+        stageGroup.add(vBeam);
     }
 }
 
@@ -4696,6 +4757,39 @@ function animate() {
                 theme.primary[1] * mix + theme.secondary[1] * (1 - mix),
                 theme.primary[2] * mix + theme.secondary[2] * (1 - mix)
             );
+        }
+    });
+
+    // トラススポットライト — ビート同期でスイングしながらステージを照らす
+    trussSpotLights.forEach(spot => {
+        const ud = spot.userData;
+        const liveSpeed = isMusicPlaying ? 1.0 + musicBeat * 2.0 : 0.3;
+        // ターゲットをスイング（ステージ床上を左右に描く）
+        const swingX = Math.sin(elapsed * liveSpeed * 0.5 + ud.phase) * 4;
+        const swingZ = Math.cos(elapsed * liveSpeed * 0.35 + ud.phase * 0.7) * 2;
+        spot.target.position.x = ud.baseTargetX + swingX;
+        spot.target.position.z = ud.baseTargetZ + swingZ;
+        spot.target.updateMatrixWorld();
+        // 強度：ビートに合わせて明滅
+        spot.intensity = isMusicPlaying ? 0.5 + musicBeat * 1.2 : 0.15;
+        // 曲テーマカラー
+        if (isMusicPlaying && currentSongTheme) {
+            const m = Math.sin(elapsed * 0.4 + ud.phase) * 0.5 + 0.5;
+            spot.color.setRGB(
+                theme.primary[0] * m + theme.accent[0] * (1 - m),
+                theme.primary[1] * m + theme.accent[1] * (1 - m),
+                theme.primary[2] * m + theme.accent[2] * (1 - m)
+            );
+        } else {
+            spot.color.setHSL((elapsed * 0.05 + ud.phase * 0.1) % 1, 0.7, 0.6);
+        }
+    });
+    // トラスビジュアルビームの不透明度更新
+    stageGroup.children.forEach(child => {
+        if (child.userData && child.userData.isTrussVisualBeam) {
+            const parentSpot = child.userData.parentSpot;
+            child.material.opacity = isMusicPlaying ? 0.03 + musicBeat * 0.06 : 0.01;
+            if (parentSpot) child.material.color.copy(parentSpot.color);
         }
     });
 
