@@ -2959,7 +2959,7 @@ body.modal-open #fab-container {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    z-index: 500;
+    z-index: 2;
     pointer-events: none;
     overflow: hidden;
     display: none;
@@ -3026,6 +3026,7 @@ body.modal-open #fab-container {
     max-width: 280px;
     display: none;
     animation: exploreHelpIn 0.3s ease-out;
+    pointer-events: auto;
 }
 #explore-help.active {
     display: block;
@@ -3110,6 +3111,9 @@ body.modal-open #fab-container {
     cursor: pointer;
     transition: all 0.2s ease;
     text-align: left;
+    pointer-events: auto;
+    position: relative;
+    z-index: 901;
 }
 .explore-preset:hover {
     background: rgba(255,105,180,0.2);
@@ -3129,6 +3133,9 @@ body.modal-open #fab-container {
     font-size: 0.75rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    pointer-events: auto;
+    position: relative;
+    z-index: 901;
 }
 .explore-close-btn:hover {
     background: rgba(255,60,60,0.35);
@@ -3175,12 +3182,22 @@ body.modal-open #fab-container {
     transition: all 0.15s ease;
     flex-shrink: 0;
     line-height: 1.3;
+    pointer-events: auto;
+    position: relative;
+    z-index: 901;
 }
 .explore-song-btn:hover {
     background: rgba(255,105,180,0.3);
     border-color: rgba(255,105,180,0.6);
     color: #fff;
     transform: translateX(3px);
+}
+.explore-song-btn.playing {
+    background: rgba(255,105,180,0.4);
+    border-color: rgba(255,105,180,0.8);
+    color: #ff69b4;
+    font-weight: 700;
+    box-shadow: 0 0 10px rgba(255,105,180,0.3);
 }
 
 /* 背景動画（通常モード用 半透明YouTube） */

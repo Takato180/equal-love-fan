@@ -39,7 +39,7 @@ scene.add(stageRightSpot);
 // ==================== ステージ動画オーバーレイ ====================
 const stageVideoContainer = document.createElement('div');
 stageVideoContainer.id = 'stage-video-container';
-stageVideoContainer.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:500;pointer-events:none;overflow:hidden;display:none;';
+stageVideoContainer.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:2;pointer-events:none;overflow:hidden;display:none;';
 document.body.appendChild(stageVideoContainer);
 let stageVideoIframe = null;
 let stageVideoActive = false;
@@ -2118,6 +2118,9 @@ setTimeout(() => {
             btn.textContent = mv.title;
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
+                // 選択中のボタンをハイライト
+                songListEl.querySelectorAll('.explore-song-btn').forEach(b => b.classList.remove('playing'));
+                btn.classList.add('playing');
                 playMV(mv.id, mv.title);
             });
             songListEl.appendChild(btn);
@@ -2344,7 +2347,6 @@ function updateStageVideoOverlay() {
         stageVideoIframe.style.top = vTop + 'px';
         stageVideoIframe.style.width = vw + 'px';
         stageVideoIframe.style.height = vh + 'px';
-        // バックスクリーンを薄くして動画と重ならないように
         if (activeScreen.material) {
             activeScreen.material.opacity = 0.15;
         }
@@ -2352,7 +2354,7 @@ function updateStageVideoOverlay() {
         return;
     }
 
-    // ★ 探索モード時：GLBバックスクリーンに3D投影
+    // ★ 探索モード時：GLBバックスクリーンに3D投影を試みる
     camera.updateMatrixWorld();
 
     // カメラからバックスクリーンへの角度チェック
@@ -2363,26 +2365,39 @@ function updateStageVideoOverlay() {
     camera.getWorldDirection(camDir);
     const dot = screenNormal.dot(camDir.negate());
 
-    // 探索モード：正面方向から見ている場合のみ表示
+    // スクリーンが見えない場合 → 画面中央にフォールバック表示
     if (dot < 0.3) {
-        stageVideoIframe.style.display = 'none';
-        if (stageVideoShowingIframe && activeScreen.material) {
+        // 探索パネル（右側280px）を避けて左寄り中央に表示
+        const panelWidth = 300;
+        const availW = window.innerWidth - panelWidth;
+        const maxW = availW * 0.55;
+        const maxH = window.innerHeight * 0.4;
+        let vw = maxW;
+        let vh = vw * 9 / 16;
+        if (vh > maxH) { vh = maxH; vw = vh * 16 / 9; }
+        const vLeft = (availW - vw) / 2;
+        const vTop = (window.innerHeight - vh) / 2;
+        stageVideoIframe.style.display = 'block';
+        stageVideoIframe.style.left = vLeft + 'px';
+        stageVideoIframe.style.top = vTop + 'px';
+        stageVideoIframe.style.width = vw + 'px';
+        stageVideoIframe.style.height = vh + 'px';
+        if (activeScreen.material) {
             activeScreen.material.opacity = 0.95;
-            stageVideoShowingIframe = false;
         }
+        stageVideoShowingIframe = true;
         return;
     }
 
-    // 正面に戻った → iframe復活、バックスクリーンは薄く
-    if (!stageVideoShowingIframe && activeScreen.material) {
+    // 正面方向 → GLBバックスクリーンに3D投影
+    if (activeScreen.material) {
         activeScreen.material.opacity = 0.15;
-        stageVideoShowingIframe = true;
     }
+    stageVideoShowingIframe = true;
 
-    // 四隅をスクリーン座標に射影（GLBモデル時は実際のジオメトリから算出）
+    // 四隅をスクリーン座標に射影
     let screenCorners;
     if (activeScreen === glbBackScreen && glbBackScreen) {
-        // GLBメッシュのバウンディングボックスから四隅を取得
         if (!glbBackScreen.geometry.boundingBox) glbBackScreen.geometry.computeBoundingBox();
         const bb = glbBackScreen.geometry.boundingBox;
         screenCorners = [
@@ -2410,14 +2425,9 @@ function updateStageVideoOverlay() {
     const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
     const left = Math.min(...xs), top = Math.min(...ys);
     const w = Math.max(...xs) - left, h = Math.max(...ys) - top;
-    // 画面の70%以上を覆う場合はテクスチャに切替（歪み防止）
     const viewportCoverage = (w * h) / (window.innerWidth * window.innerHeight);
     if (w < 10 || h < 10 || left + w < 0 || top + h < 0 || left > window.innerWidth || top > window.innerHeight || viewportCoverage > 0.7) {
         stageVideoIframe.style.display = 'none';
-        if (stageVideoShowingIframe && activeScreen.material) {
-            activeScreen.material.opacity = 0.95;
-            stageVideoShowingIframe = false;
-        }
         return;
     }
     stageVideoIframe.style.display = 'block';
@@ -5019,7 +5029,7 @@ function animate() {
     // 動画オーバーレイ位置更新は3フレームに1回（DOM操作削減）
     if (ribbonFrame % 3 === 0) {
         updateStageVideoOverlay();
-        stageVideoContainer.style.zIndex = exploreMode ? '801' : '500';
+        stageVideoContainer.style.zIndex = exploreMode ? '801' : '2';
     }
 
     renderer.render(scene, camera);
