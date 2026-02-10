@@ -39,7 +39,7 @@ scene.add(stageRightSpot);
 // ==================== ステージ動画オーバーレイ ====================
 const stageVideoContainer = document.createElement('div');
 stageVideoContainer.id = 'stage-video-container';
-stageVideoContainer.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none;overflow:hidden;display:none;';
+stageVideoContainer.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:4;pointer-events:none;overflow:hidden;display:none;';
 document.body.appendChild(stageVideoContainer);
 let stageVideoIframe = null;
 let stageVideoActive = false;
@@ -208,6 +208,7 @@ function animateCameraTo(preset, duration = 1200) {
 }
 
 function toggleExploreMode() {
+    console.log('[EXPLORE] toggleExploreMode called, current:', exploreMode, '→', !exploreMode);
     exploreMode = !exploreMode;
     orbitControls.enabled = exploreMode;
     exploreBtn.classList.toggle('active', exploreMode);
@@ -226,8 +227,15 @@ function toggleExploreMode() {
     }
 }
 
-exploreBtn.addEventListener('click', toggleExploreMode);
-document.getElementById('explore-close')?.addEventListener('click', toggleExploreMode);
+exploreBtn.addEventListener('click', (e) => {
+    console.log('[EXPLORE] Button clicked!', e.target, e.currentTarget);
+    toggleExploreMode();
+});
+document.getElementById('explore-close')?.addEventListener('click', (e) => {
+    console.log('[EXPLORE] Close button clicked!');
+    e.stopPropagation();
+    toggleExploreMode();
+});
 
 // プリセットボタン
 document.querySelectorAll('.explore-preset').forEach(btn => {
@@ -2267,8 +2275,12 @@ function playMV(videoId, title) {
             if (iframe) {
                 iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
                 iframe.setAttribute('allowfullscreen', '');
-                // 初期位置は非表示。updateStageVideoOverlayで毎フレーム3D投影される
-                iframe.style.cssText = 'position:absolute;border:none;background:#000;pointer-events:auto;border-radius:6px;box-shadow:0 0 80px rgba(255,105,180,0.4),0 0 160px rgba(138,43,226,0.2);display:none;';
+                // 初期位置: 画面上部中央に配置（updateStageVideoOverlayで毎フレーム更新される）
+                const iW = Math.min(window.innerWidth * 0.52, window.innerHeight * 0.32 * 16 / 9);
+                const iH = iW * 9 / 16;
+                const iL = (window.innerWidth - iW) / 2;
+                const iT = window.innerHeight * 0.08;
+                iframe.style.cssText = `position:absolute;border:none;background:#000;pointer-events:auto;border-radius:6px;box-shadow:0 0 80px rgba(255,105,180,0.4),0 0 160px rgba(138,43,226,0.2);left:${iL}px;top:${iT}px;width:${iW}px;height:${iH}px;`;
                 stageVideoIframe = iframe;
             }
         }, 500);
@@ -2279,8 +2291,12 @@ function playMV(videoId, title) {
         stageIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&enablejsapi=1&controls=1&playsinline=1&origin=${encodeURIComponent(window.location.origin)}`;
         stageIframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
         stageIframe.setAttribute('allowfullscreen', '');
-        // 初期位置は非表示。updateStageVideoOverlayで毎フレーム3D投影される
-        stageIframe.style.cssText = 'position:absolute;border:none;background:#000;pointer-events:auto;border-radius:6px;box-shadow:0 0 80px rgba(255,105,180,0.4),0 0 160px rgba(138,43,226,0.2);display:none;';
+        // 初期位置: 画面上部中央に配置（updateStageVideoOverlayで毎フレーム更新される）
+        const fbIW = Math.min(window.innerWidth * 0.52, window.innerHeight * 0.32 * 16 / 9);
+        const fbIH = fbIW * 9 / 16;
+        const fbIL = (window.innerWidth - fbIW) / 2;
+        const fbIT = window.innerHeight * 0.08;
+        stageIframe.style.cssText = `position:absolute;border:none;background:#000;pointer-events:auto;border-radius:6px;box-shadow:0 0 80px rgba(255,105,180,0.4),0 0 160px rgba(138,43,226,0.2);left:${fbIL}px;top:${fbIT}px;width:${fbIW}px;height:${fbIH}px;`;
         stageVideoContainer.appendChild(stageIframe);
         stageVideoIframe = stageIframe;
     }
@@ -2322,27 +2338,68 @@ function removeStageVideo() {
 
 // ★ backScreenのスクリーン座標を計算 + 正面判定
 function updateStageVideoOverlay() {
-    // GLBモード時はGLBスクリーンを使用、なければ従来のbackScreen
+    if (!stageVideoIframe) return;
+
+    // =========================
+    // 通常モード: 画面上半分にステージスクリーン風に固定表示
+    // =========================
+    if (!exploreMode) {
+        // ビューポートの上半分中央に16:9で配置
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const maxW = vw * 0.52;  // 画面幅52%
+        const maxH = vh * 0.32;  // 画面高32%
+        let w = maxW;
+        let h = w * 9 / 16;
+        if (h > maxH) { h = maxH; w = h * 16 / 9; }
+        const left = (vw - w) / 2;
+        const top = vh * 0.08; // 上から8%の位置（ステージバックスクリーン風）
+
+        stageVideoIframe.style.display = 'block';
+        stageVideoIframe.style.left = left + 'px';
+        stageVideoIframe.style.top = top + 'px';
+        stageVideoIframe.style.width = w + 'px';
+        stageVideoIframe.style.height = h + 'px';
+
+        // GLBバックスクリーンのテクスチャは薄く（iframeと二重にならないよう）
+        if (glbBackScreen && glbBackScreen.material) glbBackScreen.material.opacity = 0.15;
+        if (backScreen && backScreen.material) backScreen.material.opacity = 0.15;
+        stageVideoShowingIframe = true;
+        return;
+    }
+
+    // =========================
+    // 探索モード: GLBバックスクリーンに3D投影
+    // =========================
     const activeScreen = glbBackScreen || backScreen;
-    if (!stageVideoIframe || !activeScreen) return;
+    if (!activeScreen) {
+        // スクリーンがない場合はフォールバック表示
+        const fbW = window.innerWidth * 0.45;
+        const fbH = fbW * 9 / 16;
+        stageVideoIframe.style.display = 'block';
+        stageVideoIframe.style.left = ((window.innerWidth - 300 - fbW) / 2) + 'px';
+        stageVideoIframe.style.top = ((window.innerHeight - fbH) / 2) + 'px';
+        stageVideoIframe.style.width = fbW + 'px';
+        stageVideoIframe.style.height = fbH + 'px';
+        stageVideoShowingIframe = true;
+        return;
+    }
 
     camera.updateMatrixWorld();
     activeScreen.updateWorldMatrix(true, false);
 
-    // ★ 常にGLBバックスクリーンの3D投影でiframeを配置する
     // 四隅をスクリーン座標に射影
     let screenCorners;
-    if (activeScreen === glbBackScreen && glbBackScreen) {
+    if (activeScreen === glbBackScreen) {
         if (!glbBackScreen.geometry.boundingBox) glbBackScreen.geometry.computeBoundingBox();
         const bb = glbBackScreen.geometry.boundingBox;
         screenCorners = [
-            new THREE.Vector3(bb.min.x, bb.max.y, bb.min.z), // 左上
-            new THREE.Vector3(bb.max.x, bb.max.y, bb.min.z), // 右上
-            new THREE.Vector3(bb.min.x, bb.min.y, bb.min.z), // 左下
-            new THREE.Vector3(bb.max.x, bb.min.y, bb.min.z), // 右下
+            new THREE.Vector3(bb.min.x, bb.max.y, bb.min.z),
+            new THREE.Vector3(bb.max.x, bb.max.y, bb.min.z),
+            new THREE.Vector3(bb.min.x, bb.min.y, bb.min.z),
+            new THREE.Vector3(bb.max.x, bb.min.y, bb.min.z),
         ];
     } else {
-        // フォールバック用backScreen（PlaneGeometry 24x10）
         const halfW = 12, halfH = 5;
         screenCorners = [
             new THREE.Vector3(-halfW, halfH, 0),
@@ -2352,7 +2409,6 @@ function updateStageVideoOverlay() {
         ];
     }
 
-    // ワールド座標に変換してNDC→ビューポートに射影
     const pts = [];
     let behindCamera = false;
     for (const c of screenCorners) {
@@ -2365,11 +2421,17 @@ function updateStageVideoOverlay() {
         });
     }
 
-    // カメラの後ろにある場合は非表示
     if (behindCamera || pts.length < 4) {
-        stageVideoIframe.style.display = 'none';
+        // スクリーンが見えない → 左寄りフォールバック表示（探索パネルを避ける）
+        const fbW = Math.min(window.innerWidth * 0.45, 640);
+        const fbH = fbW * 9 / 16;
+        stageVideoIframe.style.display = 'block';
+        stageVideoIframe.style.left = ((window.innerWidth - 300 - fbW) / 2) + 'px';
+        stageVideoIframe.style.top = ((window.innerHeight - fbH) / 2) + 'px';
+        stageVideoIframe.style.width = fbW + 'px';
+        stageVideoIframe.style.height = fbH + 'px';
         if (activeScreen.material) activeScreen.material.opacity = 0.95;
-        stageVideoShowingIframe = false;
+        stageVideoShowingIframe = true;
         return;
     }
 
@@ -2377,20 +2439,24 @@ function updateStageVideoOverlay() {
     const left = Math.min(...xs), top = Math.min(...ys);
     const projW = Math.max(...xs) - left, projH = Math.max(...ys) - top;
 
-    // 画面外またはサイズが極端な場合は非表示
-    if (projW < 5 || projH < 5 ||
+    if (projW < 20 || projH < 15 ||
         left + projW < -50 || top + projH < -50 ||
         left > window.innerWidth + 50 || top > window.innerHeight + 50) {
-        stageVideoIframe.style.display = 'none';
+        // 小さすぎるまたは画面外 → フォールバック
+        const fbW = Math.min(window.innerWidth * 0.45, 640);
+        const fbH = fbW * 9 / 16;
+        stageVideoIframe.style.display = 'block';
+        stageVideoIframe.style.left = ((window.innerWidth - 300 - fbW) / 2) + 'px';
+        stageVideoIframe.style.top = ((window.innerHeight - fbH) / 2) + 'px';
+        stageVideoIframe.style.width = fbW + 'px';
+        stageVideoIframe.style.height = fbH + 'px';
         if (activeScreen.material) activeScreen.material.opacity = 0.95;
-        stageVideoShowingIframe = false;
+        stageVideoShowingIframe = true;
         return;
     }
 
-    // 投影成功 → iframeをバックスクリーンに合わせて配置
-    if (activeScreen.material) {
-        activeScreen.material.opacity = 0.15; // GLBテクスチャを薄くしてiframeを優先
-    }
+    // 投影成功 → iframeをGLBバックスクリーンに重ねて配置
+    if (activeScreen.material) activeScreen.material.opacity = 0.15;
     stageVideoShowingIframe = true;
     stageVideoIframe.style.display = 'block';
     stageVideoIframe.style.left = left + 'px';
@@ -4991,7 +5057,7 @@ function animate() {
     // 動画オーバーレイ位置更新は3フレームに1回（DOM操作削減）
     if (ribbonFrame % 3 === 0) {
         updateStageVideoOverlay();
-        stageVideoContainer.style.zIndex = exploreMode ? '799' : '1';
+        stageVideoContainer.style.zIndex = exploreMode ? '850' : '4';
     }
 
     renderer.render(scene, camera);
